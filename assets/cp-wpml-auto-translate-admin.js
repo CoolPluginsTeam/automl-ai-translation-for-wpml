@@ -405,29 +405,43 @@ jQuery(function ($) {
                 const textElements = tempDiv.find('*').not('script, style, noscript, iframe, object, embed, svg');
                 
                 if (textElements.length > 0) {
-                    // Extract each element as separate string
-                    textElements.each(function(index) {
+                    // Extract only leaf elements (elements without text-containing children)
+                    let leafIndex = 0;
+                    textElements.each(function() {
                         const $elem = $(this);
                         const elemText = $elem.text().trim();
                         
-                        if (elemText) {
-                            // Check if this text was already extracted from attrs
-                            const alreadyInAttrs = items.some(function(item) {
-                                return item.blockPath && item.blockPath.startsWith(blockPath) && item.text === elemText;
+                        if (!elemText) {
+                            return; // Skip elements with no text
+                        }
+                        
+                        // Check if element has text-containing children
+                        const textChildren = $elem.children().not('script, style, noscript, iframe, object, embed, svg').filter(function() {
+                            return $(this).text().trim().length > 0;
+                        });
+                        
+                        // Skip parent elements - only include leaf elements (elements without children)
+                        if (textChildren.length > 0) {
+                            return; // Skip this element as it has children
+                        }
+                        
+                        // Check if this text was already extracted from attrs
+                        const alreadyInAttrs = items.some(function(item) {
+                            return item.blockPath && item.blockPath.startsWith(blockPath) && item.text === elemText;
+                        });
+                        
+                        if (!alreadyInAttrs) {
+                            items.push({
+                                type: 'content',
+                                text: elemText,
+                                blockPath: blockPath + '.innerHTML[' + leafIndex + ']',
+                                blockName: blockName,
+                                blockAttrs: block.attrs || {},
+                                innerHTML: $elem.html(),
+                                html: $elem.html(), // Also store as html for table display
+                                innerHTMLIndex: leafIndex
                             });
-                            
-                            if (!alreadyInAttrs) {
-                                items.push({
-                                    type: 'content',
-                                    text: elemText,
-                                    blockPath: blockPath + '.innerHTML[' + index + ']',
-                                    blockName: blockName,
-                                    blockAttrs: block.attrs || {},
-                                    innerHTML: $elem.html(),
-                                    html: $elem.html(), // Also store as html for table display
-                                    innerHTMLIndex: index
-                                });
-                            }
+                            leafIndex++;
                         }
                     });
                 } else {
@@ -462,30 +476,44 @@ jQuery(function ($) {
                         const textElements = tempDiv.find('*').not('script, style, noscript, iframe, object, embed, svg');
                         
                         if (textElements.length > 0) {
-                            // Extract each element as separate string
-                            textElements.each(function(elemIndex) {
+                            // Extract only leaf elements (elements without text-containing children)
+                            let leafIndex = 0;
+                            textElements.each(function() {
                                 const $elem = $(this);
                                 const elemText = $elem.text().trim();
                                 
-                                if (elemText) {
-                                    // Check if this text was already extracted
-                                    const alreadyAdded = items.some(function(item) {
-                                        return item.blockPath && item.blockPath.startsWith(blockPath) && item.text === elemText;
+                                if (!elemText) {
+                                    return; // Skip elements with no text
+                                }
+                                
+                                // Check if element has text-containing children
+                                const textChildren = $elem.children().not('script, style, noscript, iframe, object, embed, svg').filter(function() {
+                                    return $(this).text().trim().length > 0;
+                                });
+                                
+                                // Skip parent elements - only include leaf elements (elements without children)
+                                if (textChildren.length > 0) {
+                                    return; // Skip this element as it has children
+                                }
+                                
+                                // Check if this text was already extracted
+                                const alreadyAdded = items.some(function(item) {
+                                    return item.blockPath && item.blockPath.startsWith(blockPath) && item.text === elemText;
+                                });
+                                
+                                if (!alreadyAdded) {
+                                    items.push({
+                                        type: 'content',
+                                        text: elemText,
+                                        blockPath: blockPath + '.innerContent[' + contentIndex + '][' + leafIndex + ']',
+                                        blockName: blockName,
+                                        blockAttrs: block.attrs || {},
+                                        innerContentIndex: contentIndex,
+                                        innerContentElementIndex: leafIndex,
+                                        innerContent: $elem.html(),
+                                        html: $elem.html() // Also store as html for table display
                                     });
-                                    
-                                    if (!alreadyAdded) {
-                                        items.push({
-                                            type: 'content',
-                                            text: elemText,
-                                            blockPath: blockPath + '.innerContent[' + contentIndex + '][' + elemIndex + ']',
-                                            blockName: blockName,
-                                            blockAttrs: block.attrs || {},
-                                            innerContentIndex: contentIndex,
-                                            innerContentElementIndex: elemIndex,
-                                            innerContent: $elem.html(),
-                                            html: $elem.html() // Also store as html for table display
-                                        });
-                                    }
+                                    leafIndex++;
                                 }
                             });
                         } else {
@@ -574,18 +602,55 @@ jQuery(function ($) {
                     // Check if this is a translatable field using subStringsToCheck
                     if (subStringsToCheck(key) && typeof value === 'string' && value.trim() !== '') {
                         const tempDiv = $('<div>').html(value);
-                        const text = tempDiv.text().trim();
+                        // Check if value contains HTML elements
+                        const textElements = tempDiv.find('*').not('script, style, noscript, iframe, object, embed, svg');
                         
-                        if (text) {
-                            items.push({
-                                type: 'content',
-                                text: text,
-                                elementPath: elementPath + '.settings.' + key,
-                                elementType: element.widgetType || element.elType || '',
-                                elementSettings: element.settings,
-                                settingKey: key,
-                                settingValue: value
+                        if (textElements.length > 0) {
+                            // Extract only leaf elements (elements without text-containing children)
+                            let leafIndex = 0;
+                            textElements.each(function() {
+                                const $elem = $(this);
+                                const elemText = $elem.text().trim();
+                                
+                                if (!elemText) {
+                                    return; // Skip elements with no text
+                                }
+                                
+                                // Check if element has text-containing children
+                                const textChildren = $elem.children().not('script, style, noscript, iframe, object, embed, svg').filter(function() {
+                                    return $(this).text().trim().length > 0;
+                                });
+                                
+                                // Skip parent elements - only include leaf elements (elements without children)
+                                if (textChildren.length > 0) {
+                                    return; // Skip this element as it has children
+                                }
+                                
+                                items.push({
+                                    type: 'content',
+                                    text: elemText,
+                                    elementPath: elementPath + '.settings.' + key + '[' + leafIndex + ']',
+                                    elementType: element.widgetType || element.elType || '',
+                                    elementSettings: element.settings,
+                                    settingKey: key,
+                                    settingValue: $elem.html()
+                                });
+                                leafIndex++;
                             });
+                        } else {
+                            // No structured elements, extract as single string
+                            const text = tempDiv.text().trim();
+                            if (text) {
+                                items.push({
+                                    type: 'content',
+                                    text: text,
+                                    elementPath: elementPath + '.settings.' + key,
+                                    elementType: element.widgetType || element.elType || '',
+                                    elementSettings: element.settings,
+                                    settingKey: key,
+                                    settingValue: value
+                                });
+                            }
                         }
                     }
                     
@@ -603,20 +668,59 @@ jQuery(function ($) {
                                     
                                     if (subStringsToCheck(repeaterKey) && typeof item[repeaterKey] === 'string' && item[repeaterKey].trim() !== '') {
                                         const tempDiv = $('<div>').html(item[repeaterKey]);
-                                        const text = tempDiv.text().trim();
+                                        // Check if value contains HTML elements
+                                        const textElements = tempDiv.find('*').not('script, style, noscript, iframe, object, embed, svg');
                                         
-                                        if (text) {
-                                            items.push({
-                                                type: 'content',
-                                                text: text,
-                                                elementPath: elementPath + '.settings.' + key + '[' + itemIndex + '].' + repeaterKey,
-                                                elementType: element.widgetType || element.elType || '',
-                                                elementSettings: element.settings,
-                                                settingKey: key,
-                                                repeaterIndex: itemIndex,
-                                                repeaterKey: repeaterKey,
-                                                settingValue: item[repeaterKey]
+                                        if (textElements.length > 0) {
+                                            // Extract only leaf elements (elements without text-containing children)
+                                            let leafIndex = 0;
+                                            textElements.each(function() {
+                                                const $elem = $(this);
+                                                const elemText = $elem.text().trim();
+                                                
+                                                if (!elemText) {
+                                                    return; // Skip elements with no text
+                                                }
+                                                
+                                                // Check if element has text-containing children
+                                                const textChildren = $elem.children().not('script, style, noscript, iframe, object, embed, svg').filter(function() {
+                                                    return $(this).text().trim().length > 0;
+                                                });
+                                                
+                                                // Skip parent elements - only include leaf elements (elements without children)
+                                                if (textChildren.length > 0) {
+                                                    return; // Skip this element as it has children
+                                                }
+                                                
+                                                items.push({
+                                                    type: 'content',
+                                                    text: elemText,
+                                                    elementPath: elementPath + '.settings.' + key + '[' + itemIndex + '].' + repeaterKey + '[' + leafIndex + ']',
+                                                    elementType: element.widgetType || element.elType || '',
+                                                    elementSettings: element.settings,
+                                                    settingKey: key,
+                                                    repeaterIndex: itemIndex,
+                                                    repeaterKey: repeaterKey,
+                                                    settingValue: $elem.html()
+                                                });
+                                                leafIndex++;
                                             });
+                                        } else {
+                                            // No structured elements, extract as single string
+                                            const text = tempDiv.text().trim();
+                                            if (text) {
+                                                items.push({
+                                                    type: 'content',
+                                                    text: text,
+                                                    elementPath: elementPath + '.settings.' + key + '[' + itemIndex + '].' + repeaterKey,
+                                                    elementType: element.widgetType || element.elType || '',
+                                                    elementSettings: element.settings,
+                                                    settingKey: key,
+                                                    repeaterIndex: itemIndex,
+                                                    repeaterKey: repeaterKey,
+                                                    settingValue: item[repeaterKey]
+                                                });
+                                            }
                                         }
                                     }
                                 });
@@ -687,6 +791,7 @@ jQuery(function ($) {
             });
         } else {
             // Fallback: if strings not available, extract manually
+            console.log('postData.original_content', editorType);
             if (editorType === 'elementor' && Array.isArray(postData.original_content)) {
                 extractTextFromElementor(postData.original_content, contentItems);
             } else if (editorType === 'block' && Array.isArray(postData.original_content)) {
@@ -695,76 +800,36 @@ jQuery(function ($) {
                 const tempDiv = $('<div>').html(postData.original_content);
                 const allElements = tempDiv.find('*').not('script, style, noscript, iframe, object, embed, svg');
                 
-                // Extract all text-containing elements, processing from outermost to innermost
-                // If a parent element is extracted, skip its children to avoid duplicates
-                const processedElements = new Set();
+                // Extract only leaf elements (elements without text-containing children)
+                // Skip parent elements that contain child elements
                 const elementsArray = allElements.toArray();
                 
-                // Process from outermost to innermost (normal order, not reversed)
+                // Process all elements - only include leaf elements
                 elementsArray.forEach(function(elem) {
-                    // Skip if this element or any of its ancestors was already processed
-                    let shouldSkip = false;
-                    let $checkElem = $(elem);
-                    
-                    // Check if any ancestor was already processed
-                    while ($checkElem.length && $checkElem[0] !== tempDiv[0]) {
-                        if (processedElements.has($checkElem[0])) {
-                            shouldSkip = true;
-                            break;
-                        }
-                        $checkElem = $checkElem.parent();
-                    }
-                    
-                    if (shouldSkip) {
-                        return; // Skip this element
-                    }
-                    
                     const $elem = $(elem);
                     const elemText = $elem.text().trim();
                     
                     if (!elemText) {
                         return; // Skip elements with no text
                     }
-                    
+                    console.log('elemText', elemText);
                     // Check if element has text-containing children
                     const textChildren = $elem.children().not('script, style, noscript, iframe, object, embed, svg').filter(function() {
                         return $(this).text().trim().length > 0;
                     });
-                    
-                    if (textChildren.length === 0) {
-                        // Leaf element - always include
-                        processedElements.add(elem);
-                        const outerHtml = $('<div>').append($elem.clone()).html();
-                        contentItems.push({
-                            type: 'content',
-                            text: elemText,
-                            html: outerHtml
-                        });
-                        return;
+                    console.log('textChildren', textChildren);
+                    // Skip parent elements - only include leaf elements (elements without children)
+                    if (textChildren.length > 0) {
+                        return; // Skip this element as it has children
                     }
                     
-                    // For parent elements, check if their text is just the sum of children's text
-                    const childrenText = textChildren.map(function() {
-                        return $(this).text().trim();
-                    }).get().join('').trim();
-                    
-                    // Include if element has direct text (not just from children)
-                    // or if the text differs from children's concatenated text
-                    const directText = $elem.contents().filter(function() {
-                        return this.nodeType === 3 && $(this).text().trim().length > 0;
+                    // Include only leaf elements (elements without children)
+                    const outerHtml = $('<div>').append($elem.clone()).html();
+                    contentItems.push({
+                        type: 'content',
+                        text: elemText,
+                        html: outerHtml
                     });
-                    
-                    if (directText.length > 0 || elemText !== childrenText) {
-                        // Include this parent element and mark it as processed
-                        // This will cause its children to be skipped
-                        processedElements.add(elem);
-                        const outerHtml = $('<div>').append($elem.clone()).html();
-                        contentItems.push({
-                            type: 'content',
-                            text: elemText,
-                            html: outerHtml
-                        });
-                    }
                 });
                 
                 // Only use fallback if no elements were extracted
