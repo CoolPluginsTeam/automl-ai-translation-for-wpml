@@ -1,0 +1,112 @@
+#cp-wpml-auto-translate-translation-popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 100001;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cp-wpml-popup-content {
+  background: #fff;
+  max-width: 1200px;
+  width: 95%;
+  max-height: 90vh;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+}
+
+.cp-wpml-popup-header {
+  background: #4caf50;
+  color: #fff;
+  padding: 15px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cp-wpml-popup-header h2 {
+  margin: 0;
+  color: #fff;
+  font-size: 18px;
+}
+
+.cp-wpml-close-btn {
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 0 10px;
+  margin-left: 10px;
+}
+
+.cp-wpml-save-btn {
+  background: #ccc;
+  color: #666;
+  border: none;
+  cursor: not-allowed;
+}
+
+.cp-wpml-save-btn:not(:disabled) {
+  background: #2271b1;
+  color: #fff;
+  cursor: pointer;
+}
+
+.cp-wpml-popup-body {
+  padding: 20px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.cp-wpml-language-selector {
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.cp-wpml-language-selector h3 {
+  margin: 0;
+  color: #4caf50;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cp-wpml-language-selector h3 span {
+  font-size: 20px;
+}
+
+.cp-wpml-google-translate-wrapper {
+  margin-bottom: 20px;
+}
+
+.cp-wpml-google-translate-wrapper h4 {
+  margin: 0 0 10px 0;
+}
+
+.cp-wpml-popup-footer {
+  background: #4caf50;
+  padding: 15px 20px;
+  text-align: right;
+}
+
+.cp-wpml-popup-footer .cp-wpml-save-btn {
+  padding: 10px 20px;
+  font-weight: bold;
+}
+
+.cp-wpml-loading {
+  padding: 20px;
+  text-align: center;
+  color: #666;
+}
+

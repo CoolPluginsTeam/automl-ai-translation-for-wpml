@@ -1,0 +1,26 @@
+.cp-wpml-source-text {
+  word-wrap: break-word;
+}
+
+.cp-wpml-translation-cell {
+  position: relative;
+}
+
+.cp-wpml-auto-translate-translation-field {
+  min-height: 40px;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: #fff;
+  outline: none;
+}
+
+.cp-wpml-auto-translate-translation-field:focus {
+  border-color: #2271b1;
+  box-shadow: 0 0 0 1px #2271b1;
+}
+
+.cp-wpml-auto-translate-translation-target {
+  display: none;
+}
+

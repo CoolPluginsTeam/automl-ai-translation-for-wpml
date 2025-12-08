@@ -1,0 +1,6 @@
+node_modules/
+*.log
+.DS_Store
+assets/cp-wpml-auto-translate-admin.js
+assets/cp-wpml-auto-translate-admin.js.map
+

@@ -38,10 +38,19 @@ class WPML_AT_Admin {
 			return;
 		}
 
+		// Enqueue CSS
+		wp_enqueue_style(
+			'cp-wpml-auto-translate-admin',
+			WPML_AT_PLUGIN_URL . 'assets/cp-wpml-auto-translate-admin.css',
+			array(),
+			WPML_AT_VERSION
+		);
+
+		// Enqueue React build
 		wp_enqueue_script(
 			'cp-wpml-auto-translate-admin',
 			WPML_AT_PLUGIN_URL . 'assets/cp-wpml-auto-translate-admin.js',
-			array( 'jquery' ),
+			array(),
 			WPML_AT_VERSION,
 			true
 		);
@@ -57,6 +66,16 @@ class WPML_AT_Admin {
 				'languages' => $languages,
 			)
 		);
+
+		// Add root div for React
+		add_action( 'admin_footer', array( $this, 'add_react_root' ), 999 );
+	}
+
+	/**
+	 * Add React root div to admin footer.
+	 */
+	public function add_react_root() {
+		echo '<div id="wpml-auto-translate-root"></div>';
 	}
 
 	/**

@@ -1,0 +1,55 @@
+#cp-wpml-auto-translate-language-modal {
+  display: flex;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 100000;
+  align-items: center;
+  justify-content: center;
+}
+
+.cp-wpml-modal-content {
+  background: #fff;
+  padding: 20px;
+  border-radius: 5px;
+  max-width: 500px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.cp-wpml-modal-content h2 {
+  margin-top: 0;
+}
+
+.cp-wpml-modal-select-wrapper {
+  margin: 15px 0;
+}
+
+.cp-wpml-modal-select-wrapper select {
+  width: 100%;
+  padding: 8px;
+  font-size: 14px;
+}
+
+.cp-wpml-error {
+  color: #d63638;
+  margin: 10px 0;
+}
+
+.cp-wpml-modal-actions {
+  margin-top: 20px;
+  text-align: right;
+}
+
+.cp-wpml-modal-actions .button {
+  margin-left: 10px;
+}
+
+.cp-wpml-modal-actions .button:first-child {
+  margin-left: 0;
+}
+

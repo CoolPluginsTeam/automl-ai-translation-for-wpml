@@ -1,0 +1,6 @@
+/* Main CSS file - imports all component styles */
+@import './LanguageModal.css';
+@import './TranslationPopup.css';
+@import './TranslationRow.css';
+@import './TranslationTable.css';
+
