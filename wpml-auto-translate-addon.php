@@ -61,7 +61,6 @@ final class WPML_Auto_Translate_Addon {
 	private function load_dependencies() {
 		require_once WPML_AT_PLUGIN_DIR . 'includes/class-wpml-at-helper.php';
 		require_once WPML_AT_PLUGIN_DIR . 'includes/class-wpml-at-ajax.php';
-		require_once WPML_AT_PLUGIN_DIR . 'includes/class-wpml-at-translator.php';
 		require_once WPML_AT_PLUGIN_DIR . 'admin/class-wpml-at-admin.php';
 		require_once WPML_AT_PLUGIN_DIR . 'admin/class-wpml-at-widget.php';
 	}
@@ -79,7 +78,6 @@ final class WPML_Auto_Translate_Addon {
 		// Initialize components.
 		new WPML_AT_Helper();
 		new WPML_AT_Ajax();
-		new WPML_AT_Translator();
 		new WPML_AT_Admin();
 		new WPML_AT_Widget();
 	}

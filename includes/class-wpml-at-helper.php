@@ -107,6 +107,51 @@ class WPML_AT_Helper {
 		);
 	}
 
+	public static function find_wpml_job_id_for_post_lang( int $post_id, string $target_lang ): int {
+		global $wpdb;
+	
+		$translations = $wpdb->prefix . 'icl_translations';
+		$status       = $wpdb->prefix . 'icl_translation_status';
+		$jobs         = $wpdb->prefix . 'icl_translate_job';
+	
+		// Get TRID for original post
+		$row = $wpdb->get_row(
+			$wpdb->prepare(
+				"SELECT trid
+				 FROM {$translations}
+				 WHERE element_id = %d
+				   AND element_type LIKE 'post_%%'
+				 LIMIT 1",
+				$post_id
+			),
+			ARRAY_A
+		);
+	
+		if ( empty( $row['trid'] ) ) {
+			return 0;
+		}
+	
+		$trid = (int) $row['trid'];
+	
+		// Find latest job for this TRID + target language
+		$job_id = (int) $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT tj.job_id
+				 FROM {$jobs} tj
+				 INNER JOIN {$status} ts ON ts.rid = tj.rid
+				 INNER JOIN {$translations} t ON t.translation_id = ts.translation_id
+				 WHERE t.trid = %d
+				   AND t.language_code = %s
+				 ORDER BY tj.job_id DESC
+				 LIMIT 1",
+				$trid,
+				$target_lang
+			)
+		);
+	
+		return $job_id ?: 0;
+	}
+
 	/**
 	 * Extract language code and element ID from translation object/array.
 	 *
