@@ -64,7 +64,6 @@ final class WPML_Auto_Translate_Addon {
 		require_once WPML_AT_PLUGIN_DIR . 'admin/class-wpml-at-admin.php';
 		require_once WPML_AT_PLUGIN_DIR . 'admin/class-wpml-at-widget.php';
 		require_once WPML_AT_PLUGIN_DIR . 'includes/class-cp-wpml-google-auto-translate-ajax.php';
-		require_once WPML_AT_PLUGIN_DIR . 'includes/class-wpml-at-elementor-engine.php';
 	}
 	
 
