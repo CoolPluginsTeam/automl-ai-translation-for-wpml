@@ -21,13 +21,6 @@ class WPML_AT_Helper {
 	const NONCE_KEY = 'cp_wpml_auto_translate_nonce';
 
 	/**
-	 * Constructor.
-	 */
-	public function __construct() {
-		// Helper class - no hooks needed.
-	}
-
-	/**
 	 * Get WPML active languages.
 	 *
 	 * @return array Array of language codes and names.
@@ -105,51 +98,6 @@ class WPML_AT_Helper {
 			$trid,
 			'post_' . $post_type
 		);
-	}
-
-	public static function find_wpml_job_id_for_post_lang( int $post_id, string $target_lang ): int {
-		global $wpdb;
-	
-		$translations = $wpdb->prefix . 'icl_translations';
-		$status       = $wpdb->prefix . 'icl_translation_status';
-		$jobs         = $wpdb->prefix . 'icl_translate_job';
-	
-		// Get TRID for original post
-		$row = $wpdb->get_row(
-			$wpdb->prepare(
-				"SELECT trid
-				 FROM {$translations}
-				 WHERE element_id = %d
-				   AND element_type LIKE 'post_%%'
-				 LIMIT 1",
-				$post_id
-			),
-			ARRAY_A
-		);
-	
-		if ( empty( $row['trid'] ) ) {
-			return 0;
-		}
-	
-		$trid = (int) $row['trid'];
-	
-		// Find latest job for this TRID + target language
-		$job_id = (int) $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT tj.job_id
-				 FROM {$jobs} tj
-				 INNER JOIN {$status} ts ON ts.rid = tj.rid
-				 INNER JOIN {$translations} t ON t.translation_id = ts.translation_id
-				 WHERE t.trid = %d
-				   AND t.language_code = %s
-				 ORDER BY tj.job_id DESC
-				 LIMIT 1",
-				$trid,
-				$target_lang
-			)
-		);
-	
-		return $job_id ?: 0;
 	}
 
 	/**
@@ -235,5 +183,85 @@ class WPML_AT_Helper {
 			$text
 		);
 	}
+
+    public static function create_translation_if_missing( $source_post_id, $target_lang ) {
+		global $wpdb;
+
+		$source = $wpdb->get_row( $wpdb->prepare(
+			"SELECT trid, element_type
+			FROM {$wpdb->prefix}icl_translations
+			WHERE element_id = %d
+			LIMIT 1",
+			$source_post_id
+		) );
+
+		if ( ! $source ) return 0;
+
+		// Check existing translation
+		$existing = $wpdb->get_var( $wpdb->prepare(
+			"SELECT element_id FROM {$wpdb->prefix}icl_translations
+			WHERE trid = %d AND language_code = %s",
+			$source->trid,
+			$target_lang
+		) );
+
+		if ( $existing ) {
+			return (int) $existing;
+		}
+
+		$src = get_post( $source_post_id );
+		if ( ! $src ) return 0;
+
+		// 🔥 Detect editor from SOURCE
+		$editor = CP_WPML_Google_Auto_Translate_Ajax::detect_editor( $source_post_id );
+
+		// Create empty shell
+		$new_id = wp_insert_post([
+			'post_type'    => $src->post_type,
+			'post_status'  => 'draft',
+			'post_title'   => $src->post_title,
+			'post_content' => '', // IMPORTANT
+			'post_author'  => $src->post_author,
+		]);
+
+		if ( is_wp_error( $new_id ) ) return 0;
+
+		// Link WPML
+		$wpdb->insert(
+			"{$wpdb->prefix}icl_translations",
+			[
+				'element_type' => $source->element_type,
+				'element_id'   => $new_id,
+				'trid'         => $source->trid,
+				'language_code'=> $target_lang,
+				'source_language_code' => null,
+			]
+		);
+
+		/* ===============================
+		* COPY EDITOR STRUCTURE
+		* =============================== */
+
+		if ( $editor === 'elementor' ) {
+
+			// ✅ Clone Elementor data
+			$elementor_data = get_post_meta( $source_post_id, '_elementor_data', true );
+
+			update_post_meta( $new_id, '_elementor_data', $elementor_data );
+			update_post_meta( $new_id, '_elementor_edit_mode', 'builder' );
+			update_post_meta( $new_id, '_elementor_template_type', 'wp-page' );
+
+		} elseif ( $editor === 'gutenberg' ) {
+
+			// ✅ Clone Gutenberg structure
+			wp_update_post([
+				'ID'           => $new_id,
+				'post_content' => $src->post_content,
+			]);
+		}
+
+		return (int) $new_id;
+	}
+
 }
 

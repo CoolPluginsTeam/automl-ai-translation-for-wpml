@@ -53,7 +53,7 @@ class WPML_AT_Admin {
 			'CP_WPML_AUTO_TRANSLATE',
 			array(
 				'ajax'      => admin_url( 'admin-ajax.php' ),
-				'nonce'     => wp_create_nonce( WPML_AT_Helper::NONCE_KEY ),
+				'nonce'     => wp_create_nonce( CP_WPML_Google_Auto_Translate_Ajax::NONCE ),
 				'languages' => $languages,
 			)
 		);

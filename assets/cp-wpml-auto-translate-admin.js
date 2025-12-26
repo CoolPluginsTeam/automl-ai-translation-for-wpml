@@ -309,7 +309,10 @@ jQuery(function ($) {
                 if (resp && resp.success && resp.data && resp.data[postId]) {
                     const postData = resp.data[postId];
                     window.CurrentWPMLPackage = postData.package || null;
-            
+                    $(SELECTORS.translationPopup).data(
+                        'payload',
+                        postData.original_content
+                    );
                     populateTranslationTable(postData, targetLang);
                     initGoogleTranslateWidget(targetLang);
                 } else {
@@ -525,7 +528,7 @@ jQuery(function ($) {
     
     function saveTranslationFromTable(postId, targetLang) {
         const strings = [];
-    
+        const payload = $(SELECTORS.translationPopup).data('payload');
         $('.' + CLASSES.translationField + '.target').each(function () {
             const $field      = $(this);
             const fieldKey    = $field.data('field-key') || $field.closest('tr').data('field-key') || '';
@@ -552,7 +555,8 @@ jQuery(function ($) {
             nonce: CP_WPML_AUTO_TRANSLATE.nonce,
             post_id: postId,
             target_lang: targetLang,
-            translated_strings: strings
+            translated_strings: strings,
+            payload: payload
         })
         .done(function (resp) {
             if (resp && resp.success) {

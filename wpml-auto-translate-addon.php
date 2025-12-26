@@ -60,10 +60,13 @@ final class WPML_Auto_Translate_Addon {
 	 */
 	private function load_dependencies() {
 		require_once WPML_AT_PLUGIN_DIR . 'includes/class-wpml-at-helper.php';
-		require_once WPML_AT_PLUGIN_DIR . 'includes/class-wpml-at-ajax.php';
+		require_once WPML_AT_PLUGIN_DIR . 'includes/class-wpml-engine.php';
 		require_once WPML_AT_PLUGIN_DIR . 'admin/class-wpml-at-admin.php';
 		require_once WPML_AT_PLUGIN_DIR . 'admin/class-wpml-at-widget.php';
+		require_once WPML_AT_PLUGIN_DIR . 'includes/class-cp-wpml-google-auto-translate-ajax.php';
+		require_once WPML_AT_PLUGIN_DIR . 'includes/class-wpml-at-elementor-engine.php';
 	}
+	
 
 	/**
 	 * Initialize plugin.
@@ -74,10 +77,8 @@ final class WPML_Auto_Translate_Addon {
 			add_action( 'admin_notices', array( $this, 'wpml_missing_notice' ) );
 			return;
 		}
-
-		// Initialize components.
+		CP_WPML_Google_Auto_Translate_Ajax::init();
 		new WPML_AT_Helper();
-		new WPML_AT_Ajax();
 		new WPML_AT_Admin();
 		new WPML_AT_Widget();
 	}

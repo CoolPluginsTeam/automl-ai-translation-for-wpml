@@ -1,0 +1,223 @@
+{
+    "AtfpBlockParseRules": {
+      "core/paragraph": {
+        "attributes": {
+          "content": true
+        }
+      },
+      "core/heading": {
+        "attributes": {
+          "content": true
+        }
+      },
+      "core/image": {
+        "attributes": {
+          "alt": true,
+          "caption": true
+        }
+      },
+      "core/list-item": {
+        "attributes": {
+          "content": true
+        }
+      },
+      "core/quote": {
+        "attributes": {
+          "citation": true
+        }
+      },
+      "core/preformatted": {
+        "attributes": {
+          "content": true
+        }
+      },
+      "core/pullquote": {
+        "attributes": {
+          "citation": true,
+          "value": true
+        }
+      },
+      "core/table": {
+        "attributes": {
+          "caption": true,
+          "body": [
+            {
+              "cells": [
+                {
+                  "content": true
+                }
+              ]
+            }
+          ],
+          "head": [
+            {
+              "cells": [
+                {
+                  "content": true
+                }
+              ]
+            }
+          ],
+          "foot": [
+            {
+              "cells": [
+                {
+                  "content": true
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "core/verse": {
+        "attributes": {
+          "content": true
+        }
+      },
+      "core/button": {
+        "attributes": {
+          "text": true
+        }
+      },
+  
+      "uagb/advanced-heading": {
+        "attributes": {
+          "headingTitle": true,
+          "headingDesc": true
+        }
+      },
+      "uagb/info-box": {
+        "attributes": {
+          "infoBoxTitle": true,
+          "headingDesc": true,
+          "ctaText": true,
+          "iconImage": {
+            "alt": true
+          }
+        }
+      },
+      "uagb/faq-child": {
+        "attributes": {
+          "question": true,
+          "answer": true
+        }
+      },
+      "uagb/buttons-child": {
+        "attributes": {
+          "label": true
+        }
+      },
+      "uagb/testimonial": {
+        "attributes": {
+          "test_block": [
+            {
+              "company": true,
+              "description": true,
+              "name": true
+            }
+          ]
+        }
+      },
+  
+      "essential-blocks/accordion-item": {
+        "attributes": {
+          "title": true
+        }
+      },
+      "essential-blocks/button": {
+        "attributes": {
+          "buttonText": true
+        }
+      },
+      "essential-blocks/testimonial": {
+        "attributes": {
+          "companyName": true,
+          "description": true,
+          "userName": true
+        }
+      },
+  
+      "kadence/advancedheading": {
+        "attributes": {
+          "content": true,
+          "iconTitle": true,
+          "iconTooltip": true
+        }
+      },
+      "kadence/button": {
+        "attributes": {
+          "text": true,
+          "label": true
+        }
+      },
+      "kadence/testimonial": {
+        "attributes": {
+          "occupation": true,
+          "name": true,
+          "content": true
+        }
+      },
+  
+      "stackable/heading": {
+        "attributes": {
+          "text": true
+        }
+      },
+      "stackable/text": {
+        "attributes": {
+          "text": true
+        }
+      },
+      "stackable/button": {
+        "attributes": {
+          "text": true
+        }
+      },
+  
+      "gutenverse/accordion": {
+        "attributes": {
+          "title": true
+        }
+      },
+      "gutenverse/advanced-heading": {
+        "attributes": {
+          "subText": true,
+          "focusText": true
+        }
+      },
+      "gutenverse/icon-box": {
+        "attributes": {
+          "description": true,
+          "title": true
+        }
+      },
+  
+      "qi-blocks/accordion": {
+        "attributes": {
+          "accordionItemsRepeater": [
+            {
+              "itemTitle": true,
+              "itemText": true
+            }
+          ]
+        }
+      },
+      "qi-blocks/testimonials-list": {
+        "attributes": {
+          "testimonialsListItemsRepeater": [
+            {
+              "itemAuthor": true,
+              "itemText": true
+            }
+          ]
+        }
+      },
+  
+      "rank-math/toc-block": {
+        "attributes": {
+          "title": true
+        }
+      }
+    }
+  }
+  
