@@ -74,6 +74,23 @@ class CP_WPML_Google_Auto_Translate_Ajax {
                 $extracted = WPML_Engine::extract_elementor( $post_id );
             } else if ( $editor === 'gutenberg' ) {
                 $extracted = WPML_Engine::extract_gutenberg( $post->post_content );
+            } else {
+                // Classic Editor - use entire content as single translatable block
+                $extracted = [
+                    'editor'  => 'classic',
+                    'payload' => $post->post_content,
+                    'rows'    => []
+                ];
+                
+                // For classic editor, treat entire content as one translatable unit
+                // This is the most reliable approach that preserves HTML structure
+                if ( ! empty( $post->post_content ) ) {
+                    $extracted['rows'][] = [
+                        'field_key' => 'post_content',
+                        'original'  => $post->post_content,
+                        'translate' => 1,
+                    ];
+                }
             }
 
             /* ---------------------------------
@@ -211,12 +228,23 @@ class CP_WPML_Google_Auto_Translate_Ajax {
         $is_blocks    = has_blocks( $post->post_content );
     
         /* ----------------------------------
+         * 1.5. Extract translated title from strings
+         * ---------------------------------- */
+        $translated_title = $post->post_title; // Default to original
+        foreach ( $strings as $row ) {
+            if ( isset( $row['field_key'] ) && $row['field_key'] === 'title' && ! empty( $row['translated'] ) ) {
+                $translated_title = sanitize_text_field( wp_strip_all_tags( $row['translated'] ) );
+                break;
+            }
+        }
+    
+        /* ----------------------------------
          * 2. CREATE translated post (WPML-safe)
          * ---------------------------------- */
         $translated_post_id = wp_insert_post([
             'post_type'   => $post->post_type,
             'post_status' => 'draft',
-            'post_title'  => $post->post_title,
+            'post_title'  => $translated_title,
             'post_author' => get_current_user_id(),
         ]);
     
@@ -238,7 +266,16 @@ class CP_WPML_Google_Auto_Translate_Ajax {
          * ---------------------------------- */
         if ( $is_elementor ) {
             $data = json_decode( $is_elementor, true );
+            
+            if ( ! is_array( $data ) ) {
+                wp_send_json_error([ 'msg' => 'Invalid Elementor data' ]);
+            }
+            
             foreach ( $strings as $row ) {
+                // Skip title field - already handled above
+                if ( isset( $row['field_key'] ) && $row['field_key'] === 'title' ) {
+                    continue;
+                }
 
                 // Extract final key name
                 $parts = explode( ':', $row['field_key'] );
@@ -267,8 +304,12 @@ class CP_WPML_Google_Auto_Translate_Ajax {
     
             update_post_meta( $translated_post_id, '_elementor_edit_mode', 'builder' );
             update_post_meta( $translated_post_id, '_elementor_template_type', 'wp-page' );
+            update_post_meta( $translated_post_id, '_elementor_version', get_post_meta( $post_id, '_elementor_version', true ) );
     
-            wp_send_json_success();
+            wp_send_json_success([
+                'msg' => 'Elementor translation saved successfully',
+                'post_id' => $translated_post_id
+            ]);
         }
     
         /* ----------------------------------
@@ -276,37 +317,99 @@ class CP_WPML_Google_Auto_Translate_Ajax {
          * ---------------------------------- */
         if ( $is_blocks ) {
             $blocks = parse_blocks( $post->post_content );
+            $replacement_count = 0;
     
             foreach ( $strings as $row ) {
-                self::replace_block_text( $blocks, $row['field_key'], $row['translated'] );
+                // Skip title field - already handled above
+                if ( isset( $row['field_key'] ) && $row['field_key'] === 'title' ) {
+                    continue;
+                }
+                
+                if ( ! empty( $row['field_key'] ) && ! empty( $row['translated'] ) ) {
+                    self::replace_block_text( $blocks, $row['field_key'], $row['translated'] );
+                    $replacement_count++;
+                }
             }
     
-            // IMPORTANT: serialize ORIGINAL structure
+            // IMPORTANT: serialize blocks with translated content
             $content = serialize_blocks( $blocks );
+    
+            if ( empty( $content ) || trim( $content ) === '' ) {
+                wp_send_json_error([ 
+                    'msg' => 'Generated content is empty',
+                    'debug' => [
+                        'blocks_count' => count( $blocks ),
+                        'strings_count' => count( $strings ),
+                        'replacements' => $replacement_count
+                    ]
+                ]);
+            }
     
             wp_update_post([
                 'ID'           => $translated_post_id,
                 'post_content' => $content
             ]);
     
-            wp_send_json_success();
+            wp_send_json_success([
+                'msg' => 'Gutenberg translation saved successfully',
+                'post_id' => $translated_post_id,
+                'debug' => [
+                    'replacements' => $replacement_count,
+                    'content_length' => strlen( $content )
+                ]
+            ]);
         }
     
         /* ----------------------------------
-         * 5. CLASSIC EDITOR FALLBACK
+         * 5. CLASSIC EDITOR 
          * ---------------------------------- */
-        $content = $post->post_content;
+        $content = '';
+        $found_content = false;
     
+        // For classic editor, look for the 'post_content' field
         foreach ( $strings as $row ) {
-            $content = str_replace( $row['original'], $row['translated'], $content );
+            // Skip title field - already handled above
+            if ( isset( $row['field_key'] ) && $row['field_key'] === 'title' ) {
+                continue;
+            }
+            
+            // Look for post_content field
+            if ( isset( $row['field_key'] ) && $row['field_key'] === 'post_content' && ! empty( $row['translated'] ) ) {
+                $content = $row['translated'];
+                $found_content = true;
+                error_log( 'WPML Auto Translate: Classic editor - using translated post_content' );
+                break;
+            }
         }
     
-        wp_update_post([
+        // Fallback: if no translated content found, keep original
+        if ( ! $found_content || empty( trim( $content ) ) ) {
+            error_log( 'WPML Auto Translate: Warning - No translated content found for classic editor, keeping original' );
+            $content = $post->post_content;
+        }
+    
+        // Update the post with translated content
+        $update_result = wp_update_post([
             'ID'           => $translated_post_id,
             'post_content' => $content
-        ]);
+        ], true );
+        
+        if ( is_wp_error( $update_result ) ) {
+            error_log( 'WPML Auto Translate: Error updating classic editor post: ' . $update_result->get_error_message() );
+            wp_send_json_error([
+                'msg' => 'Failed to update post content: ' . $update_result->get_error_message()
+            ]);
+        }
     
-        wp_send_json_success();
+        wp_send_json_success([
+            'msg' => 'Classic editor translation saved successfully',
+            'post_id' => $translated_post_id,
+            'debug' => [
+                'found_translation' => $found_content,
+                'content_length' => strlen( $content ),
+                'original_length' => strlen( $post->post_content )
+            ]
+        ]);
     }
 
     private static function is_translatable_elementor_key( string $key ): bool {
@@ -357,27 +460,104 @@ class CP_WPML_Google_Auto_Translate_Ajax {
     
     
     private static function replace_block_text( array &$blocks, string $path, string $value ) {
-        foreach ( $blocks as &$block ) {
-    
-            if ( isset( $block['attrs'] ) ) {
-                foreach ( $block['attrs'] as $k => $v ) {
-                    if ( is_string( $v ) && $v === $path ) {
-                        $block['attrs'][ $k ] = $value;
+        // Parse the path (e.g., "b:0|innerHTML" or "b:0.ib:1|attrs.heading")
+        // Split on delimiters: . | :
+        $parts = preg_split( '/[.:|]/', $path, -1, PREG_SPLIT_NO_EMPTY );
+        
+        // Remove the 'b' prefix (it's just a marker, not an actual array key)
+        if ( ! empty( $parts ) && $parts[0] === 'b' ) {
+            array_shift( $parts );
+        }
+        
+        // Navigate through the block structure using the path
+        $ref = &$blocks;
+        $navigation_path = [];
+        
+        // Navigate to the parent (the block itself)
+        $parts_count = count( $parts );
+        for ( $i = 0; $i < $parts_count - 1; $i++ ) {
+            $key = $parts[ $i ];
+            
+            // Handle special keys
+            if ( $key === 'ib' ) {
+                $key = 'innerBlocks';
+            }
+            
+            // Check if key exists (could be numeric index or string key)
+            if ( is_numeric( $key ) ) {
+                $key = (int) $key;
+            }
+            
+            $navigation_path[] = $key;
+            
+            if ( ! isset( $ref[ $key ] ) ) {
+                error_log( 'WPML Auto Translate: Path not found - ' . $path . ' (failed at: ' . implode( '->', $navigation_path ) . ')' );
+                return;
+            }
+            
+            $ref = &$ref[ $key ];
+        }
+        
+        // Now $ref points to the block itself
+        // Get the final key (innerHTML, attrs, etc.)
+        $final_key = $parts[ $parts_count - 1 ];
+        
+        // Special handling for innerHTML - also update innerContent
+        if ( $final_key === 'innerHTML' ) {
+            if ( ! isset( $ref['innerHTML'] ) ) {
+                error_log( 'WPML Auto Translate: innerHTML not found at ' . $path );
+                return;
+            }
+            
+            $old_value = substr( $ref['innerHTML'], 0, 50 );
+            
+            // Update innerHTML
+            $ref['innerHTML'] = $value;
+            
+            // CRITICAL: Also update innerContent array (this is what gets serialized!)
+            if ( isset( $ref['innerContent'] ) && is_array( $ref['innerContent'] ) ) {
+                // Replace the HTML in innerContent array
+                foreach ( $ref['innerContent'] as $idx => $content ) {
+                    if ( is_string( $content ) && trim( $content ) !== '' ) {
+                        // Found HTML content, replace it
+                        $ref['innerContent'][ $idx ] = $value;
+                        break; // Only replace first non-empty string
                     }
                 }
             }
-    
-            if ( ! empty( $block['innerBlocks'] ) ) {
-                self::replace_block_text( $block['innerBlocks'], $path, $value );
+            
+            error_log( 'WPML Auto Translate: Replaced innerHTML + innerContent at ' . $path . ' | Old: ' . $old_value . '... | New: ' . substr( $value, 0, 50 ) . '...' );
+        } else {
+            // Regular path update (for attrs.content, etc.)
+            if ( ! isset( $ref[ $final_key ] ) ) {
+                error_log( 'WPML Auto Translate: Key "' . $final_key . '" not found at ' . $path );
+                return;
             }
+            
+            $old_value = is_string( $ref[ $final_key ] ) ? substr( $ref[ $final_key ], 0, 50 ) : '(not string)';
+            $ref[ $final_key ] = $value;
+            
+            error_log( 'WPML Auto Translate: Replaced at ' . $path . ' | Old: ' . $old_value . '... | New: ' . substr( $value, 0, 50 ) . '...' );
         }
     }
 
     private static function replace_by_path( array &$data, string $path, string $value ) {
-        $keys = preg_split( '/\.|\[|\]/', $path, -1, PREG_SPLIT_NO_EMPTY );
-        $ref  = &$data;
+        // Parse the path for Elementor (e.g., "e:0|settings:title" or "e|elements:0|settings:text")
+        $keys = preg_split( '/[.:|]/', $path, -1, PREG_SPLIT_NO_EMPTY );
+        
+        // Remove the 'e' prefix (it's just a marker, not an actual array key)
+        if ( ! empty( $keys ) && $keys[0] === 'e' ) {
+            array_shift( $keys );
+        }
+        
+        $ref = &$data;
     
         foreach ( $keys as $key ) {
+            // Convert numeric strings to integers for proper array access
+            if ( is_numeric( $key ) ) {
+                $key = (int) $key;
+            }
+            
             if ( ! isset( $ref[ $key ] ) ) {
                 return;
             }
