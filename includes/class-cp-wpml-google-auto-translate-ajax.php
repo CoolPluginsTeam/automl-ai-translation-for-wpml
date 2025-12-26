@@ -451,23 +451,18 @@ class CP_WPML_Google_Auto_Translate_Ajax {
             
             if ( $search_count > 0 ) {
                 $replacement_count++;
-                error_log( 'WPML Auto Translate: Classic editor replaced segment ' . $item['field_key'] );
             } else {
-                error_log( 'WPML Auto Translate: Classic editor - no match for ' . $item['field_key'] );
             }
         }
         
         // Log replacement results
-        error_log( "WPML Auto Translate: Classic editor made {$replacement_count} replacements out of " . count( $translations ) . " segments" );
         
         // If no replacements were made, log warning but still save
         if ( $replacement_count === 0 && count( $translations ) > 0 ) {
-            error_log( 'WPML Auto Translate: Warning - No text replacements made for classic editor' );
         }
         
         // Ensure we have valid content
         if ( empty( trim( $content ) ) ) {
-            error_log( 'WPML Auto Translate: Error - Generated content is empty, using original' );
             $content = $post->post_content;
         }
     
@@ -478,7 +473,6 @@ class CP_WPML_Google_Auto_Translate_Ajax {
         ], true );
         
         if ( is_wp_error( $update_result ) ) {
-            error_log( 'WPML Auto Translate: Error updating classic editor post: ' . $update_result->get_error_message() );
             wp_send_json_error([
                 'msg' => 'Failed to update post content: ' . $update_result->get_error_message()
             ]);
@@ -575,7 +569,6 @@ class CP_WPML_Google_Auto_Translate_Ajax {
             $navigation_path[] = $key;
             
             if ( ! isset( $ref[ $key ] ) ) {
-                error_log( 'WPML Auto Translate: Path not found - ' . $path . ' (failed at: ' . implode( '->', $navigation_path ) . ')' );
                 return;
             }
             
@@ -589,7 +582,6 @@ class CP_WPML_Google_Auto_Translate_Ajax {
         // Special handling for innerHTML - also update innerContent
         if ( $final_key === 'innerHTML' ) {
             if ( ! isset( $ref['innerHTML'] ) ) {
-                error_log( 'WPML Auto Translate: innerHTML not found at ' . $path );
                 return;
             }
             
@@ -610,18 +602,15 @@ class CP_WPML_Google_Auto_Translate_Ajax {
                 }
             }
             
-            error_log( 'WPML Auto Translate: Replaced innerHTML + innerContent at ' . $path . ' | Old: ' . $old_value . '... | New: ' . substr( $value, 0, 50 ) . '...' );
         } else {
             // Regular path update (for attrs.content, etc.)
             if ( ! isset( $ref[ $final_key ] ) ) {
-                error_log( 'WPML Auto Translate: Key "' . $final_key . '" not found at ' . $path );
                 return;
             }
             
             $old_value = is_string( $ref[ $final_key ] ) ? substr( $ref[ $final_key ], 0, 50 ) : '(not string)';
             $ref[ $final_key ] = $value;
             
-            error_log( 'WPML Auto Translate: Replaced at ' . $path . ' | Old: ' . $old_value . '... | New: ' . substr( $value, 0, 50 ) . '...' );
         }
     }
 
