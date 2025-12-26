@@ -75,21 +75,68 @@ class CP_WPML_Google_Auto_Translate_Ajax {
             } else if ( $editor === 'gutenberg' ) {
                 $extracted = WPML_Engine::extract_gutenberg( $post->post_content );
             } else {
-                // Classic Editor - use entire content as single translatable block
+                // Classic Editor - extract text while preserving HTML structure
                 $extracted = [
                     'editor'  => 'classic',
                     'payload' => $post->post_content,
                     'rows'    => []
                 ];
                 
-                // For classic editor, treat entire content as one translatable unit
-                // This is the most reliable approach that preserves HTML structure
+                // Extract translatable text segments while preserving HTML structure
                 if ( ! empty( $post->post_content ) ) {
-                    $extracted['rows'][] = [
-                        'field_key' => 'post_content',
-                        'original'  => $post->post_content,
-                        'translate' => 1,
+                    $content = $post->post_content;
+                    
+                    // Use DOMDocument to extract only text content from HTML elements
+                    libxml_use_internal_errors( true );
+                    $dom = new DOMDocument();
+                    $dom->loadHTML( mb_convert_encoding( $content, 'HTML-ENTITIES', 'UTF-8' ), LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD );
+                    libxml_clear_errors();
+                    
+                    $xpath = new DOMXPath( $dom );
+                    // Extract text from common content elements, excluding scripts, styles
+                    $text_nodes = $xpath->query( '//p//text() | //h1//text() | //h2//text() | //h3//text() | //h4//text() | //h5//text() | //h6//text() | //li//text() | //td//text() | //th//text() | //div//text()[normalize-space()]' );
+                    
+                    $text_segments = [];
+                    if ( $text_nodes && $text_nodes->length > 0 ) {
+                        foreach ( $text_nodes as $index => $node ) {
+                            $text = trim( $node->nodeValue );
+                            // Only include text segments with actual content (not just whitespace)
+                            if ( ! empty( $text ) && strlen( $text ) > 2 ) {
+                                $text_segments[] = [
+                                    'index' => $index,
+                                    'text' => $text
+                                ];
+                                
+                                $extracted['rows'][] = [
+                                    'field_key' => 'text_segment_' . $index,
+                                    'original'  => $text,
+                                    'translate' => 1,
+                                ];
+                            }
+                        }
+                    }
+                    
+                    // Store the text segments in payload for reconstruction
+                    $extracted['payload'] = [
+                        'original_content' => $post->post_content,
+                        'segments' => $text_segments
                     ];
+                    
+                    // Fallback: If no text extracted, use simple text extraction
+                    if ( empty( $extracted['rows'] ) ) {
+                        $text_only = wp_strip_all_tags( $content );
+                        if ( ! empty( trim( $text_only ) ) ) {
+                            $extracted['rows'][] = [
+                                'field_key' => 'text_content',
+                                'original'  => $text_only,
+                                'translate' => 1,
+                            ];
+                            $extracted['payload'] = [
+                                'original_content' => $post->post_content,
+                                'text_only' => true
+                            ];
+                        }
+                    }
                 }
             }
 
@@ -363,28 +410,64 @@ class CP_WPML_Google_Auto_Translate_Ajax {
         /* ----------------------------------
          * 5. CLASSIC EDITOR 
          * ---------------------------------- */
-        $content = '';
-        $found_content = false;
-    
-        // For classic editor, look for the 'post_content' field
+        // Get the original content to preserve HTML structure
+        $content = $post->post_content;
+        $replacement_count = 0;
+        
+        // Build translation map
+        $translations = [];
         foreach ( $strings as $row ) {
             // Skip title field - already handled above
             if ( isset( $row['field_key'] ) && $row['field_key'] === 'title' ) {
                 continue;
             }
             
-            // Look for post_content field
-            if ( isset( $row['field_key'] ) && $row['field_key'] === 'post_content' && ! empty( $row['translated'] ) ) {
-                $content = $row['translated'];
-                $found_content = true;
-                error_log( 'WPML Auto Translate: Classic editor - using translated post_content' );
-                break;
+            if ( ! empty( $row['original'] ) && ! empty( $row['translated'] ) ) {
+                $translations[] = [
+                    'original' => $row['original'],
+                    'translated' => $row['translated'],
+                    'field_key' => $row['field_key']
+                ];
             }
         }
-    
-        // Fallback: if no translated content found, keep original
-        if ( ! $found_content || empty( trim( $content ) ) ) {
-            error_log( 'WPML Auto Translate: Warning - No translated content found for classic editor, keeping original' );
+        
+        // Replace text segments in the HTML while preserving structure
+        foreach ( $translations as $item ) {
+            $original_text = $item['original'];
+            $translated_text = $item['translated'];
+            
+            // Clean up any Google Translate artifacts from translated text
+            $translated_text = html_entity_decode( $translated_text, ENT_QUOTES | ENT_HTML5, 'UTF-8' );
+            
+            // Try exact text replacement
+            $search_count = 0;
+            $content = preg_replace(
+                '/' . preg_quote( $original_text, '/' ) . '/u',
+                $translated_text,
+                $content,
+                1, // Only replace first occurrence
+                $search_count
+            );
+            
+            if ( $search_count > 0 ) {
+                $replacement_count++;
+                error_log( 'WPML Auto Translate: Classic editor replaced segment ' . $item['field_key'] );
+            } else {
+                error_log( 'WPML Auto Translate: Classic editor - no match for ' . $item['field_key'] );
+            }
+        }
+        
+        // Log replacement results
+        error_log( "WPML Auto Translate: Classic editor made {$replacement_count} replacements out of " . count( $translations ) . " segments" );
+        
+        // If no replacements were made, log warning but still save
+        if ( $replacement_count === 0 && count( $translations ) > 0 ) {
+            error_log( 'WPML Auto Translate: Warning - No text replacements made for classic editor' );
+        }
+        
+        // Ensure we have valid content
+        if ( empty( trim( $content ) ) ) {
+            error_log( 'WPML Auto Translate: Error - Generated content is empty, using original' );
             $content = $post->post_content;
         }
     
@@ -405,7 +488,8 @@ class CP_WPML_Google_Auto_Translate_Ajax {
             'msg' => 'Classic editor translation saved successfully',
             'post_id' => $translated_post_id,
             'debug' => [
-                'found_translation' => $found_content,
+                'replacements' => $replacement_count,
+                'total_segments' => count( $translations ),
                 'content_length' => strlen( $content ),
                 'original_length' => strlen( $post->post_content )
             ]
