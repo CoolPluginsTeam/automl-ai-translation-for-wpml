@@ -163,51 +163,267 @@ final class WPML_Engine {
      * Elementor extraction
      * ========================= */
     public static function extract_elementor( int $post_id ): array {
+
         $json = get_post_meta( $post_id, '_elementor_data', true );
         if ( empty( $json ) ) {
             return [ 'editor' => 'elementor', 'payload' => null, 'rows' => [] ];
         }
-
-        $data = json_decode( $json, true );
+    
+        $data = is_string( $json ) ? json_decode( $json, true ) : $json;
         if ( ! is_array( $data ) ) {
             return [ 'editor' => 'elementor', 'payload' => null, 'rows' => [] ];
         }
-
+    
         $rows = [];
-        self::walk_elementor_extract( $data, $rows, 'e' );
-
-        return [
+        
+        // Elementor data is an array of elements - iterate through each top-level element
+        if ( array_is_list( $data ) ) {
+            // Array of elements
+            foreach ( $data as $index => $element ) {
+                self::walk_elementor_extract( $element, $rows, [ $index ] );
+            }
+        } else {
+            // Single element object
+            self::walk_elementor_extract( $data, $rows, [] );
+        }
+        $response = [
             'editor'  => 'elementor',
             'payload' => $data,
             'rows'    => $rows,
         ];
+        return $response;
     }
+    
 
-    private static function walk_elementor_extract( $node, array &$rows, string $path ) {
-        if ( ! is_array( $node ) ) return;
+    public static function should_translate_key( string $key ): bool {
 
-        if ( isset( $node['settings'] ) && is_array( $node['settings'] ) ) {
-            foreach ( $node['settings'] as $k => $v ) {
-                if ( is_string( $v ) && trim( $v ) !== '' ) {
-                    $rows[] = [
-                        'field_key' => $path . '|settings:' . $k,
-                        'original'  => $v,
-                        'translate' => 1,
-                    ];
+        $dynamic = [ 'title', 'description', 'editor', 'text', 'content', 'label', 'heading', 'subtitle', 'sub_title', 'caption', 'name', 'button', 'link', 'tab', 'accordion', 'toggle', 'testimonial', 'item', 'list', 'icon', 'alert', 'message', 'html' ];
+        $static  = [
+            'caption',
+            'heading',
+            'sub_heading',
+            'testimonial_content',
+            'testimonial_job',
+            'testimonial_name',
+            'name',
+            'button_text',
+            'placeholder',
+            'tab_title',
+            'accordion_title',
+            'accordion_content',
+            'toggle_title',
+            'toggle_content',
+            'html',
+            'editor',
+            'text',
+            'content',
+            'description',
+            'label',
+            'title_text',
+            'description_text',
+            'icon_box_title',
+            'icon_box_description',
+            'icon_box_content',
+        ];
+    
+        $key_lc = strtolower( $key );
+    
+        foreach ( $dynamic as $sub ) {
+            if ( str_contains( $key_lc, $sub ) ) {
+                return true;
+            }
+        }
+    
+        return in_array( $key, $static, true );
+    }
+    
+    public static function is_css_property( string $key ): bool {
+
+        $key_lc = strtolower( $key );
+        
+        // First check: if key contains content-related words, it's likely content, not CSS
+        $content_words = [ 'text', 'content', 'title', 'description', 'editor', 'html', 'label', 'caption', 'heading', 'button', 'message', 'alert', 'name', 'subtitle', 'tab', 'accordion', 'toggle' ];
+        foreach ( $content_words as $word ) {
+            if ( str_contains( $key_lc, $word ) ) {
+                // But exclude pure CSS properties that end with CSS suffixes
+                if ( preg_match( '/_(color|size|typography|width|height|margin|padding|spacing|align|weight|family|transform|decoration|shadow|radius|opacity|z_index|position|display|overflow)$/', $key_lc ) ) {
+                    return true;
+                }
+                // If it contains content word but doesn't end with CSS suffix, it's content
+                return false;
+            }
+        }
+        
+        // Second check: pure CSS properties and layout/structure properties
+        $css_props = [
+            'content_width', 'title_size', 'font_size', 'margin', 'padding',
+            'background', 'border', 'color', 'text_align', 'font_weight',
+            'font_family', 'line_height', 'letter_spacing', 'text_transform',
+            'border_radius', 'box_shadow', 'opacity', 'width', 'height',
+            'display', 'position', 'z_index', 'visibility', 'align',
+            'max_width', 'content_typography_typography',
+            'flex_justify_content', 'title_color', 'description_color',
+            'size', 'unit', 'typography', 'spacing', 'gap', 'column', 'row',
+            'grid', 'flex', 'justify', 'align_items', 'align_content', 'wrap',
+            'direction', 'order', 'grow', 'shrink', 'basis', 'overflow',
+            'min_width', 'min_height', 'max_height', 'min_width_tablet',
+            'min_width_mobile', 'max_width_tablet', 'max_width_mobile',
+            'structure', 'css_filters_css_filter', 'image_box_shadow_box_shadow_type',
+            'header_size', 'background_background', 'background_size',
+            'background_position', 'background_repeat', 'image_size',
+            'align_mobile', 'align_tablet', 'flex_direction', 'flex_align_items'
+        ];
+    
+        foreach ( $css_props as $css ) {
+            if ( $key_lc === $css || substr( $key_lc, -strlen( '_' . $css ) ) === '_' . $css ) {
+                return true;
+            }
+        }
+    
+        return false;
+    }
+    
+    private static function walk_elementor_extract( $element, array &$rows, array $ids ) {
+
+        if ( ! is_array( $element ) ) {
+            return;
+        }
+    
+        /* -------------------------------------------------
+         * SETTINGS
+         * ------------------------------------------------- */
+        if ( isset( $element['settings'] ) && is_array( $element['settings'] ) ) {
+    
+            foreach ( $element['settings'] as $key => $value ) {
+    
+                if ( self::is_css_property( $key ) ) {
+                    continue;
+                }
+    
+                // Simple string
+                if (
+                    is_string( $value ) &&
+                    trim( $value ) !== '' &&
+                    self::should_translate_key( $key )
+                ) {
+                    // Strip HTML tags for checking, but keep original for translation
+                    $text_content = wp_strip_all_tags( $value );
+                    if ( ! empty( trim( $text_content ) ) ) {
+                        $rows[] = [
+                            'field_key' => implode( '.', array_merge( $ids, [ 'settings', $key ] ) ),
+                            'original'  => $value,
+                            'translate' => 1,
+                        ];
+                    }
+                }
+    
+                // Repeater/Array handling
+                if ( is_array( $value ) ) {
+                    // Check if it's a list (repeater) or associative array
+                    if ( array_is_list( $value ) ) {
+                        // Repeater field - iterate through items
+                        foreach ( $value as $index => $item ) {
+                            if ( ! is_array( $item ) ) {
+                                // If item is a string, check if it should be translated
+                                if ( is_string( $item ) && trim( $item ) !== '' && self::should_translate_key( $key ) ) {
+                                    $text_content = wp_strip_all_tags( $item );
+                                    if ( ! empty( trim( $text_content ) ) ) {
+                                        $rows[] = [
+                                            'field_key' => implode( '.', array_merge( $ids, [ 'settings', $key, $index ] ) ),
+                                            'original'  => $item,
+                                            'translate' => 1,
+                                        ];
+                                    }
+                                }
+                                continue;
+                            }
+    
+                            // Nested array - extract each field
+                            foreach ( $item as $rep_key => $rep_val ) {
+    
+                                if ( self::is_css_property( $rep_key ) ) {
+                                    continue;
+                                }
+    
+                                if (
+                                    is_string( $rep_val ) &&
+                                    trim( $rep_val ) !== '' &&
+                                    self::should_translate_key( $rep_key )
+                                ) {
+                                    $text_content = wp_strip_all_tags( $rep_val );
+                                    if ( ! empty( trim( $text_content ) ) ) {
+                                        $rows[] = [
+                                            'field_key' => implode( '.', array_merge(
+                                                $ids,
+                                                [ 'settings', $key, $index, $rep_key ]
+                                            ) ),
+                                            'original'  => $rep_val,
+                                            'translate' => 1,
+                                        ];
+                                    }
+                                }
+                                
+                                // Handle nested arrays in repeaters
+                                if ( is_array( $rep_val ) && array_is_list( $rep_val ) ) {
+                                    foreach ( $rep_val as $nested_index => $nested_item ) {
+                                        if ( is_string( $nested_item ) && trim( $nested_item ) !== '' && self::should_translate_key( $rep_key ) ) {
+                                            $text_content = wp_strip_all_tags( $nested_item );
+                                            if ( ! empty( trim( $text_content ) ) ) {
+                                                $rows[] = [
+                                                    'field_key' => implode( '.', array_merge(
+                                                        $ids,
+                                                        [ 'settings', $key, $index, $rep_key, $nested_index ]
+                                                    ) ),
+                                                    'original'  => $nested_item,
+                                                    'translate' => 1,
+                                                ];
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        // Associative array - might contain translatable content
+                        foreach ( $value as $sub_key => $sub_val ) {
+                            if ( self::is_css_property( $sub_key ) ) {
+                                continue;
+                            }
+                            
+                            if (
+                                is_string( $sub_val ) &&
+                                trim( $sub_val ) !== '' &&
+                                self::should_translate_key( $sub_key )
+                            ) {
+                                $text_content = wp_strip_all_tags( $sub_val );
+                                if ( ! empty( trim( $text_content ) ) ) {
+                                    $rows[] = [
+                                        'field_key' => implode( '.', array_merge( $ids, [ 'settings', $key, $sub_key ] ) ),
+                                        'original'  => $sub_val,
+                                        'translate' => 1,
+                                    ];
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
-
-        foreach ( $node as $k => $v ) {
-            if ( is_array( $v ) ) {
+    
+        /* -------------------------------------------------
+         * NESTED ELEMENTS
+         * ------------------------------------------------- */
+        if ( isset( $element['elements'] ) && is_array( $element['elements'] ) ) {
+            foreach ( $element['elements'] as $index => $child ) {
                 self::walk_elementor_extract(
-                    $v,
+                    $child,
                     $rows,
-                    is_int( $k ) ? $path . ':' . $k : $path . '|' . $k
+                    array_merge( $ids, [ 'elements', $index ] )
                 );
             }
         }
     }
+    
 
     public static function apply_elementor( array &$data, array $rows ) {
         foreach ( $rows as $row ) {

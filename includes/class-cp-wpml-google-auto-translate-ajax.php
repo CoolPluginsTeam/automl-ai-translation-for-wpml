@@ -312,50 +312,96 @@ class CP_WPML_Google_Auto_Translate_Ajax {
          * 3. ELEMENTOR (AutoPoly way)
          * ---------------------------------- */
         if ( $is_elementor ) {
-            $data = json_decode( $is_elementor, true );
+            // Decode Elementor data - handle both string and already decoded formats
+            if ( is_string( $is_elementor ) ) {
+                $data = json_decode( $is_elementor, true );
+            } else {
+                $data = $is_elementor;
+            }
             
             if ( ! is_array( $data ) ) {
                 wp_send_json_error([ 'msg' => 'Invalid Elementor data' ]);
             }
             
+            $replacement_count = 0;
             foreach ( $strings as $row ) {
                 // Skip title field - already handled above
                 if ( isset( $row['field_key'] ) && $row['field_key'] === 'title' ) {
                     continue;
                 }
 
-                // Extract final key name
-                $parts = explode( ':', $row['field_key'] );
+                if ( empty( $row['field_key'] ) || empty( $row['translated'] ) ) {
+                    continue;
+                }
+
+                // Extract final key name - field keys use dots (e.g., "0.settings.title" or "0.elements.0.settings.text")
+                $parts = preg_split( '/[.:|]/', $row['field_key'], -1, PREG_SPLIT_NO_EMPTY );
+                if ( empty( $parts ) ) {
+                    error_log( 'Elementor save: Empty field_key parts for: ' . $row['field_key'] );
+                    continue;
+                }
                 $final_key = end( $parts );
             
                 if ( ! self::is_translatable_elementor_key( $final_key ) ) {
+                    error_log( 'Elementor save: Key not translatable - ' . $final_key . ' (full path: ' . $row['field_key'] . ')' );
                     continue;
                 }
 
                 if ( self::is_forbidden_elementor_key( $final_key ) ) {
+                    error_log( 'Elementor save: Key forbidden - ' . $final_key . ' (full path: ' . $row['field_key'] . ')' );
                     continue;
                 }
             
-                self::replace_by_path(
+                // Decode HTML entities from Google Translate response
+                $decoded_translated = html_entity_decode( $row['translated'], ENT_QUOTES | ENT_HTML5, 'UTF-8' );
+                
+                // Try to replace the value at the path
+                $replaced = self::replace_by_path(
                     $data,
                     $row['field_key'],
-                    wp_kses_post( $row['translated'] )
+                    wp_kses_post( $decoded_translated )
                 );
+                
+                if ( $replaced ) {
+                    $replacement_count++;
+                } else {
+                    error_log( 'Elementor save: Failed to replace - ' . $row['field_key'] . ' (final_key: ' . $final_key . ')' );
+                }
             }
     
+            // Encode back to JSON format
+            $encoded_data = wp_slash( wp_json_encode( $data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES ) );
+            
             update_post_meta(
                 $translated_post_id,
                 '_elementor_data',
-                wp_slash( wp_json_encode( $data ) )
+                $encoded_data
             );
     
             update_post_meta( $translated_post_id, '_elementor_edit_mode', 'builder' );
             update_post_meta( $translated_post_id, '_elementor_template_type', 'wp-page' );
             update_post_meta( $translated_post_id, '_elementor_version', get_post_meta( $post_id, '_elementor_version', true ) );
+            
+            // Also copy other Elementor meta fields that might be needed
+            // $elementor_meta_fields = [
+            //     '_elementor_css',
+            //     '_elementor_page_settings',
+            //     '_elementor_page_assets',
+            // ];
+            // foreach ( $elementor_meta_fields as $meta_key ) {
+            //     $meta_value = get_post_meta( $post_id, $meta_key, true );
+            //     if ( ! empty( $meta_value ) ) { 
+            //         update_post_meta( $translated_post_id, $meta_key, $meta_value );
+            //     }
+            // }
     
             wp_send_json_success([
                 'msg' => 'Elementor translation saved successfully',
-                'post_id' => $translated_post_id
+                'post_id' => $translated_post_id,
+                'debug' => [
+                    'replacements' => $replacement_count,
+                    'total_strings' => count( $strings )
+                ]
             ]);
         }
     
@@ -373,7 +419,9 @@ class CP_WPML_Google_Auto_Translate_Ajax {
                 }
                 
                 if ( ! empty( $row['field_key'] ) && ! empty( $row['translated'] ) ) {
-                    self::replace_block_text( $blocks, $row['field_key'], $row['translated'] );
+                    // Decode HTML entities from Google Translate response
+                    $decoded_translated = html_entity_decode( $row['translated'], ENT_QUOTES | ENT_HTML5, 'UTF-8' );
+                    self::replace_block_text( $blocks, $row['field_key'], $decoded_translated );
                     $replacement_count++;
                 }
             }
@@ -491,49 +539,13 @@ class CP_WPML_Google_Auto_Translate_Ajax {
     }
 
     private static function is_translatable_elementor_key( string $key ): bool {
-        return in_array( $key, [
-            'title',
-            'editor',
-            'text',
-            'description',
-            'content',
-            'heading',
-            'caption',
-            'html',
-            'button_text',
-            'placeholder',
-            'label',
-            'sub_title',
-            'tab_title',
-            'accordion_title',
-            'accordion_content',
-            'toggle_title',
-            'toggle_content',
-        ], true );
+        // Use the same function as extraction to ensure consistency
+        return WPML_Engine::should_translate_key( $key );
     }
 
     private static function is_forbidden_elementor_key( string $key ): bool {
-        return in_array( $key, [
-            'align',
-            'align_mobile',
-            'align_tablet',
-            'flex_direction',
-            'flex_align_items',
-            'background_background',
-            'background_size',
-            'background_position',
-            'background_repeat',
-            'image_size',
-            'structure',
-            'width',
-            'height',
-            'size',
-            'unit',
-            'color',
-            'css_filters_css_filter',
-            'image_box_shadow_box_shadow_type',
-            'header_size',
-        ], true );
+        // Use the same function as extraction to ensure consistency
+        return WPML_Engine::is_css_property( $key );
     }
     
     
@@ -615,12 +627,16 @@ class CP_WPML_Google_Auto_Translate_Ajax {
     }
 
     private static function replace_by_path( array &$data, string $path, string $value ) {
-        // Parse the path for Elementor (e.g., "e:0|settings:title" or "e|elements:0|settings:text")
+        // Parse the path for Elementor (e.g., "0.settings.title" or "0.elements.0.settings.text")
         $keys = preg_split( '/[.:|]/', $path, -1, PREG_SPLIT_NO_EMPTY );
         
-        // Remove the 'e' prefix (it's just a marker, not an actual array key)
+        // Remove the 'e' prefix if present (it's just a marker, not an actual array key)
         if ( ! empty( $keys ) && $keys[0] === 'e' ) {
             array_shift( $keys );
+        }
+        
+        if ( empty( $keys ) ) {
+            return false;
         }
         
         $ref = &$data;
@@ -632,12 +648,15 @@ class CP_WPML_Google_Auto_Translate_Ajax {
             }
             
             if ( ! isset( $ref[ $key ] ) ) {
-                return;
+                // Path doesn't exist - log for debugging but don't fail
+                error_log( 'Elementor replace_by_path: Key not found - ' . $key . ' in path: ' . $path );
+                return false;
             }
             $ref = &$ref[ $key ];
         }
     
         $ref = $value;
+        return true;
     }
     
     
