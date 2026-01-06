@@ -246,9 +246,6 @@ jQuery(function ($) {
 
         $(SELECTORS.translationPopup).remove();
 
-        const langName2 = CP_WPML_AUTO_TRANSLATE.languages.find(function(l) { return l.code === targetLang; });
-        const langDisplayName2 = langName2 ? langName2.name : targetLang;
-
         const modalHtml = `
             <div id="${SELECTORS.translationPopup.replace('#', '')}" style="position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.7); z-index:100001; display:flex; align-items:center; justify-content:center;">
                 <div style="background:#fff; max-width:1200px; width:95%; max-height:90vh; overflow:hidden; box-shadow:0 2px 10px rgba(0,0,0,.2); display:flex; flex-direction:column;">
@@ -343,6 +340,10 @@ jQuery(function ($) {
 
         // Listen for manual edits in translation fields
         $(document).on('input change', '.' + CLASSES.translationField + '.target', function() {
+            const $field = $(this);
+            // Update the data attribute with the current text content (user edits are plain text)
+            const currentText = $field.text();
+            $field.attr('data-translated-html', currentText);
             updateSaveButtonState();
         });
     }
@@ -424,18 +425,25 @@ jQuery(function ($) {
         
             const $sourceCell = $('<td>')
                 .addClass(CLASSES.sourceText)
-                .css({'padding': '12px', 'border': '1px solid #ddd', 'background': '#f9f9f9'})
-                .html(sourceHtml);
+                .attr('data-original-html', sourceHtml) // Store original HTML for saving
+                .css({'padding': '12px', 'border': '1px solid #ddd', 'background': '#f9f9f9', 'white-space': 'pre-wrap', 'font-family': 'inherit'})
+                .text(sourceHtml);
         
             const $translationCell = $('<td>')
                 .css({'padding': '12px', 'border': '1px solid #ddd', 'position': 'relative'});
         
+            // Check if source has HTML tags
+            const hasHtml = sourceHtml && /<[^>]+>/.test(sourceHtml);
+            const plainText = hasHtml ? $('<div>').html(sourceHtml).text().trim() : sourceHtml;
+            
             const $translationTarget = $('<div>')
                 .attr('translate', 'yes')
                 .addClass(CLASSES.translationTarget)
                 .attr('data-type', item.type)
                 .attr('data-index', index)
                 .attr('data-field-key', item.field_key || '')
+                .attr('data-original-html', sourceHtml) // Store original HTML for reconstruction
+                .attr('data-plain-text', plainText) // Store plain text for better translation
                 .css({
                     'position': 'absolute',
                     'top': '0',
@@ -445,17 +453,24 @@ jQuery(function ($) {
                     'opacity': '0',
                     'pointer-events': 'none',
                     'z-index': '-1'
-                })
-                .html(sourceHtml);
+                });
+            
+            // Use plain text for Google Translate (translates better than HTML)
+            if (hasHtml) {
+                $translationTarget.text(plainText);
+            } else {
+                $translationTarget.html(sourceHtml);
+            }
         
             const $translationField = $('<div>')
                 .addClass(CLASSES.translationField + ' target')
                 .attr('data-type', item.type)
                 .attr('data-index', index)
                 .attr('data-field-key', item.field_key || '')
+                .attr('data-translated-html', sourceHtml) // Store HTML for saving
                 .attr('contenteditable', 'true')
-                .css({'padding': '8px', 'font-family': 'inherit', 'font-size': '14px', 'background': '#fff'})
-                .html(sourceHtml);
+                .css({'padding': '8px', 'font-family': 'inherit', 'font-size': '14px', 'background': '#fff', 'white-space': 'pre-wrap'})
+                .text(sourceHtml);
         
             $translationCell.append($translationTarget);
             $translationCell.append($translationField);
@@ -533,14 +548,15 @@ jQuery(function ($) {
             const $field      = $(this);
             const fieldKey    = $field.data('field-key') || $field.closest('tr').data('field-key') || '';
             const type        = $field.data('type') || 'content';
-            const translated  = $field.html().trim();
+            // Get translated HTML from data attribute, fallback to text content
+            const translated  = ($field.attr('data-translated-html') || $field.text()).trim();
     
             if (!fieldKey) {
                 console.warn('Missing field_key for row, skipping', $field);
                 return;
             }
             const $sourceCell = $field.closest('tr').find('td.' + CLASSES.sourceText);
-            const original = $sourceCell.html().trim();
+            const original = $sourceCell.attr('data-original-html') || $sourceCell.text().trim();
 
             strings.push({
                 field_key: fieldKey,
@@ -562,9 +578,31 @@ jQuery(function ($) {
             if (resp && resp.success) {
                 hideLanguageModal();
                 cpWpmlGoogleReset();
-                setTimeout(function() {
-                    location.reload();
-                }, 500);
+                
+                const editorType = $(SELECTORS.translationPopup).data('editor-type');
+                const adminBase = CP_WPML_AUTO_TRANSLATE.admin_url || CP_WPML_AUTO_TRANSLATE.ajax.replace('/admin-ajax.php', '');
+                
+                // Check if it's a Gutenberg block page - redirect to editor
+                if (resp.data && resp.data.is_blocks && resp.data.translated_post_id) {
+                    // Redirect to the Gutenberg editor for the translated post
+                    const translatedPostId = resp.data.translated_post_id;
+                    const editUrl = adminBase + 'post.php?post=' + translatedPostId + '&action=edit';
+                    setTimeout(function() {
+                        window.location.href = editUrl;
+                    }, 500);
+                } else if (editorType === 'elementor' && resp.data && resp.data.post_id) {
+                    // Redirect to Elementor editor for the translated post
+                    const translatedPostId = resp.data.post_id;
+                    const elementorUrl = adminBase + 'post.php?post=' + translatedPostId + '&action=elementor';
+                    setTimeout(function() {
+                        window.location.href = elementorUrl;
+                    }, 500);
+                } else {
+                    // For other editors, reload current page
+                    setTimeout(function() {
+                        location.reload();
+                    }, 500);
+                }
             } else {
                 alert((resp && resp.data && resp.data.msg ? resp.data.msg : 'Unknown error'));
             }
@@ -707,6 +745,93 @@ jQuery(function ($) {
     }
 
     /**
+     * Reconstruct HTML with translated text while preserving tag structure
+     * This function replaces text content in HTML tags while keeping the tag structure intact
+     */
+    function reconstructHtmlWithTranslation(originalHtml, translatedText) {
+        if (!originalHtml || !/<[^>]+>/.test(originalHtml)) {
+            return translatedText;
+        }
+        
+        // Create a temporary container to parse the original HTML
+        const $original = $('<div>').html(originalHtml);
+        const originalText = $original.text().trim();
+        
+        // If original text matches exactly, we can do a simple replacement
+        if (originalText === $('<div>').html(originalHtml).text().trim()) {
+            // Extract all text nodes and their positions
+            const textNodes = [];
+            const walker = document.createTreeWalker(
+                $original[0],
+                NodeFilter.SHOW_TEXT,
+                null,
+                false
+            );
+            
+            let node;
+            while (node = walker.nextNode()) {
+                const text = node.textContent.trim();
+                if (text) {
+                    textNodes.push({
+                        node: node,
+                        text: text,
+                        fullText: node.textContent
+                    });
+                }
+            }
+            
+            // If we have multiple text nodes, try to distribute translated text proportionally
+            if (textNodes.length > 1) {
+                const totalOriginalLength = originalText.length;
+                const translatedWords = translatedText.split(/\s+/);
+                const originalWords = originalText.split(/\s+/);
+                
+                // Calculate ratio for word distribution
+                const wordRatio = translatedWords.length / originalWords.length;
+                
+                let wordIndex = 0;
+                textNodes.forEach(function(textNode) {
+                    const nodeWords = textNode.text.split(/\s+/);
+                    const nodeWordCount = nodeWords.length;
+                    const translatedWordCount = Math.round(nodeWordCount * wordRatio);
+                    const translatedWordsForNode = translatedWords.slice(wordIndex, wordIndex + translatedWordCount);
+                    wordIndex += translatedWordCount;
+                    
+                    if (translatedWordsForNode.length > 0) {
+                        // Replace the text content while preserving whitespace
+                        const newText = textNode.fullText.replace(textNode.text, translatedWordsForNode.join(' '));
+                        textNode.node.textContent = newText;
+                    }
+                });
+                
+                return $original.html();
+            } else if (textNodes.length === 1) {
+                // Single text node - simple replacement
+                textNodes[0].node.textContent = translatedText;
+                return $original.html();
+            }
+        }
+        
+        // Fallback: Try to preserve the outermost tag structure
+        const firstElement = $original[0].querySelector('*');
+        if (firstElement) {
+            // Clone the structure but replace all text with translated text
+            const $cloned = $original.clone();
+            $cloned.find('*').contents().filter(function() {
+                return this.nodeType === 3; // TEXT_NODE
+            }).each(function() {
+                if ($.trim(this.textContent)) {
+                    this.textContent = translatedText;
+                }
+            });
+            return $cloned.html();
+        }
+        
+        // Last resort: wrap translated text in a span (preserves some structure)
+        return '<span>' + translatedText + '</span>';
+    }
+
+    /**
      * Extract translated text from DOM and populate translation divs
      */
     function extractTranslatedText() {
@@ -719,37 +844,42 @@ jQuery(function ($) {
             const $translationDiv = $row.find('.' + CLASSES.translationField + '.target');
             const sourceText = $sourceCell.text().trim();
             
-            // Get HTML from target div (Google Translate modifies this)
-            let translatedHtml = $targetDiv.html() || '';
+            // Get translated text from target div (Google Translate modifies this)
+            // Since we're using plain text for HTML content, we get the text directly
             let translatedText = $targetDiv.text().trim();
+            
+            // Also try to get HTML in case Google Translate added wrapper elements
+            let translatedHtml = $targetDiv.html() || '';
+            
+            // Clean up Google Translate wrapper elements if present
+            if (translatedHtml && translatedHtml !== translatedText) {
+                const $temp = $('<div>').html(translatedHtml);
+                $temp.find('.goog-te-spinner-pos, .goog-te-banner-frame, .skiptranslate, .goog-te-banner').remove();
+                $temp.find('font[dir="auto"], font[style*="vertical-align: inherit"]').each(function() {
+                    const $font = $(this);
+                    $font.replaceWith($font.contents());
+                });
+                translatedText = $temp.text().trim() || translatedText;
+            }
 
             if (translatedText && translatedText !== sourceText) {
                 const currentText = $translationDiv.text().trim();
                 if (!currentText || currentText === sourceText) {
                     // Check if original had HTML tags
-                    const originalHtml = $sourceCell.html();
+                    const originalHtml = $sourceCell.attr('data-original-html') || $sourceCell.text();
                     const hasOriginalHtml = originalHtml && /<[^>]+>/.test(originalHtml);
                     
                     if (hasOriginalHtml) {
-                        // Original had HTML - preserve HTML structure from Google Translate
-                        // Clean up any Google Translate wrapper elements
-                        const $temp = $('<div>').html(translatedHtml);
+                        // Original had HTML - reconstruct HTML with translated text
+                        // Google Translate translated the plain text, now we reconstruct HTML structure
+                        const reconstructedHtml = reconstructHtmlWithTranslation(originalHtml, translatedText);
                         
-                        // Remove Google Translate wrapper elements (these don't contain content we need)
-                        $temp.find('.goog-te-spinner-pos, .goog-te-banner-frame, .skiptranslate, .goog-te-banner').remove();
-                        
-                        // Unwrap font tags (remove tag but keep content)
-                        $temp.find('font[dir="auto"], font[style*="vertical-align: inherit"]').each(function() {
-                            const $font = $(this);
-                            $font.replaceWith($font.contents());
-                        });
-                        
-                        const cleanHtml = $temp.html();
-                        
-                        // Update with HTML
-                        $translationDiv.html(cleanHtml);
+                        // Store reconstructed HTML in data attribute and display as literal text
+                        $translationDiv.attr('data-translated-html', reconstructedHtml);
+                        $translationDiv.text(reconstructedHtml);
                     } else {
-                        // Plain text - use text() method
+                        // Plain text - store and display as text
+                        $translationDiv.attr('data-translated-html', translatedText);
                         $translationDiv.text(translatedText);
                     }
                     

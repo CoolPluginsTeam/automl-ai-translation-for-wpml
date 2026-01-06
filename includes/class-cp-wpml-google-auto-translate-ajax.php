@@ -74,6 +74,15 @@ class CP_WPML_Google_Auto_Translate_Ajax {
                 $extracted = WPML_Engine::extract_elementor( $post_id );
             } else if ( $editor === 'gutenberg' ) {
                 $extracted = WPML_Engine::extract_gutenberg( $post->post_content );
+                
+                // Add title as translatable string (matches JavaScript GutenbergBlockSaveSource logic)
+                if ( ! empty( $post->post_title ) && trim( $post->post_title ) !== '' ) {
+                    array_unshift( $extracted['rows'], [
+                        'field_key' => 'title',
+                        'original'  => $post->post_title,
+                        'translate' => 1,
+                    ] );
+                }
             } else {
                 // Classic Editor - extract text while preserving HTML structure
                 $extracted = [
@@ -286,8 +295,19 @@ class CP_WPML_Google_Auto_Translate_Ajax {
         }
     
         /* ----------------------------------
-         * 2. CREATE translated post (WPML-safe)
+         * 2. CREATE/UPDATE translated post (WPML-safe)
          * ---------------------------------- */
+        // Check if translation already exists
+        $translated_post_id = WPML_AT_Helper::get_existing_translation_id( $post_id, $post->post_type, $target_lang );
+        
+        if ( $translated_post_id ) {
+            // Update existing translation
+            wp_update_post([
+                'ID'          => $translated_post_id,
+                'post_title'  => $translated_title,
+            ]);
+        } else {
+            // Create new translation
         $translated_post_id = wp_insert_post([
             'post_type'   => $post->post_type,
             'post_status' => 'draft',
@@ -307,6 +327,7 @@ class CP_WPML_Google_Auto_Translate_Ajax {
             'language_code'        => $target_lang,
             'source_language_code' => apply_filters( 'wpml_post_language_details', null, $post_id )['language_code']
         ]);
+        }
     
         /* ----------------------------------
          * 3. ELEMENTOR (AutoPoly way)
@@ -337,18 +358,15 @@ class CP_WPML_Google_Auto_Translate_Ajax {
                 // Extract final key name - field keys use dots (e.g., "0.settings.title" or "0.elements.0.settings.text")
                 $parts = preg_split( '/[.:|]/', $row['field_key'], -1, PREG_SPLIT_NO_EMPTY );
                 if ( empty( $parts ) ) {
-                    error_log( 'Elementor save: Empty field_key parts for: ' . $row['field_key'] );
                     continue;
                 }
                 $final_key = end( $parts );
             
                 if ( ! self::is_translatable_elementor_key( $final_key ) ) {
-                    error_log( 'Elementor save: Key not translatable - ' . $final_key . ' (full path: ' . $row['field_key'] . ')' );
                     continue;
                 }
 
                 if ( self::is_forbidden_elementor_key( $final_key ) ) {
-                    error_log( 'Elementor save: Key forbidden - ' . $final_key . ' (full path: ' . $row['field_key'] . ')' );
                     continue;
                 }
             
@@ -364,8 +382,6 @@ class CP_WPML_Google_Auto_Translate_Ajax {
                 
                 if ( $replaced ) {
                     $replacement_count++;
-                } else {
-                    error_log( 'Elementor save: Failed to replace - ' . $row['field_key'] . ' (final_key: ' . $final_key . ')' );
                 }
             }
     
@@ -409,9 +425,23 @@ class CP_WPML_Google_Auto_Translate_Ajax {
          * 4. GUTENBERG / UAGB / BLOCKS
          * ---------------------------------- */
         if ( $is_blocks ) {
-            $blocks = parse_blocks( $post->post_content );
+            // IMPORTANT: Always use ORIGINAL post content as base for applying translations
+            // because field_keys (e.g., "b:0|attrs.content") are extracted from the original structure
+            // Using translated post content would cause path mismatches
+            $base_post_content = $post->post_content ?? '';
+            
+            if ( empty( $base_post_content ) ) {
+                wp_send_json_error([ 
+                    'msg' => 'Original post content is empty',
+                ]);
+            }
+            
+            // Parse blocks from ORIGINAL post content (field_keys match this structure)
+            $original_blocks = parse_blocks( $base_post_content );
             $replacement_count = 0;
     
+            // Build a map of translations by field_key for efficient lookup
+            $translation_map = [];
             foreach ( $strings as $row ) {
                 // Skip title field - already handled above
                 if ( isset( $row['field_key'] ) && $row['field_key'] === 'title' ) {
@@ -421,37 +451,32 @@ class CP_WPML_Google_Auto_Translate_Ajax {
                 if ( ! empty( $row['field_key'] ) && ! empty( $row['translated'] ) ) {
                     // Decode HTML entities from Google Translate response
                     $decoded_translated = html_entity_decode( $row['translated'], ENT_QUOTES | ENT_HTML5, 'UTF-8' );
-                    self::replace_block_text( $blocks, $row['field_key'], $decoded_translated );
-                    $replacement_count++;
+                    $translation_map[ $row['field_key'] ] = [
+                        'translated' => $decoded_translated,
+                        'original' => isset( $row['original'] ) ? $row['original'] : ''
+                    ];
                 }
             }
     
-            // IMPORTANT: serialize blocks with translated content
-            $content = serialize_blocks( $blocks );
-    
-            if ( empty( $content ) || trim( $content ) === '' ) {
-                wp_send_json_error([ 
-                    'msg' => 'Generated content is empty',
-                    'debug' => [
-                        'blocks_count' => count( $blocks ),
-                        'strings_count' => count( $strings ),
-                        'replacements' => $replacement_count
-                    ]
-                ]);
-            }
-    
+            // Use apply_block_translations to replace content in existing blocks
+            // This preserves all block structure and content, only replacing translated fields
+            $translated_blocks = $original_blocks;
+            self::apply_block_translations( $translated_blocks, $translation_map, $replacement_count, 'b' );
+            
+            // Serialize the translated blocks
+            $translated_content = serialize_blocks( $translated_blocks );
+            
+            // Update the translated post content directly
             wp_update_post([
-                'ID'           => $translated_post_id,
-                'post_content' => $content
+                'ID' => $translated_post_id,
+                'post_content' => $translated_content
             ]);
     
             wp_send_json_success([
-                'msg' => 'Gutenberg translation saved successfully',
+                'msg' => 'Gutenberg blocks translated and saved',
                 'post_id' => $translated_post_id,
-                'debug' => [
-                    'replacements' => $replacement_count,
-                    'content_length' => strlen( $content )
-                ]
+                'translated_post_id' => $translated_post_id,
+                'is_blocks' => true
             ]);
         }
     
@@ -547,82 +572,239 @@ class CP_WPML_Google_Auto_Translate_Ajax {
         // Use the same function as extraction to ensure consistency
         return WPML_Engine::is_css_property( $key );
     }
-    
-    
-    private static function replace_block_text( array &$blocks, string $path, string $value ) {
-        // Parse the path (e.g., "b:0|innerHTML" or "b:0.ib:1|attrs.heading")
-        // Split on delimiters: . | :
-        $parts = preg_split( '/[.:|]/', $path, -1, PREG_SPLIT_NO_EMPTY );
-        
-        // Remove the 'b' prefix (it's just a marker, not an actual array key)
-        if ( ! empty( $parts ) && $parts[0] === 'b' ) {
-            array_shift( $parts );
-        }
-        
-        // Navigate through the block structure using the path
-        $ref = &$blocks;
-        $navigation_path = [];
-        
-        // Navigate to the parent (the block itself)
-        $parts_count = count( $parts );
-        for ( $i = 0; $i < $parts_count - 1; $i++ ) {
-            $key = $parts[ $i ];
-            
-            // Handle special keys
-            if ( $key === 'ib' ) {
-                $key = 'innerBlocks';
+    /**
+     * Apply translations to blocks recursively (similar to Polylang's translate_blocks approach)
+     * This method properly preserves block structure including innerContent arrays
+     * 
+     * @param array &$blocks Array of blocks to translate
+     * @param array $translation_map Map of field_key => translated content
+     * @param int &$replacement_count Counter for replacements made
+     * @param string $block_path_prefix Current block path prefix (e.g., "b:0" or "b:0.ib:1")
+     */
+    private static function apply_block_translations( array &$blocks, array $translation_map, int &$replacement_count, string $block_path_prefix = 'b' ) {
+        foreach ( $blocks as $k => &$block ) {
+            // Skip null or empty blocks
+            if ( ! is_array( $block ) || empty( $block ) ) {
+                continue;
             }
             
-            // Check if key exists (could be numeric index or string key)
-            if ( is_numeric( $key ) ) {
-                $key = (int) $key;
-            }
+            // Build current block path (e.g., "b:0" or "b:0.ib:1")
+            $current_block_path = $block_path_prefix === 'b' ? "b:{$k}" : "{$block_path_prefix}.ib:{$k}";
             
-            $navigation_path[] = $key;
-            
-            if ( ! isset( $ref[ $key ] ) ) {
-                return;
-            }
-            
-            $ref = &$ref[ $key ];
-        }
-        
-        // Now $ref points to the block itself
-        // Get the final key (innerHTML, attrs, etc.)
-        $final_key = $parts[ $parts_count - 1 ];
-        
-        // Special handling for innerHTML - also update innerContent
-        if ( $final_key === 'innerHTML' ) {
-            if ( ! isset( $ref['innerHTML'] ) ) {
-                return;
-            }
-            
-            $old_value = substr( $ref['innerHTML'], 0, 50 );
-            
-            // Update innerHTML
-            $ref['innerHTML'] = $value;
-            
-            // CRITICAL: Also update innerContent array (this is what gets serialized!)
-            if ( isset( $ref['innerContent'] ) && is_array( $ref['innerContent'] ) ) {
-                // Replace the HTML in innerContent array
-                foreach ( $ref['innerContent'] as $idx => $content ) {
-                    if ( is_string( $content ) && trim( $content ) !== '' ) {
-                        // Found HTML content, replace it
-                        $ref['innerContent'][ $idx ] = $value;
-                        break; // Only replace first non-empty string
+            // Process each translation - only apply if field_key matches this block path
+            foreach ( $translation_map as $field_key => $translation_data ) {
+                // Check if this field_key belongs to the current block path
+                // Must match exactly: field_key should start with current_block_path followed by '|'
+                // This handles both direct matches (b:0|innerHTML) and nested matches (b:0.ib:0|innerHTML)
+                $path_with_pipe = $current_block_path . '|';
+                if ( strpos( $field_key, $path_with_pipe ) === 0 ) {
+                    $translated_value = $translation_data['translated'];
+                    $original_value = $translation_data['original'];
+                    
+                    // Apply translation using the field_key path
+                    if ( self::replace_block_text( $block, $field_key, $translated_value, $original_value ) ) {
+                        $replacement_count++;
                     }
                 }
             }
             
-        } else {
-            // Regular path update (for attrs.content, etc.)
-            if ( ! isset( $ref[ $final_key ] ) ) {
-                return;
+            // Recursively process innerBlocks (same as Polylang plugin)
+            if ( ! empty( $block['innerBlocks'] ) && is_array( $block['innerBlocks'] ) ) {
+                self::apply_block_translations( $block['innerBlocks'], $translation_map, $replacement_count, $current_block_path );
+            }
+        }
+    }
+    
+    /**
+     * Replace text in a single block based on field_key path
+     * Properly handles innerHTML and innerContent synchronization
+     * Preserves HTML structure when original had HTML but translated doesn't
+     * 
+     * @param array &$block Block to modify
+     * @param string $path Field key path (e.g., "b:0|innerHTML" or "b:0|attrs.content")
+     * @param string $value Translated value
+     * @param string $original Original value (for matching)
+     * @return bool True if replacement was made
+     */
+    private static function replace_block_text( array &$block, string $path, string $value, string $original = '' ) {
+        // Parse the path (e.g., "b:0|innerHTML" or "b:0|attrs.content" or "b:0|attrs.tabs:0.title")
+        // Path format: [block_path]|[attrs_path]
+        // Where attrs_path can be: "innerHTML" or "attrs.content" or "attrs.tabs:0.title"
+        
+        // Split on pipe to separate block path from attribute path
+        $path_parts = explode( '|', $path, 2 );
+        
+        if ( count( $path_parts ) !== 2 ) {
+            return false; // Invalid path format
+        }
+        
+        $attr_path = $path_parts[1];  // e.g., "innerHTML" or "innerContent:0" or "attrs.content" or "attrs.tabs:0.title"
+        
+        // $block is already the target block (passed by reference from apply_block_translations)
+        $ref = &$block;
+        
+        // Handle innerContent:index entries (Polylang approach - extract each innerContent entry separately)
+        if ( strpos( $attr_path, 'innerContent:' ) === 0 ) {
+            $index = (int) substr( $attr_path, 14 ); // Extract index after "innerContent:"
+            
+            // CRITICAL: Preserve original innerContent structure exactly
+            // Don't modify array length or structure - only update the specific entry
+            if ( ! isset( $ref['innerContent'] ) || ! is_array( $ref['innerContent'] ) ) {
+                // If innerContent doesn't exist, create it but preserve structure
+                $ref['innerContent'] = [];
             }
             
-            $old_value = is_string( $ref[ $final_key ] ) ? substr( $ref[ $final_key ], 0, 50 ) : '(not string)';
-            $ref[ $final_key ] = $value;
+            // Preserve original array structure - only extend if necessary, don't shrink
+            $original_length = count( $ref['innerContent'] );
+            if ( $index >= $original_length ) {
+                // Extend array to include this index (preserve null placeholders)
+                for ( $i = $original_length; $i <= $index; $i++ ) {
+                    $ref['innerContent'][ $i ] = null;
+                }
+            }
             
+            // Replace ONLY the specific innerContent entry (preserve null placeholders)
+            $ref['innerContent'][ $index ] = $value;
+            
+            return true;
+        }
+        
+        // Handle innerHTML - Fallback for backwards compatibility
+        // Note: We now extract innerContent entries separately, so this is rarely used
+        if ( $attr_path === 'innerHTML' ) {
+            if ( ! isset( $ref['innerHTML'] ) ) {
+                return false;
+            }
+            
+            $original_inner_content = isset( $ref['innerContent'] ) && is_array( $ref['innerContent'] ) ? $ref['innerContent'] : null;
+            
+            // Update innerContent entries
+            if ( $original_inner_content !== null && count( $original_inner_content ) > 0 ) {
+                // Preserve the exact structure (including null placeholders for inner blocks)
+                $ref['innerContent'] = $original_inner_content;
+                
+                // Find and replace string entries in innerContent
+                $string_indices = [];
+                foreach ( $ref['innerContent'] as $idx => $content ) {
+                    if ( is_string( $content ) && trim( $content ) !== '' ) {
+                        $string_indices[] = $idx;
+                    }
+                }
+                
+                if ( ! empty( $string_indices ) ) {
+                    // Replace the first string entry with translated value
+                    $ref['innerContent'][ $string_indices[0] ] = $value;
+                } else {
+                    // No string entries found - create new structure
+                    $ref['innerContent'] = [ $value ];
+                }
+            } else {
+                // If innerContent doesn't exist, create it from innerHTML (WordPress convention)
+                $ref['innerContent'] = [ $value ];
+            }
+            
+            return true;
+        }
+        
+        // Handle attribute paths (attrs.content, attrs.tabs:0.title, etc.)
+        if ( strpos( $attr_path, 'attrs.' ) === 0 ) {
+            $attr_path_without_prefix = substr( $attr_path, 6 ); // Remove "attrs."
+            
+            // Check if this is a table cell content
+            // Path format: body:0.cells:0.content, head:0.cells:0.content, or foot:0.cells:0.content
+            // For table cells, escape HTML tags so they display as literal text instead of being rendered
+            if ( preg_match( '/^(body|head|foot):\d+\.cells:\d+\.content$/', $attr_path_without_prefix ) ) {
+                $value = esc_html( $value );
+            }
+            
+            $attr_path = $attr_path_without_prefix;
+        }
+        
+        // Ensure attrs array exists
+        if ( ! isset( $ref['attrs'] ) || ! is_array( $ref['attrs'] ) ) {
+            $ref['attrs'] = [];
+        }
+        
+        $attr_ref = &$ref['attrs'];
+        
+        // Simple attribute (e.g., "content" without nesting)
+        if ( strpos( $attr_path, ':') === false && strpos( $attr_path, '.' ) === false ) {
+            $attr_ref[ $attr_path ] = $value;
+            return true;
+        }
+        
+        // Parse attribute path, handling array indices (e.g., "tabs:0.title")
+        // Use regex to split by '.' but preserve "key:index" patterns
+        preg_match_all( '/(\w+)(?::(\d+))?/', $attr_path, $matches, PREG_SET_ORDER );
+        
+        $attr_parts = [];
+        foreach ( $matches as $match ) {
+            $key = $match[1];
+            $index = isset( $match[2] ) && $match[2] !== '' ? (int) $match[2] : null;
+            
+            if ( $index !== null ) {
+                $attr_parts[] = [ 'key' => $key, 'index' => $index ];
+            } else {
+                $attr_parts[] = [ 'key' => $key, 'index' => null ];
+            }
+        }
+        
+        if ( empty( $attr_parts ) ) {
+            return false;
+        }
+        
+        // Navigate through attribute path
+        $parts_count = count( $attr_parts );
+        for ( $i = 0; $i < $parts_count - 1; $i++ ) {
+            $part = $attr_parts[ $i ];
+            $key = $part['key'];
+            $index = $part['index'];
+            
+            // Navigate to the key first
+            if ( ! isset( $attr_ref[ $key ] ) ) {
+                // Key doesn't exist - create it as array if we have an index
+                if ( $index !== null ) {
+                    $attr_ref[ $key ] = [];
+                } else {
+                    return false; // Can't create non-array key
+                }
+            }
+            
+            $attr_ref = &$attr_ref[ $key ];
+            
+            // If there's an array index, navigate into it
+            if ( $index !== null ) {
+                if ( ! is_array( $attr_ref ) ) {
+                    return false; // Can't use array index on non-array
+                }
+                
+                if ( ! isset( $attr_ref[ $index ] ) ) {
+                    return false; // Array index doesn't exist
+                }
+                
+                $attr_ref = &$attr_ref[ $index ];
+            }
+        }
+        
+        // Set the final value
+        $final_part = $attr_parts[ $parts_count - 1 ];
+        $final_key = $final_part['key'];
+        $final_index = $final_part['index'];
+        
+        if ( $final_index !== null ) {
+            // Final part is an array index (e.g., "tabs:0" as final)
+            if ( ! isset( $attr_ref[ $final_key ] ) || ! is_array( $attr_ref[ $final_key ] ) ) {
+                return false;
+            }
+            if ( isset( $attr_ref[ $final_key ][ $final_index ] ) ) {
+                $attr_ref[ $final_key ][ $final_index ] = $value;
+                return true;
+            }
+            return false;
+        } else {
+            // Regular key - set the value
+            $attr_ref[ $final_key ] = $value;
+            return true;
         }
     }
 
@@ -648,8 +830,6 @@ class CP_WPML_Google_Auto_Translate_Ajax {
             }
             
             if ( ! isset( $ref[ $key ] ) ) {
-                // Path doesn't exist - log for debugging but don't fail
-                error_log( 'Elementor replace_by_path: Key not found - ' . $key . ' in path: ' . $path );
                 return false;
             }
             $ref = &$ref[ $key ];
@@ -659,5 +839,48 @@ class CP_WPML_Google_Auto_Translate_Ajax {
         return true;
     }
     
+    /**
+     * Preserve HTML structure when original had HTML but translated doesn't
+     * Replaces text content while keeping HTML tags intact
+     * 
+     * @param string $original_html Original content with HTML tags
+     * @param string $translated_text Translated plain text
+     * @return string Translated text with HTML structure preserved
+     */
+    private static function preserve_html_structure( string $original_html, string $translated_text ): string {
+        // If original doesn't have HTML, return translated as-is
+        if ( ! preg_match( '/<[^>]+>/', $original_html ) ) {
+            return $translated_text;
+        }
+        
+        // Use DOMDocument to preserve HTML structure
+        libxml_use_internal_errors( true );
+        $dom = new DOMDocument();
+        $dom->loadHTML( mb_convert_encoding( '<div>' . $original_html . '</div>', 'HTML-ENTITIES', 'UTF-8' ), LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD );
+        libxml_clear_errors();
+        
+        $xpath = new DOMXPath( $dom );
+        $text_nodes = $xpath->query( '//text()[normalize-space()]' );
+        
+        if ( $text_nodes && $text_nodes->length > 0 ) {
+            // Replace first text node with translated content
+            $text_nodes->item( 0 )->nodeValue = $translated_text;
+            
+            // Get the HTML back without the wrapper div
+            $wrapper = $dom->getElementsByTagName( 'div' )->item( 0 );
+            if ( $wrapper ) {
+                $result = '';
+                foreach ( $wrapper->childNodes as $child ) {
+                    $result .= $dom->saveHTML( $child );
+                }
+                return $result;
+            }
+        }
+        
+        // Fallback: return translated text if DOM manipulation fails
+        return $translated_text;
+    }
+    
     
 }
+

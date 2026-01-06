@@ -63,6 +63,8 @@ final class WPML_Auto_Translate_Addon {
 		require_once WPML_AT_PLUGIN_DIR . 'includes/class-wpml-engine.php';
 		require_once WPML_AT_PLUGIN_DIR . 'admin/class-wpml-at-admin.php';
 		require_once WPML_AT_PLUGIN_DIR . 'admin/class-wpml-at-widget.php';
+		require_once WPML_AT_PLUGIN_DIR . 'admin/class-wpml-at-supported-blocks.php';
+		require_once WPML_AT_PLUGIN_DIR . 'admin/class-wpml-at-custom-block-post.php';
 		require_once WPML_AT_PLUGIN_DIR . 'includes/class-cp-wpml-google-auto-translate-ajax.php';
 	}
 	
@@ -80,6 +82,8 @@ final class WPML_Auto_Translate_Addon {
 		new WPML_AT_Helper();
 		new WPML_AT_Admin();
 		new WPML_AT_Widget();
+		WPML_AT_Supported_Blocks::get_instance();
+		WPML_AT_Custom_Block_Post::get_instance();
 	}
 
 	/**

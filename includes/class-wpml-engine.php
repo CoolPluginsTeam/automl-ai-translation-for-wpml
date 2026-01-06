@@ -16,13 +16,45 @@ final class WPML_Engine {
         $file = plugin_dir_path( __FILE__ ) . 'block-translation-rules/block-rules.json';
         if ( ! file_exists( $file ) ) {
             $rules = [];
-            return $rules;
+        } else {
+            $json  = json_decode( file_get_contents( $file ), true );
+            $rules = $json['wpmlautoBlockParseRules'] ?? [];
+            $rules = is_array( $rules ) ? $rules : [];
         }
 
-        $json  = json_decode( file_get_contents( $file ), true );
-        $rules = $json['WPML_AT_BlockParseRules'] ?? [];
+        // Merge with custom block rules (user-enabled/disabled blocks)
+        $custom_rules = get_option( 'wpml_at_custom_block_rules', array() );
+        if ( is_array( $custom_rules ) && ! empty( $custom_rules ) ) {
+            // Remove disabled blocks
+            foreach ( $custom_rules as $block_name => $enabled ) {
+                if ( ! $enabled && isset( $rules[ $block_name ] ) ) {
+                    unset( $rules[ $block_name ] );
+                }
+            }
+            
+            // Note: Enabled blocks without rules will use innerHTML fallback in extraction
+            // To add new blocks with custom rules, they need to be added to block-rules.json
+        }
 
-        return is_array( $rules ) ? $rules : [];
+        // Merge with custom block translation rules (from custom post type editor)
+        $custom_block_translation = get_option( 'wpml_at_custom_block_translation', array() );
+        if ( is_array( $custom_block_translation ) && ! empty( $custom_block_translation ) ) {
+            foreach ( $custom_block_translation as $block_name => $block_attributes ) {
+                if ( ! isset( $rules[ $block_name ] ) ) {
+                    // Create new block rule if it doesn't exist
+                    $rules[ $block_name ] = array();
+                }
+                
+                if ( ! isset( $rules[ $block_name ]['attributes'] ) ) {
+                    $rules[ $block_name ]['attributes'] = array();
+                }
+                
+                // Merge custom attributes with existing rules
+                $rules[ $block_name ]['attributes'] = array_merge_recursive( $rules[ $block_name ]['attributes'], $block_attributes );
+            }
+        }
+
+        return $rules;
     }
 
     /* =========================
@@ -44,40 +76,62 @@ final class WPML_Engine {
 
     private static function walk_blocks_extract( array $blocks, array $rules, array &$rows, string $path ) {
         foreach ( $blocks as $i => $block ) {
+            // Skip non-array blocks (null blocks, etc.)
             if ( ! is_array( $block ) ) continue;
+            
+            // Skip null/empty blocks
+            if ( empty( $block ) ) continue;
 
             $block_name = $block['blockName'] ?? '';
             $block_path = $path . ':' . $i;
 
-            // 1. Extract ATTRS (rule-based)
-            if ( $block_name && isset( $rules[ $block_name ]['attributes'] ) ) {
-                self::extract_by_schema(
-                    $block['attrs'] ?? [],
-                    $rules[ $block_name ]['attributes'],
-                    $rows,
-                    $block_path . '|attrs'
-                );
-            }
-
-            // 2. Extract innerHTML (core blocks, headings, paragraphs)
-            if (
-                ! empty( $block['innerHTML'] ) &&
-                is_string( $block['innerHTML'] )
-            ) {
-                $html = trim( $block['innerHTML'] );
-
-                // Ignore empty wrappers like <p></p>
-                if ( wp_strip_all_tags( $html ) !== '' ) {
-                    $rows[] = [
-                        'field_key' => $block_path . '|innerHTML',
-                        'original'  => $html,
-                        'translate' => 1,
-                    ];
+            // Process blocks that have rules defined (matches JavaScript logic)
+            if ( $block_name && isset( $rules[ $block_name ] ) ) {
+                // Extract attributes based on block rules (matches getTranslateString logic)
+                if ( isset( $rules[ $block_name ]['attributes'] ) ) {
+                    self::extract_by_schema(
+                        $block['attrs'] ?? [],
+                        $rules[ $block_name ]['attributes'],
+                        $rows,
+                        $block_path . '|attrs',
+                        $block_path
+                    );
                 }
             }
 
+            // Extract innerContent entries separately (like Polylang does)
+            // This preserves block structure better than extracting entire innerHTML
+            if ( ! empty( $block['innerContent'] ) && is_array( $block['innerContent'] ) ) {
+                // Check if content wasn't already extracted via attributes
+                $already_extracted = false;
+                foreach ( $rows as $existing_row ) {
+                    if ( strpos( $existing_row['field_key'], $block_path ) === 0 ) {
+                        // Content already extracted via attributes, skip innerContent
+                        $already_extracted = true;
+                        break;
+                    }
+                }
+                
+                if ( ! $already_extracted ) {
+                    // Extract each innerContent entry separately (matches Polylang's filterBlockInnerContent)
+                    foreach ( $block['innerContent'] as $idx => $content ) {
+                        if ( is_string( $content ) && trim( $content ) !== '' ) {
+                            // Check if it has actual text content (not just HTML tags)
+                            $text_content = wp_strip_all_tags( $content );
+                            if ( ! empty( $text_content ) && preg_match( '/[\p{L}\p{N}]/u', $text_content ) ) {
+                                $rows[] = [
+                                    'field_key' => $block_path . '|innerContent:' . $idx,
+                                    'original'  => $content,
+                                    'translate' => 1,
+                                ];
+                            }
+                        }
+                    }
+                }
+            }
 
-            if ( ! empty( $block['innerBlocks'] ) ) {
+            // Process inner blocks recursively (matches childBlockAttributesContent logic)
+            if ( ! empty( $block['innerBlocks'] ) && is_array( $block['innerBlocks'] ) ) {
                 self::walk_blocks_extract(
                     $block['innerBlocks'],
                     $rules,
@@ -90,46 +144,96 @@ final class WPML_Engine {
 
     /* =========================
      * Recursive schema extractor
-     * (this is AutoPoly magic)
+     * Matches JavaScript FilterBlockNestedAttr and filterTranslateAttr logic
+     * 
+     * JavaScript flow:
+     * 1. filterTranslateAttr: Object.values(filterAttr) -> Object.keys(data) -> saveTranslatedAttr
+     * 2. saveTranslatedAttr: if true, extract value; else FilterBlockNestedAttr
+     * 3. FilterBlockNestedAttr: handles nested objects/arrays -> childAttr/childAttrArray
      * ========================= */
-    private static function extract_by_schema( $data, $schema, array &$rows, string $path ) {
+    private static function extract_by_schema( $data, $schema, array &$rows, string $path, string $block_id = '' ) {
         if ( ! is_array( $data ) || ! is_array( $schema ) ) return;
 
+        // Match JavaScript: Object.values(filterAttr) then Object.keys(data)
+        // In PHP, we iterate schema keys which represents the structure
         foreach ( $schema as $key => $rule ) {
             if ( ! isset( $data[ $key ] ) ) continue;
 
             $current_path = $path . '.' . $key;
 
-            // Simple text field
-            if ( $rule === true && is_string( $data[ $key ] ) && trim( $data[ $key ] ) !== '' ) {
-                $rows[] = [
-                    'field_key' => $current_path,
-                    'original'  => $data[ $key ],
-                    'translate' => 1,
-                ];
+            // Simple text field (matches JavaScript: filterAttrObj === true)
+            if ( $rule === true ) {
+                $value = $data[ $key ];
+                
+                // Handle RichTextData-like structures (if needed)
+                // In PHP, we just get the string value directly
+                
+                // Extract translatable content (matches JavaScript validation)
+                if ( is_string( $value ) && trim( $value ) !== '' ) {
+                    // Check if content has letters/numbers (matches JavaScript regex check)
+                    // JavaScript: /[\p{L}\p{N}]/gu.test(blockAttrContent)
+                    if ( preg_match( '/[\p{L}\p{N}]/u', $value ) ) {
+                        $rows[] = [
+                            'field_key' => $current_path,
+                            'original'  => $value,
+                            'translate' => 1,
+                        ];
+                    }
+                }
             }
-
-            // Nested object or repeater
+            // Nested object or repeater (matches FilterBlockNestedAttr logic)
             elseif ( is_array( $rule ) && is_array( $data[ $key ] ) ) {
-
-                // Repeater
+                // Repeater/Array (matches childAttrArray logic)
                 if ( array_is_list( $rule ) ) {
-                    foreach ( $data[ $key ] as $index => $item ) {
+                    // JavaScript: Check if dynamicBlockAttr is null/undefined
+                    $dynamic_data = $data[ $key ];
+                    if ( $dynamic_data === null ) {
+                        continue;
+                    }
+
+                    // JavaScript: Check prototype - Object.prototype or Array.prototype
+                    // In PHP, we check if it's an associative array (object) or list (array)
+                    if ( array_is_list( $dynamic_data ) ) {
+                        // Process each item in the array with the schema from rule[0]
+                        foreach ( $dynamic_data as $index => $item ) {
+                            if ( is_array( $item ) ) {
+                                self::extract_by_schema(
+                                    $item,
+                                    $rule[0],
+                                    $rows,
+                                    $current_path . ':' . $index,
+                                    $block_id
+                                );
+                            } elseif ( is_string( $item ) && trim( $item ) !== '' ) {
+                                // Handle string items in arrays
+                                if ( preg_match( '/[\p{L}\p{N}]/u', $item ) ) {
+                                    $rows[] = [
+                                        'field_key' => $current_path . ':' . $index,
+                                        'original'  => $item,
+                                        'translate' => 1,
+                                    ];
+                                }
+                            }
+                        }
+                    } else {
+                        // If it's an object (associative array), treat as nested object
                         self::extract_by_schema(
-                            $item,
+                            $dynamic_data,
                             $rule[0],
                             $rows,
-                            $current_path . ':' . $index
+                            $current_path,
+                            $block_id
                         );
                     }
                 }
-                // Object
+                // Nested object (matches childAttr logic)
                 else {
                     self::extract_by_schema(
                         $data[ $key ],
                         $rule,
                         $rows,
-                        $current_path
+                        $current_path,
+                        $block_id
                     );
                 }
             }

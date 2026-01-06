@@ -1,5 +1,5 @@
 {
-    "AtfpBlockParseRules": {
+    "wpmlautoBlockParseRules": {
       "core/paragraph": {
         "attributes": {
           "content": true
