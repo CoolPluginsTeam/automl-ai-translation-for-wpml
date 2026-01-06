@@ -259,29 +259,6 @@ final class WPML_Engine {
     }
 
     /* =========================
-     * Apply translations back
-     * ========================= */
-    public static function apply_translations( array &$blocks, array $rows ) {
-        foreach ( $rows as $row ) {
-            if ( empty( $row['translate'] ) || empty( $row['translated'] ) ) continue;
-
-            $path = preg_split( '/[.:|]/', $row['field_key'] );
-            self::set_by_path( $blocks, $path, $row['translated'] );
-        }
-    }
-
-    private static function set_by_path( array &$data, array $path, $value ) {
-        $ref =& $data;
-
-        foreach ( $path as $segment ) {
-            if ( ! isset( $ref[ $segment ] ) ) return;
-            $ref =& $ref[ $segment ];
-        }
-
-        $ref = $value;
-    }
-
-    /* =========================
      * Elementor extraction
      * ========================= */
     public static function extract_elementor( int $post_id ): array {
@@ -547,12 +524,4 @@ final class WPML_Engine {
     }
     
 
-    public static function apply_elementor( array &$data, array $rows ) {
-        foreach ( $rows as $row ) {
-            if ( empty( $row['translate'] ) || empty( $row['translated'] ) ) continue;
-
-            $path = preg_split( '/[.:|]/', $row['field_key'] );
-            self::set_by_path( $data, $path, $row['translated'] );
-        }
-    }
 }

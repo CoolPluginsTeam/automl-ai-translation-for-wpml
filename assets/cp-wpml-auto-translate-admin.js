@@ -696,13 +696,6 @@
                     setTimeout(function() {
                         window.location.href = editUrl;
                     }, 500);
-                } else if (editorType === 'elementor' && resp.data && resp.data.post_id) {
-                    // Redirect to Elementor editor for the translated post
-                    const translatedPostId = resp.data.post_id;
-                    const elementorUrl = adminBase + 'post.php?post=' + translatedPostId + '&action=elementor';
-                    setTimeout(function() {
-                        window.location.href = elementorUrl;
-                    }, 500);
                 } else {
                     // For other editors, reload current page
                     setTimeout(function() {

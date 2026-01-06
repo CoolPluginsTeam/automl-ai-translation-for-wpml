@@ -479,19 +479,6 @@ class CP_WPML_Google_Auto_Translate_Ajax {
             update_post_meta( $translated_post_id, '_elementor_edit_mode', 'builder' );
             update_post_meta( $translated_post_id, '_elementor_template_type', 'wp-page' );
             update_post_meta( $translated_post_id, '_elementor_version', get_post_meta( $post_id, '_elementor_version', true ) );
-            
-            // Also copy other Elementor meta fields that might be needed
-            // $elementor_meta_fields = [
-            //     '_elementor_css',
-            //     '_elementor_page_settings',
-            //     '_elementor_page_assets',
-            // ];
-            // foreach ( $elementor_meta_fields as $meta_key ) {
-            //     $meta_value = get_post_meta( $post_id, $meta_key, true );
-            //     if ( ! empty( $meta_value ) ) { 
-            //         update_post_meta( $translated_post_id, $meta_key, $meta_value );
-            //     }
-            // }
     
 			wp_send_json_success(
 				array(
@@ -943,49 +930,6 @@ class CP_WPML_Google_Auto_Translate_Ajax {
         $ref = $value;
         return true;
     }
-    
-    /**
-     * Preserve HTML structure when original had HTML but translated doesn't
-     * Replaces text content while keeping HTML tags intact
-     * 
-     * @param string $original_html Original content with HTML tags
-     * @param string $translated_text Translated plain text
-     * @return string Translated text with HTML structure preserved
-     */
-    private static function preserve_html_structure( string $original_html, string $translated_text ): string {
-        // If original doesn't have HTML, return translated as-is
-        if ( ! preg_match( '/<[^>]+>/', $original_html ) ) {
-            return $translated_text;
-        }
-        
-        // Use DOMDocument to preserve HTML structure
-        libxml_use_internal_errors( true );
-        $dom = new DOMDocument();
-        $dom->loadHTML( mb_convert_encoding( '<div>' . $original_html . '</div>', 'HTML-ENTITIES', 'UTF-8' ), LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD );
-        libxml_clear_errors();
-        
-        $xpath = new DOMXPath( $dom );
-        $text_nodes = $xpath->query( '//text()[normalize-space()]' );
-        
-        if ( $text_nodes && $text_nodes->length > 0 ) {
-            // Replace first text node with translated content
-            $text_nodes->item( 0 )->nodeValue = $translated_text;
-            
-            // Get the HTML back without the wrapper div
-            $wrapper = $dom->getElementsByTagName( 'div' )->item( 0 );
-            if ( $wrapper ) {
-                $result = '';
-                foreach ( $wrapper->childNodes as $child ) {
-                    $result .= $dom->saveHTML( $child );
-                }
-                return $result;
-            }
-        }
-        
-        // Fallback: return translated text if DOM manipulation fails
-        return $translated_text;
-    }
-    
     
 }
 
