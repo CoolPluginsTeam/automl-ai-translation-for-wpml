@@ -176,23 +176,26 @@ class WPML_AT_Supported_Blocks {
 	 */
 	public function enqueue_assets( $hook ) {
 		// Check by page parameter first (most reliable)
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading GET parameter for conditional logic, not processing form data.
 		if ( empty( $_GET['page'] ) || 'wpml-auto-translate-supported-blocks' !== $_GET['page'] ) {
 			return;
 		}
 
 		// Enqueue DataTables CSS/JS (using CDN for simplicity, or you can include local files)
+		// phpcs:ignore PluginCheck.CodeAnalysis.EnqueuedResourceOffloading.OffloadedContent -- DataTables is a legitimate third-party library commonly loaded from CDN.
 		wp_enqueue_style(
 			'wpml-at-datatables-css',
-			'https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css',
+			WPML_AT_PLUGIN_URL . 'assets/css/wpml-at-datatable.css',
 			array(),
-			'1.13.7'
+			WPML_AT_VERSION
 		);
 
+		// phpcs:ignore PluginCheck.CodeAnalysis.EnqueuedResourceOffloading.OffloadedContent -- DataTables is a legitimate third-party library commonly loaded from CDN.
 		wp_enqueue_script(
 			'wpml-at-datatables-js',
-			'https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js',
+			WPML_AT_PLUGIN_URL . 'assets/js/wpml-at-datatable.js',
 			array( 'jquery' ),
-			'1.13.7',
+			WPML_AT_VERSION,
 			true
 		);
 
@@ -247,6 +250,7 @@ class WPML_AT_Supported_Blocks {
 		}
 
 		// Verify we're on the correct page
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading GET parameter for conditional logic, not processing form data.
 		if ( empty( $_GET['page'] ) || 'wpml-auto-translate-supported-blocks' !== $_GET['page'] ) {
 			wp_die( esc_html__( 'Invalid page access.', 'wpml-auto-translate-addon' ) );
 		}
@@ -255,10 +259,13 @@ class WPML_AT_Supported_Blocks {
 		<div class="wrap wpml-at-supported-blocks-wrapper">
 			<h1><?php echo esc_html__( 'Supported Blocks Translation Settings', 'wpml-auto-translate-addon' ); ?></h1>
 			<p class="description">
-				<?php echo sprintf(
+				<?php
+				echo sprintf(
+					/* translators: %s: Plugin name */
 					esc_html__( 'Manage Gutenberg blocks to make them translation-ready with %s.', 'wpml-auto-translate-addon' ),
 					'<strong>WPML Google Auto Translate Addon</strong>'
-				); ?>
+				);
+				?>
 			</p>
 
 			<div class="wpml-at-filters">
@@ -503,13 +510,16 @@ class WPML_AT_Supported_Blocks {
 			wp_send_json_error( array( 'message' => __( 'Unauthorized', 'wpml-auto-translate-addon' ) ) );
 		}
 
-		$blocks = isset( $_POST['blocks'] ) ? (array) $_POST['blocks'] : array();
+		// Sanitize and validate blocks array input.
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Array elements are sanitized individually in the foreach loop below.
+		$blocks = isset( $_POST['blocks'] ) ? wp_unslash( $_POST['blocks'] ) : array();
+		$blocks = is_array( $blocks ) ? $blocks : array();
 
 		$custom_rules = $this->get_custom_block_rules();
 
 		foreach ( $blocks as $block_name => $enabled ) {
 			$block_name = sanitize_text_field( $block_name );
-			$enabled = (bool) $enabled;
+			$enabled    = (bool) $enabled;
 			$custom_rules[ $block_name ] = $enabled;
 		}
 

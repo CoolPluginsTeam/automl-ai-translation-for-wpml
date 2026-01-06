@@ -1,5 +1,16 @@
-jQuery(function ($) {
+/**
+ * WPML Auto Translate Admin JavaScript
+ *
+ * @package WPML_Auto_Translate
+ */
+(function ($) {
     'use strict';
+
+    // Check if required global object exists
+    if (typeof CP_WPML_AUTO_TRANSLATE === 'undefined') {
+        console.error('WPML Auto Translate: Required global object CP_WPML_AUTO_TRANSLATE is not defined.');
+        return;
+    }
 
     // Constants
     const SELECTORS = {
@@ -86,8 +97,14 @@ jQuery(function ($) {
 
     /**
      * Extract page ID from checkbox ID
+     *
+     * @param {jQuery} $row Row element
+     * @returns {string|null} Page ID or null
      */
     function extractPageId($row) {
+        if (!$row || !$row.length) {
+            return null;
+        }
         const checkboxId = $row.find('td.checkboxes input[type="checkbox"]').attr('id');
         return checkboxId ? checkboxId.replace(/^\D+/, '') : null;
     }
@@ -95,8 +112,14 @@ jQuery(function ($) {
 
     /**
      * Ensure every .action-row has a "Translate by Google" button
+     *
+     * @param {Element|jQuery} root Root element to search within
+     * @returns {void}
      */
     function ensureGoogleButtons(root) {
+        if (!root) {
+            return;
+        }
         $(root).find(SELECTORS.actionRow).each(function () {
             const $actionRow = $(this);
 
@@ -113,11 +136,12 @@ jQuery(function ($) {
 
             $btn.on('click', function (e) {
                 e.preventDefault();
+                e.stopPropagation();
                 const $row = $(this).closest('tr');
                 const pageId = extractPageId($row);
 
                 if (!pageId) {
-                    alert('Could not detect page ID for this row.');
+                    alert(CP_WPML_AUTO_TRANSLATE.i18n?.errorPageId || 'Could not detect page ID for this row.');
                     return;
                 }
 
@@ -128,15 +152,24 @@ jQuery(function ($) {
 
     /**
      * Initialize bulk translate button
+     *
+     * @returns {void}
      */
     function initBulkTranslateButton() {
         const $section = $('.wpml-dashboard__SelectionSection .wpml-global-filter-wrapper .wpml-global-filter .wpml-flex-space-between');
 
         if ($section.length) {
+            // Check if button already exists
+            if ($section.find(SELECTORS.bulkTranslateBtn).length) {
+                return;
+            }
+
             const $translateBtn = $('<button type="button" class="button button-primary" id="' + SELECTORS.bulkTranslateBtn.replace('#', '') + '">Translate with Google</button>');
             $section.append($translateBtn);
 
-            $translateBtn.on('click', function () {
+            $translateBtn.on('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
                 const selectedPageIds = $('.wpml-item-type-element-list table tbody tr')
                     .filter(function () {
                         return $(this).find('td.checkboxes input[type="checkbox"][aria-checked="true"]').length > 0;
@@ -150,7 +183,7 @@ jQuery(function ($) {
                     });
 
                 if (!selectedPageIds.length) {
-                    alert('Please select at least one post to translate.');
+                    alert(CP_WPML_AUTO_TRANSLATE.i18n?.errorNoSelection || 'Please select at least one post to translate.');
                     return;
                 }
 
@@ -185,10 +218,23 @@ jQuery(function ($) {
 
     /**
      * Show language selection modal
+     *
+     * @param {Array<number>} selectedIds Array of selected post IDs
+     * @returns {void}
      */
     function showLanguageModal(selectedIds) {
+        if (!selectedIds || !Array.isArray(selectedIds) || selectedIds.length === 0) {
+            alert(CP_WPML_AUTO_TRANSLATE.i18n?.errorNoSelection || 'No posts selected.');
+            return;
+        }
+
         const $modal = $(SELECTORS.languageModal);
         const $langSelect = $(SELECTORS.langSelect);
+
+        if (!$modal.length || !$langSelect.length) {
+            console.error('Language modal elements not found');
+            return;
+        }
 
         $langSelect.empty();
         $langSelect.append('<option value="">Loading languages...</option>');
@@ -207,22 +253,48 @@ jQuery(function ($) {
                     if (pendingLanguages.length > 0) {
                         $langSelect.append('<option value="">Select Language</option>');
                         pendingLanguages.forEach(function (lang) {
-                            $langSelect.append('<option value="' + lang.code + '">' + lang.name + ' (' + lang.code + ')</option>');
+                            if (lang && lang.code && lang.name) {
+                                $langSelect.append('<option value="' + esc_attr(lang.code) + '">' + esc_html(lang.name) + ' (' + esc_html(lang.code) + ')</option>');
+                            }
                         });
                     } else {
                         $langSelect.append('<option value="">All languages already have translations</option>');
                     }
                 } else {
-                    $langSelect.append('<option value="">No languages available</option>');
+                    const errorMsg = (resp && resp.data && resp.data.msg) ? resp.data.msg : 'No languages available';
+                    $langSelect.append('<option value="">' + esc_html(errorMsg) + '</option>');
                 }
             })
-            .fail(function () {
+            .fail(function (xhr, status, error) {
+                console.error('Failed to load languages:', status, error);
                 $langSelect.empty();
                 $langSelect.append('<option value="">Error loading languages</option>');
             });
 
         $modal.data('selected-ids', selectedIds);
         $modal.css('display', 'flex');
+    }
+
+    /**
+     * Escape HTML entities
+     *
+     * @param {string} text Text to escape
+     * @returns {string} Escaped text
+     */
+    function esc_html(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    /**
+     * Escape HTML attributes
+     *
+     * @param {string} text Text to escape
+     * @returns {string} Escaped text
+     */
+    function esc_attr(text) {
+        return esc_html(text).replace(/"/g, '&quot;');
     }
 
     /**
@@ -234,13 +306,24 @@ jQuery(function ($) {
 
     /**
      * Open translation table popup
+     *
+     * @param {number} postId Post ID
+     * @param {string} targetLang Target language code
+     * @returns {void}
      */
     function openTranslationTablePopup(postId, targetLang) {
+        if (!postId || !targetLang) {
+            alert(CP_WPML_AUTO_TRANSLATE.i18n?.errorInvalidData || 'Invalid post ID or language.');
+            return;
+        }
+
         // Check if Google Translate supports this language
         if (!isGoogleTranslateSupported(targetLang)) {
-            const langName = CP_WPML_AUTO_TRANSLATE.languages.find(function(l) { return l.code === targetLang; });
+            const langName = CP_WPML_AUTO_TRANSLATE.languages && Array.isArray(CP_WPML_AUTO_TRANSLATE.languages) 
+                ? CP_WPML_AUTO_TRANSLATE.languages.find(function(l) { return l && l.code === targetLang; })
+                : null;
             const langDisplayName = langName ? langName.name : targetLang;
-            alert('Sorry, Google Translate does not support "' + langDisplayName + '" language. Please select a different language.');
+            alert('Sorry, Google Translate does not support "' + esc_html(langDisplayName) + '" language. Please select a different language.');
             return;
         }
 
@@ -313,13 +396,16 @@ jQuery(function ($) {
                     populateTranslationTable(postData, targetLang);
                     initGoogleTranslateWidget(targetLang);
                 } else {
-                    // alert('Failed to load post content.');
-                    // $modal.remove();
+                    const errorMsg = (resp && resp.data && resp.data.msg) ? resp.data.msg : 'Failed to load post content.';
+                    console.error('Failed to load post content:', errorMsg);
+                    alert(esc_html(errorMsg));
+                    $modal.remove();
                 }
             })
-            .fail(function () {
-                // alert('AJAX error while loading content.');
-                // $modal.remove();
+            .fail(function (xhr, status, error) {
+                console.error('AJAX error while loading content:', status, error);
+                alert(CP_WPML_AUTO_TRANSLATE.i18n?.errorAjax || 'AJAX error while loading content.');
+                $modal.remove();
             });
 
         $(document).off('click', '#cp-wpml-auto-translate-translation-close, ' + SELECTORS.translationPopup).on('click', '#cp-wpml-auto-translate-translation-close', function () {
@@ -332,7 +418,9 @@ jQuery(function ($) {
             }
         });
 
-        $(document).off('click', '#cp-wpml-auto-translate-translation-save, #cp-wpml-auto-translate-translation-save-footer').on('click', '#cp-wpml-auto-translate-translation-save, #cp-wpml-auto-translate-translation-save-footer', function () {
+        $(document).off('click', '#cp-wpml-auto-translate-translation-save, #cp-wpml-auto-translate-translation-save-footer').on('click', '#cp-wpml-auto-translate-translation-save, #cp-wpml-auto-translate-translation-save-footer', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
             if (!$(this).prop('disabled')) {
                 saveTranslationFromTable(postId, targetLang);
             }
@@ -541,7 +629,19 @@ jQuery(function ($) {
       $('#\\:1\\.container').contents().find('#\\:1\\.restore').click();
     }
     
+    /**
+     * Save translation from table
+     *
+     * @param {number} postId Post ID
+     * @param {string} targetLang Target language code
+     * @returns {void}
+     */
     function saveTranslationFromTable(postId, targetLang) {
+        if (!postId || !targetLang) {
+            alert(CP_WPML_AUTO_TRANSLATE.i18n?.errorInvalidData || 'Invalid post ID or language.');
+            return;
+        }
+
         const strings = [];
         const payload = $(SELECTORS.translationPopup).data('payload');
         $('.' + CLASSES.translationField + '.target').each(function () {
@@ -566,6 +666,12 @@ jQuery(function ($) {
                 translate: 1
             });
         });
+
+        if (strings.length === 0) {
+            alert(CP_WPML_AUTO_TRANSLATE.i18n?.errorNoStrings || 'No translation strings found.');
+            return;
+        }
+
         $.post(CP_WPML_AUTO_TRANSLATE.ajax, {
             action: 'cp_wpml_google_auto_translate_save_translation',
             nonce: CP_WPML_AUTO_TRANSLATE.nonce,
@@ -604,11 +710,13 @@ jQuery(function ($) {
                     }, 500);
                 }
             } else {
-                alert((resp && resp.data && resp.data.msg ? resp.data.msg : 'Unknown error'));
+                const errorMsg = (resp && resp.data && resp.data.msg) ? resp.data.msg : (CP_WPML_AUTO_TRANSLATE.i18n?.errorUnknown || 'Unknown error');
+                alert(esc_html(errorMsg));
             }
         })
-        .fail(function (resp) {
-            alert('AJAX error while saving.');
+        .fail(function (xhr, status, error) {
+            console.error('AJAX error while saving:', status, error);
+            alert(CP_WPML_AUTO_TRANSLATE.i18n?.errorAjaxSave || 'AJAX error while saving.');
         });
     }
 
@@ -900,26 +1008,30 @@ jQuery(function ($) {
         hideLanguageModal();
     });
 
-    $(document).on('click', '#cp-wpml-auto-translate-modal-next', function () {
+    $(document).on('click', '#cp-wpml-auto-translate-modal-next', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
         const $modal = $(SELECTORS.languageModal);
         const selectedIds = $modal.data('selected-ids') || [];
         const selectedLanguage = $(SELECTORS.langSelect).val();
 
         if (!selectedLanguage) {
-            alert('Please select a target language.');
+            alert(CP_WPML_AUTO_TRANSLATE.i18n?.errorNoLanguage || 'Please select a target language.');
             return;
         }
 
         if (!selectedIds.length) {
-            alert('No posts selected for translation.');
+            alert(CP_WPML_AUTO_TRANSLATE.i18n?.errorNoSelection || 'No posts selected for translation.');
             return;
         }
 
         // Check if Google Translate supports this language
         if (!isGoogleTranslateSupported(selectedLanguage)) {
-            const langName = CP_WPML_AUTO_TRANSLATE.languages.find(function(l) { return l.code === selectedLanguage; });
+            const langName = CP_WPML_AUTO_TRANSLATE.languages && Array.isArray(CP_WPML_AUTO_TRANSLATE.languages)
+                ? CP_WPML_AUTO_TRANSLATE.languages.find(function(l) { return l && l.code === selectedLanguage; })
+                : null;
             const langDisplayName = langName ? langName.name : selectedLanguage;
-            alert('Sorry, Google Translate does not support "' + langDisplayName + '" language. Please select a different language.');
+            alert('Sorry, Google Translate does not support "' + esc_html(langDisplayName) + '" language. Please select a different language.');
             return;
         }
 
@@ -935,14 +1047,17 @@ jQuery(function ($) {
 
     /**
      * Initialize row action translate button
+     *
+     * @returns {void}
      */
     function initRowActionTranslateButton() {
         $(document).on('click', '.cp-wpml-row-translate-btn', function(e) {
             e.preventDefault();
+            e.stopPropagation();
             const postId = $(this).data('post-id');
             
             if (!postId) {
-                alert('Could not detect post ID.');
+                alert(CP_WPML_AUTO_TRANSLATE.i18n?.errorPageId || 'Could not detect post ID.');
                 return;
             }
             
@@ -959,15 +1074,19 @@ jQuery(function ($) {
     // Watch DOM changes
     const observer = new MutationObserver(function (mutations) {
         mutations.forEach(function (mutation) {
-            $(mutation.addedNodes).each(function () {
-                if (this.nodeType !== 1) return;
-                ensureGoogleButtons(this);
-            });
+            if (mutation.addedNodes && mutation.addedNodes.length > 0) {
+                $(mutation.addedNodes).each(function () {
+                    if (this.nodeType !== 1) return;
+                    ensureGoogleButtons(this);
+                });
+            }
         });
     });
 
-    observer.observe(document.body, {
-        childList: true,
-        subtree: true
-    });
-});
+    if (document.body) {
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+    }
+})(jQuery);

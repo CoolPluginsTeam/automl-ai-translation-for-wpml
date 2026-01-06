@@ -25,11 +25,16 @@ class WPML_AT_Widget {
 
 	/**
 	 * Load Google Translate Widget scripts.
+	 *
+	 * @return void
 	 */
 	public function load_widget_scripts() {
 		global $pagenow;
 
-		$is_translation_dashboard = ! empty( $_GET['page'] ) && strpos( $_GET['page'], 'tm/menu/main.php' ) !== false;
+		// Sanitize and validate page parameter.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading GET parameter for conditional logic, not processing form data.
+		$page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
+		$is_translation_dashboard = ! empty( $page ) && strpos( $page, 'tm/menu/main.php' ) !== false;
 		$is_post_list             = 'edit.php' === $pagenow;
 
 		if ( ! $is_translation_dashboard && ! $is_post_list ) {
@@ -42,15 +47,25 @@ class WPML_AT_Widget {
 			'document.getElementsByTagName("html")[0].setAttribute("translate", "no");'
 		);
 
-		$this->output_widget_scripts();
-	}
+		// Enqueue Google Translate script.
+		wp_enqueue_script(
+			'google-translate-element',
+			WPML_AT_PLUGIN_URL . 'assets/js/wpml-at-google-translate-widget.js',
+			array(),
+			WPML_AT_VERSION,
+			true
+		);
 
-	/**
-	 * Output Google Translate widget scripts and styles.
-	 */
-	private function output_widget_scripts() {
-		?>
-		<style>
+		// Enqueue style handle for inline CSS.
+		wp_enqueue_style(
+			'wpml-at-google-translate-widget',
+			false,
+			array(),
+			WPML_AT_VERSION
+		);
+
+		// Add inline styles for Google Translate widget.
+		$inline_css = '
 		/* Hide Google Translate Banner */
 		.goog-te-banner-frame.skiptranslate {
 			display: none !important;
@@ -62,10 +77,13 @@ class WPML_AT_Widget {
 		.goog-te-combo option:first-child {
 			display: none;
 		}
-		</style>
-		<script>
+		';
+		wp_add_inline_style( 'wpml-at-google-translate-widget', $inline_css );
+
+		// Add inline script for Google Translate widget initialization.
+		$inline_script = '
 		window.cpWpmlGTranslateWidget = function(targetLang) {
-			if (typeof google === 'undefined' || !google.translate) {
+			if (typeof google === "undefined" || !google.translate) {
 				// Google Translate script not loaded yet, retry
 				setTimeout(function() {
 					window.cpWpmlGTranslateWidget(targetLang);
@@ -73,63 +91,62 @@ class WPML_AT_Widget {
 				return;
 			}
 			
-			var defaultlang = targetLang || 'en';
+			var defaultlang = targetLang || "en";
 			
 			// Map WPML language codes to Google Translate language codes
 			var langMap = {
-				'kir': 'ky',
-				'oci': 'oc',
-				'bel': 'be',
-				'he': 'iw',
-				'snd': 'sd',
-				'jv': 'jw',
-				'nb': 'no',
-				'nn': 'no',
-				'pt-br': 'pt',
-				'zh-hans': 'zh-CN',
-				'zh-hant': 'zh-TW',
-				'zh': 'zh-CN'
+				"kir": "ky",
+				"oci": "oc",
+				"bel": "be",
+				"he": "iw",
+				"snd": "sd",
+				"jv": "jw",
+				"nb": "no",
+				"nn": "no",
+				"pt-br": "pt",
+				"zh-hans": "zh-CN",
+				"zh-hant": "zh-TW",
+				"zh": "zh-CN"
 			};
 			
 			if (langMap[defaultlang]) {
 				defaultlang = langMap[defaultlang];
-			} else if (defaultlang.indexOf('-') !== -1) {
-				var parts = defaultlang.split('-');
+			} else if (defaultlang.indexOf("-") !== -1) {
+				var parts = defaultlang.split("-");
 				defaultlang = parts[0];
 			}
 			
 			// Check if widget already initialized
-			var $container = jQuery('#google_translate_element');
-			if ($container.length && $container.find('.goog-te-combo').length > 0) {
+			var $container = jQuery("#google_translate_element");
+			if ($container.length && $container.find(".goog-te-combo").length > 0) {
 				return; // Already initialized
 			}
 			
 			// Handle Chinese variants
-			if (defaultlang === 'zh' || defaultlang === 'zh-CN' || defaultlang === 'zh-hans') {
+			if (defaultlang === "zh" || defaultlang === "zh-CN" || defaultlang === "zh-hans") {
 				new google.translate.TranslateElement(
 					{
-						pageLanguage: 'en',
-						includedLanguages: 'zh-CN,zh-TW',
-						defaultLanguage: 'zh-CN',
+						pageLanguage: "en",
+						includedLanguages: "zh-CN,zh-TW",
+						defaultLanguage: "zh-CN",
 						multilanguagePage: true
 					},
-					'google_translate_element'
+					"google_translate_element"
 				);
 			} else {
 				new google.translate.TranslateElement(
 					{
-						pageLanguage: 'en',
+						pageLanguage: "en",
 						includedLanguages: defaultlang,
 						defaultLanguage: defaultlang,
 						multilanguagePage: true
 					},
-					'google_translate_element'
+					"google_translate_element"
 				);
 			}
 		};
-		</script>
-		<script src='https://translate.google.com/translate_a/element.js'></script>
-		<?php
+		';
+		wp_add_inline_script( 'google-translate-element', $inline_script );
 	}
 
 	/**
@@ -141,14 +158,17 @@ class WPML_AT_Widget {
 	public function add_notranslate_class( $classes ) {
 		global $pagenow;
 
-		$is_translation_dashboard = ! empty( $_GET['page'] ) && strpos( $_GET['page'], 'tm/menu/main.php' ) !== false;
+		// Sanitize and validate page parameter.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading GET parameter for conditional logic, not processing form data.
+		$page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
+		$is_translation_dashboard = ! empty( $page ) && strpos( $page, 'tm/menu/main.php' ) !== false;
 		$is_post_list             = 'edit.php' === $pagenow;
 
 		if ( ! $is_translation_dashboard && ! $is_post_list ) {
 			return $classes;
 		}
 
-		return "$classes notranslate";
+		return $classes . ' notranslate';
 	}
 }
 

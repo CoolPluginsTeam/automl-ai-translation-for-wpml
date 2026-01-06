@@ -10,6 +10,8 @@
  * Requires PHP: 7.2
  * License: GPL v2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
+ *
+ * @package WPML_Auto_Translate
  */
 
 // If this file is called directly, abort.
@@ -18,10 +20,18 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Define plugin constants.
-define( 'WPML_AT_VERSION', '1.0.0' );
-define( 'WPML_AT_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
-define( 'WPML_AT_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
-define( 'WPML_AT_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
+if ( ! defined( 'WPML_AT_VERSION' ) ) {
+	define( 'WPML_AT_VERSION', '1.0.0' );
+}
+if ( ! defined( 'WPML_AT_PLUGIN_DIR' ) ) {
+	define( 'WPML_AT_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
+}
+if ( ! defined( 'WPML_AT_PLUGIN_URL' ) ) {
+	define( 'WPML_AT_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
+}
+if ( ! defined( 'WPML_AT_PLUGIN_BASENAME' ) ) {
+	define( 'WPML_AT_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
+}
 
 /**
  * Main plugin class.
@@ -57,20 +67,33 @@ final class WPML_Auto_Translate_Addon {
 
 	/**
 	 * Load required files.
+	 *
+	 * @return void
 	 */
 	private function load_dependencies() {
-		require_once WPML_AT_PLUGIN_DIR . 'includes/class-wpml-at-helper.php';
-		require_once WPML_AT_PLUGIN_DIR . 'includes/class-wpml-engine.php';
-		require_once WPML_AT_PLUGIN_DIR . 'admin/class-wpml-at-admin.php';
-		require_once WPML_AT_PLUGIN_DIR . 'admin/class-wpml-at-widget.php';
-		require_once WPML_AT_PLUGIN_DIR . 'admin/class-wpml-at-supported-blocks.php';
-		require_once WPML_AT_PLUGIN_DIR . 'admin/class-wpml-at-custom-block-post.php';
-		require_once WPML_AT_PLUGIN_DIR . 'includes/class-cp-wpml-google-auto-translate-ajax.php';
+		$files = array(
+			'includes/class-wpml-at-helper.php',
+			'includes/class-wpml-engine.php',
+			'admin/class-wpml-at-admin.php',
+			'admin/class-wpml-at-widget.php',
+			'admin/class-wpml-at-supported-blocks.php',
+			'admin/class-wpml-at-custom-block-post.php',
+			'includes/class-cp-wpml-google-auto-translate-ajax.php',
+		);
+
+		foreach ( $files as $file ) {
+			$file_path = WPML_AT_PLUGIN_DIR . $file;
+			if ( file_exists( $file_path ) ) {
+				require_once $file_path;
+			}
+		}
 	}
 	
 
 	/**
 	 * Initialize plugin.
+	 *
+	 * @return void
 	 */
 	private function init() {
 		// Check if WPML is active.
@@ -78,12 +101,27 @@ final class WPML_Auto_Translate_Addon {
 			add_action( 'admin_notices', array( $this, 'wpml_missing_notice' ) );
 			return;
 		}
-		CP_WPML_Google_Auto_Translate_Ajax::init();
-		new WPML_AT_Helper();
-		new WPML_AT_Admin();
-		new WPML_AT_Widget();
-		WPML_AT_Supported_Blocks::get_instance();
-		WPML_AT_Custom_Block_Post::get_instance();
+
+		// Initialize AJAX handlers.
+		if ( class_exists( 'CP_WPML_Google_Auto_Translate_Ajax' ) ) {
+			CP_WPML_Google_Auto_Translate_Ajax::init();
+		}
+
+		// Initialize admin classes.
+		if ( is_admin() ) {
+			if ( class_exists( 'WPML_AT_Admin' ) ) {
+				new WPML_AT_Admin();
+			}
+			if ( class_exists( 'WPML_AT_Widget' ) ) {
+				new WPML_AT_Widget();
+			}
+			if ( class_exists( 'WPML_AT_Supported_Blocks' ) ) {
+				WPML_AT_Supported_Blocks::get_instance();
+			}
+			if ( class_exists( 'WPML_AT_Custom_Block_Post' ) ) {
+				WPML_AT_Custom_Block_Post::get_instance();
+			}
+		}
 	}
 
 	/**
@@ -97,11 +135,19 @@ final class WPML_Auto_Translate_Addon {
 
 	/**
 	 * Display notice if WPML is not active.
+	 *
+	 * @return void
 	 */
 	public function wpml_missing_notice() {
+		if ( ! current_user_can( 'activate_plugins' ) ) {
+			return;
+		}
 		?>
 		<div class="notice notice-error">
-			<p><?php esc_html_e( 'WPML Auto Translate Addon requires WPML to be installed and activated.', 'wpml-auto-translate-addon' ); ?></p>
+			<p>
+				<strong><?php esc_html_e( 'WPML Auto Translate Addon:', 'wpml-auto-translate-addon' ); ?></strong>
+				<?php esc_html_e( 'This plugin requires WPML to be installed and activated.', 'wpml-auto-translate-addon' ); ?>
+			</p>
 		</div>
 		<?php
 	}

@@ -1,61 +1,79 @@
 <?php
-if ( ! defined( 'ABSPATH' ) ) exit;
+/**
+ * WPML Engine class for block and content extraction.
+ *
+ * @package WPML_Auto_Translate
+ */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+/**
+ * Engine class for content extraction and translation.
+ */
 final class WPML_Engine {
 
-    /* =========================
-     * Load AutoPoly block rules
-     * ========================= */
-    public static function get_block_rules(): array {
-        static $rules = null;
+	/**
+	 * Load AutoPoly block rules.
+	 *
+	 * @return array Block rules array.
+	 */
+	public static function get_block_rules(): array {
+		static $rules = null;
 
-        if ( $rules !== null ) {
-            return $rules;
-        }
+		if ( $rules !== null ) {
+			return $rules;
+		}
 
-        $file = plugin_dir_path( __FILE__ ) . 'block-translation-rules/block-rules.json';
-        if ( ! file_exists( $file ) ) {
-            $rules = [];
-        } else {
-            $json  = json_decode( file_get_contents( $file ), true );
-            $rules = $json['wpmlautoBlockParseRules'] ?? [];
-            $rules = is_array( $rules ) ? $rules : [];
-        }
+		$file = plugin_dir_path( __FILE__ ) . 'block-translation-rules/block-rules.json';
+		if ( ! file_exists( $file ) || ! is_readable( $file ) ) {
+			$rules = array();
+		} else {
+			$file_contents = file_get_contents( $file );
+			if ( false === $file_contents ) {
+				$rules = array();
+			} else {
+				$json  = json_decode( $file_contents, true );
+				$rules = isset( $json['wpmlautoBlockParseRules'] ) ? $json['wpmlautoBlockParseRules'] : array();
+				$rules = is_array( $rules ) ? $rules : array();
+			}
+		}
 
-        // Merge with custom block rules (user-enabled/disabled blocks)
-        $custom_rules = get_option( 'wpml_at_custom_block_rules', array() );
-        if ( is_array( $custom_rules ) && ! empty( $custom_rules ) ) {
-            // Remove disabled blocks
-            foreach ( $custom_rules as $block_name => $enabled ) {
-                if ( ! $enabled && isset( $rules[ $block_name ] ) ) {
-                    unset( $rules[ $block_name ] );
-                }
-            }
-            
-            // Note: Enabled blocks without rules will use innerHTML fallback in extraction
-            // To add new blocks with custom rules, they need to be added to block-rules.json
-        }
+		// Merge with custom block rules (user-enabled/disabled blocks).
+		$custom_rules = get_option( 'wpml_at_custom_block_rules', array() );
+		if ( is_array( $custom_rules ) && ! empty( $custom_rules ) ) {
+			// Remove disabled blocks.
+			foreach ( $custom_rules as $block_name => $enabled ) {
+				if ( ! $enabled && isset( $rules[ $block_name ] ) ) {
+					unset( $rules[ $block_name ] );
+				}
+			}
 
-        // Merge with custom block translation rules (from custom post type editor)
-        $custom_block_translation = get_option( 'wpml_at_custom_block_translation', array() );
-        if ( is_array( $custom_block_translation ) && ! empty( $custom_block_translation ) ) {
-            foreach ( $custom_block_translation as $block_name => $block_attributes ) {
-                if ( ! isset( $rules[ $block_name ] ) ) {
-                    // Create new block rule if it doesn't exist
-                    $rules[ $block_name ] = array();
-                }
-                
-                if ( ! isset( $rules[ $block_name ]['attributes'] ) ) {
-                    $rules[ $block_name ]['attributes'] = array();
-                }
-                
-                // Merge custom attributes with existing rules
-                $rules[ $block_name ]['attributes'] = array_merge_recursive( $rules[ $block_name ]['attributes'], $block_attributes );
-            }
-        }
+			// Note: Enabled blocks without rules will use innerHTML fallback in extraction
+			// To add new blocks with custom rules, they need to be added to block-rules.json.
+		}
 
-        return $rules;
-    }
+		// Merge with custom block translation rules (from custom post type editor).
+		$custom_block_translation = get_option( 'wpml_at_custom_block_translation', array() );
+		if ( is_array( $custom_block_translation ) && ! empty( $custom_block_translation ) ) {
+			foreach ( $custom_block_translation as $block_name => $block_attributes ) {
+				if ( ! isset( $rules[ $block_name ] ) ) {
+					// Create new block rule if it doesn't exist.
+					$rules[ $block_name ] = array();
+				}
+
+				if ( ! isset( $rules[ $block_name ]['attributes'] ) ) {
+					$rules[ $block_name ]['attributes'] = array();
+				}
+
+				// Merge custom attributes with existing rules.
+				$rules[ $block_name ]['attributes'] = array_merge_recursive( $rules[ $block_name ]['attributes'], $block_attributes );
+			}
+		}
+
+		return $rules;
+	}
 
     /* =========================
      * Extract Gutenberg blocks

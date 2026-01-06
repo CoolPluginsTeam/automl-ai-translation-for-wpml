@@ -1,58 +1,97 @@
 <?php
-if ( ! defined( 'ABSPATH' ) ) exit;
+/**
+ * AJAX handlers for WPML Auto Translate Addon.
+ *
+ * @package WPML_Auto_Translate
+ */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+/**
+ * AJAX handler class.
+ */
 class CP_WPML_Google_Auto_Translate_Ajax {
 
-    const NONCE = 'cp_wpml_auto_translate_nonce';
+	/**
+	 * Nonce key for AJAX requests.
+	 *
+	 * @var string
+	 */
+	const NONCE = 'cp_wpml_auto_translate_nonce';
 
-    public static function init() {
+	/**
+	 * Initialize AJAX handlers.
+	 *
+	 * @return void
+	 */
+	public static function init() {
+		add_action(
+			'wp_ajax_cp_wpml_google_auto_translate_get_post_contents',
+			array( __CLASS__, 'get_post_contents' )
+		);
 
-        add_action(
-            'wp_ajax_cp_wpml_google_auto_translate_get_post_contents',
-            [ __CLASS__, 'get_post_contents' ]
-        );
+		add_action(
+			'wp_ajax_cp_wpml_google_auto_translate_save_translation',
+			array( __CLASS__, 'save_translation' )
+		);
 
-        add_action(
-            'wp_ajax_cp_wpml_google_auto_translate_save_translation',
-            [ __CLASS__, 'save_translation' ]
-        );
+		add_action(
+			'wp_ajax_cp_wpml_google_auto_translate_get_pending_languages',
+			array( __CLASS__, 'get_pending_languages' )
+		);
+	}
 
-        add_action( 
-            'wp_ajax_cp_wpml_google_auto_translate_get_pending_languages', 
-            [ __CLASS__, 'get_pending_languages' ] 
-        );
+	/**
+	 * Detect the editor type for a post.
+	 *
+	 * @param int $post_id Post ID.
+	 * @return string Editor type: 'elementor', 'gutenberg', or 'classic'.
+	 */
+	public static function detect_editor( $post_id ) {
+		$post_id = absint( $post_id );
+		if ( ! $post_id ) {
+			return 'classic';
+		}
 
-    }
-
-    public static function detect_editor( $post_id ) {
-
-		// Elementor
+		// Elementor.
 		if ( get_post_meta( $post_id, '_elementor_data', true ) ) {
 			return 'elementor';
 		}
 
-		// Gutenberg
-		if ( has_blocks( get_post_field( 'post_content', $post_id ) ) ) {
+		// Gutenberg.
+		$content = get_post_field( 'post_content', $post_id );
+		if ( $content && has_blocks( $content ) ) {
 			return 'gutenberg';
 		}
 
 		return 'classic';
 	}
 
-    /* ======================================================
-     * GET POST CONTENT
-     * (Used by openTranslationTablePopup)
-     * ====================================================== */
-    public static function get_post_contents() {
+	/**
+	 * Get post contents for translation.
+	 * Used by openTranslationTablePopup.
+	 *
+	 * @return void
+	 */
+	public static function get_post_contents() {
+		check_ajax_referer( self::NONCE, 'nonce' );
 
-        check_ajax_referer( self::NONCE, 'nonce' );
+		// Check user capabilities.
+		if ( ! current_user_can( 'edit_posts' ) ) {
+			wp_send_json_error( array( 'msg' => esc_html__( 'Insufficient permissions.', 'wpml-auto-translate-addon' ) ) );
+			return;
+		}
 
-        $ids         = (array) ( $_POST['ids'] ?? [] );
-        $target_lang = sanitize_text_field( $_POST['target_lang'] ?? '' );
+		// Sanitize and validate input.
+		$ids         = isset( $_POST['ids'] ) ? array_map( 'absint', (array) $_POST['ids'] ) : array();
+		$target_lang = isset( $_POST['target_lang'] ) ? sanitize_text_field( wp_unslash( $_POST['target_lang'] ) ) : '';
 
-        if ( empty( $ids ) ) {
-            wp_send_json_error();
-        }
+		if ( empty( $ids ) ) {
+			wp_send_json_error( array( 'msg' => esc_html__( 'No post IDs provided.', 'wpml-auto-translate-addon' ) ) );
+			return;
+		}
 
         $response = [];
 
@@ -176,23 +215,26 @@ class CP_WPML_Google_Auto_Translate_Ajax {
         wp_send_json_success( $response );
     }
 
-    /**
+	/**
 	 * Get pending languages (languages without existing translations) for selected posts.
+	 *
+	 * @return void
 	 */
-    public static function get_pending_languages() {
-		// Check nonce but don't die on failure - return JSON error instead
+	public static function get_pending_languages() {
+		// Check nonce but don't die on failure - return JSON error instead.
 		$nonce_check = check_ajax_referer( self::NONCE, 'nonce', false );
 		if ( ! $nonce_check ) {
-			wp_send_json_error( array( 'msg' => 'Security check failed. Please refresh the page and try again.' ) );
+			wp_send_json_error( array( 'msg' => esc_html__( 'Security check failed. Please refresh the page and try again.', 'wpml-auto-translate-addon' ) ) );
 			return;
 		}
-		
+
 		if ( ! current_user_can( 'edit_posts' ) ) {
-			wp_send_json_error( array( 'msg' => 'No permission' ) );
+			wp_send_json_error( array( 'msg' => esc_html__( 'Insufficient permissions.', 'wpml-auto-translate-addon' ) ) );
+			return;
 		}
 
-		$ids = isset( $_POST['ids'] ) ? (array) $_POST['ids'] : array();
-		$ids = array_map( 'intval', $ids );
+		// Sanitize and validate input.
+		$ids = isset( $_POST['ids'] ) ? array_map( 'absint', (array) $_POST['ids'] ) : array();
 
 		if ( empty( $ids ) ) {
 			wp_send_json_error( array( 'msg' => 'No IDs provided' ) );
@@ -261,21 +303,42 @@ class CP_WPML_Google_Auto_Translate_Ajax {
      * ======================================================
      */
     
-     public static function save_translation() {
-        check_ajax_referer( self::NONCE, 'nonce' );
-    
-        $post_id     = absint( $_POST['post_id'] ?? 0 );
-        $target_lang = sanitize_text_field( $_POST['target_lang'] ?? '' );
-        $strings     = $_POST['translated_strings'] ?? [];
-    
-        if ( ! $post_id || ! $target_lang || empty( $strings ) ) {
-            wp_send_json_error([ 'msg' => 'Missing data' ]);
-        }
-    
-        $post = get_post( $post_id );
-        if ( ! $post ) {
-            wp_send_json_error([ 'msg' => 'Invalid post' ]);
-        }
+	/**
+	 * Save translated content.
+	 *
+	 * @return void
+	 */
+	public static function save_translation() {
+		check_ajax_referer( self::NONCE, 'nonce' );
+
+		// Check user capabilities.
+		if ( ! current_user_can( 'edit_posts' ) ) {
+			wp_send_json_error( array( 'msg' => esc_html__( 'Insufficient permissions.', 'wpml-auto-translate-addon' ) ) );
+			return;
+		}
+
+		// Sanitize and validate input.
+		$post_id     = isset( $_POST['post_id'] ) ? absint( $_POST['post_id'] ) : 0;
+		$target_lang = isset( $_POST['target_lang'] ) ? sanitize_text_field( wp_unslash( $_POST['target_lang'] ) ) : '';
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Array data is sanitized individually when processed (field_key sanitized, translated sanitized with wp_kses_post).
+		$strings     = isset( $_POST['translated_strings'] ) ? (array) $_POST['translated_strings'] : array();
+
+		if ( ! $post_id || ! $target_lang || empty( $strings ) ) {
+			wp_send_json_error( array( 'msg' => esc_html__( 'Missing required data.', 'wpml-auto-translate-addon' ) ) );
+			return;
+		}
+
+		$post = get_post( $post_id );
+		if ( ! $post ) {
+			wp_send_json_error( array( 'msg' => esc_html__( 'Invalid post.', 'wpml-auto-translate-addon' ) ) );
+			return;
+		}
+
+		// Check if user can edit this post.
+		if ( ! current_user_can( 'edit_post', $post_id ) ) {
+			wp_send_json_error( array( 'msg' => esc_html__( 'You do not have permission to edit this post.', 'wpml-auto-translate-addon' ) ) );
+			return;
+		}
     
         /* ----------------------------------
          * 1. Detect editor correctly
@@ -283,66 +346,85 @@ class CP_WPML_Google_Auto_Translate_Ajax {
         $is_elementor = get_post_meta( $post_id, '_elementor_data', true );
         $is_blocks    = has_blocks( $post->post_content );
     
-        /* ----------------------------------
-         * 1.5. Extract translated title from strings
-         * ---------------------------------- */
-        $translated_title = $post->post_title; // Default to original
-        foreach ( $strings as $row ) {
-            if ( isset( $row['field_key'] ) && $row['field_key'] === 'title' && ! empty( $row['translated'] ) ) {
-                $translated_title = sanitize_text_field( wp_strip_all_tags( $row['translated'] ) );
-                break;
-            }
-        }
+		/* ----------------------------------
+		 * 1.5. Extract translated title from strings
+		 * ---------------------------------- */
+		$translated_title = $post->post_title; // Default to original.
+		foreach ( $strings as $row ) {
+			if ( isset( $row['field_key'] ) && $row['field_key'] === 'title' && ! empty( $row['translated'] ) ) {
+				$translated_title = sanitize_text_field( wp_strip_all_tags( $row['translated'] ) );
+				break;
+			}
+		}
     
-        /* ----------------------------------
-         * 2. CREATE/UPDATE translated post (WPML-safe)
-         * ---------------------------------- */
-        // Check if translation already exists
-        $translated_post_id = WPML_AT_Helper::get_existing_translation_id( $post_id, $post->post_type, $target_lang );
-        
-        if ( $translated_post_id ) {
-            // Update existing translation
-            wp_update_post([
-                'ID'          => $translated_post_id,
-                'post_title'  => $translated_title,
-            ]);
-        } else {
-            // Create new translation
-        $translated_post_id = wp_insert_post([
-            'post_type'   => $post->post_type,
-            'post_status' => 'draft',
-            'post_title'  => $translated_title,
-            'post_author' => get_current_user_id(),
-        ]);
+		/* ----------------------------------
+		 * 2. CREATE/UPDATE translated post (WPML-safe)
+		 * ---------------------------------- */
+		// Check if translation already exists.
+		$translated_post_id = WPML_AT_Helper::get_existing_translation_id( $post_id, $post->post_type, $target_lang );
+
+		if ( $translated_post_id ) {
+			// Update existing translation.
+			$update_result = wp_update_post(
+				array(
+					'ID'         => $translated_post_id,
+					'post_title' => $translated_title,
+				),
+				true
+			);
+
+			if ( is_wp_error( $update_result ) ) {
+				wp_send_json_error( array( 'msg' => esc_html__( 'Failed to update translation post.', 'wpml-auto-translate-addon' ) ) );
+				return;
+			}
+		} else {
+			// Create new translation.
+			$translated_post_id = wp_insert_post(
+				array(
+					'post_type'   => $post->post_type,
+					'post_status' => 'draft',
+					'post_title'  => $translated_title,
+					'post_author' => get_current_user_id(),
+				),
+				true
+			);
+
+			if ( is_wp_error( $translated_post_id ) ) {
+				wp_send_json_error( array( 'msg' => esc_html__( 'Post creation failed.', 'wpml-auto-translate-addon' ) ) );
+				return;
+			}
+
+			// Link with WPML (CORRECT WAY).
+			$source_lang_details = apply_filters( 'wpml_post_language_details', null, $post_id );
+			$source_lang_code    = isset( $source_lang_details['language_code'] ) ? $source_lang_details['language_code'] : null;
+
+			do_action(
+				'wpml_set_element_language_details',
+				array(
+					'element_id'           => $translated_post_id,
+					'element_type'         => 'post_' . $post->post_type,
+					'trid'                 => apply_filters( 'wpml_element_trid', null, $post_id, 'post_' . $post->post_type ),
+					'language_code'        => $target_lang,
+					'source_language_code' => $source_lang_code,
+				)
+			);
+		}
     
-        if ( is_wp_error( $translated_post_id ) ) {
-            wp_send_json_error([ 'msg' => 'Post creation failed' ]);
-        }
-    
-        // Link with WPML (CORRECT WAY)
-        do_action( 'wpml_set_element_language_details', [
-            'element_id'           => $translated_post_id,
-            'element_type'         => 'post_' . $post->post_type,
-            'trid'                 => apply_filters( 'wpml_element_trid', null, $post_id, 'post_' . $post->post_type ),
-            'language_code'        => $target_lang,
-            'source_language_code' => apply_filters( 'wpml_post_language_details', null, $post_id )['language_code']
-        ]);
-        }
-    
-        /* ----------------------------------
-         * 3. ELEMENTOR (AutoPoly way)
-         * ---------------------------------- */
-        if ( $is_elementor ) {
-            // Decode Elementor data - handle both string and already decoded formats
-            if ( is_string( $is_elementor ) ) {
-                $data = json_decode( $is_elementor, true );
-            } else {
-                $data = $is_elementor;
-            }
-            
-            if ( ! is_array( $data ) ) {
-                wp_send_json_error([ 'msg' => 'Invalid Elementor data' ]);
-            }
+		/* ----------------------------------
+		 * 3. ELEMENTOR (AutoPoly way)
+		 * ---------------------------------- */
+		if ( $is_elementor ) {
+			// Decode Elementor data - handle both string and already decoded formats.
+			if ( is_string( $is_elementor ) ) {
+				$data = json_decode( $is_elementor, true );
+			} else {
+				$data = $is_elementor;
+			}
+
+			if ( ! is_array( $data ) ) {
+				wp_send_json_error( array( 'msg' => esc_html__( 'Invalid Elementor data.', 'wpml-auto-translate-addon' ) ) );
+				return;
+			}
             
             $replacement_count = 0;
             foreach ( $strings as $row ) {
@@ -411,30 +493,36 @@ class CP_WPML_Google_Auto_Translate_Ajax {
             //     }
             // }
     
-            wp_send_json_success([
-                'msg' => 'Elementor translation saved successfully',
-                'post_id' => $translated_post_id,
-                'debug' => [
-                    'replacements' => $replacement_count,
-                    'total_strings' => count( $strings )
-                ]
-            ]);
-        }
+			wp_send_json_success(
+				array(
+					'msg'     => esc_html__( 'Elementor translation saved successfully.', 'wpml-auto-translate-addon' ),
+					'post_id' => $translated_post_id,
+					'debug'   => array(
+						'replacements'   => $replacement_count,
+						'total_strings' => count( $strings ),
+					),
+				)
+			);
+			return;
+		}
     
-        /* ----------------------------------
-         * 4. GUTENBERG / UAGB / BLOCKS
-         * ---------------------------------- */
-        if ( $is_blocks ) {
-            // IMPORTANT: Always use ORIGINAL post content as base for applying translations
-            // because field_keys (e.g., "b:0|attrs.content") are extracted from the original structure
-            // Using translated post content would cause path mismatches
-            $base_post_content = $post->post_content ?? '';
-            
-            if ( empty( $base_post_content ) ) {
-                wp_send_json_error([ 
-                    'msg' => 'Original post content is empty',
-                ]);
-            }
+		/* ----------------------------------
+		 * 4. GUTENBERG / UAGB / BLOCKS
+		 * ---------------------------------- */
+		if ( $is_blocks ) {
+			// IMPORTANT: Always use ORIGINAL post content as base for applying translations
+			// because field_keys (e.g., "b:0|attrs.content") are extracted from the original structure
+			// Using translated post content would cause path mismatches.
+			$base_post_content = $post->post_content ?? '';
+
+			if ( empty( $base_post_content ) ) {
+				wp_send_json_error(
+					array(
+						'msg' => esc_html__( 'Original post content is empty.', 'wpml-auto-translate-addon' ),
+					)
+				);
+				return;
+			}
             
             // Parse blocks from ORIGINAL post content (field_keys match this structure)
             $original_blocks = parse_blocks( $base_post_content );
@@ -472,13 +560,16 @@ class CP_WPML_Google_Auto_Translate_Ajax {
                 'post_content' => $translated_content
             ]);
     
-            wp_send_json_success([
-                'msg' => 'Gutenberg blocks translated and saved',
-                'post_id' => $translated_post_id,
-                'translated_post_id' => $translated_post_id,
-                'is_blocks' => true
-            ]);
-        }
+			wp_send_json_success(
+				array(
+					'msg'                => esc_html__( 'Gutenberg blocks translated and saved.', 'wpml-auto-translate-addon' ),
+					'post_id'            => $translated_post_id,
+					'translated_post_id' => $translated_post_id,
+					'is_blocks'          => true,
+				)
+			);
+			return;
+		}
     
         /* ----------------------------------
          * 5. CLASSIC EDITOR 
@@ -551,27 +642,41 @@ class CP_WPML_Google_Auto_Translate_Ajax {
             ]);
         }
     
-        wp_send_json_success([
-            'msg' => 'Classic editor translation saved successfully',
-            'post_id' => $translated_post_id,
-            'debug' => [
-                'replacements' => $replacement_count,
-                'total_segments' => count( $translations ),
-                'content_length' => strlen( $content ),
-                'original_length' => strlen( $post->post_content )
-            ]
-        ]);
-    }
+		wp_send_json_success(
+			array(
+				'msg'     => esc_html__( 'Classic editor translation saved successfully.', 'wpml-auto-translate-addon' ),
+				'post_id' => $translated_post_id,
+				'debug'   => array(
+					'replacements'    => $replacement_count,
+					'total_segments' => count( $translations ),
+					'content_length' => strlen( $content ),
+					'original_length' => strlen( $post->post_content ),
+				),
+			)
+		);
+	}
 
-    private static function is_translatable_elementor_key( string $key ): bool {
-        // Use the same function as extraction to ensure consistency
-        return WPML_Engine::should_translate_key( $key );
-    }
+	/**
+	 * Check if an Elementor key should be translated.
+	 *
+	 * @param string $key Key name.
+	 * @return bool True if translatable.
+	 */
+	private static function is_translatable_elementor_key( string $key ): bool {
+		// Use the same function as extraction to ensure consistency.
+		return WPML_Engine::should_translate_key( $key );
+	}
 
-    private static function is_forbidden_elementor_key( string $key ): bool {
-        // Use the same function as extraction to ensure consistency
-        return WPML_Engine::is_css_property( $key );
-    }
+	/**
+	 * Check if an Elementor key is a CSS property (forbidden for translation).
+	 *
+	 * @param string $key Key name.
+	 * @return bool True if CSS property.
+	 */
+	private static function is_forbidden_elementor_key( string $key ): bool {
+		// Use the same function as extraction to ensure consistency.
+		return WPML_Engine::is_css_property( $key );
+	}
     /**
      * Apply translations to blocks recursively (similar to Polylang's translate_blocks approach)
      * This method properly preserves block structure including innerContent arrays

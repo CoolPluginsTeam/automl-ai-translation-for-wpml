@@ -184,58 +184,88 @@ class WPML_AT_Helper {
 		);
 	}
 
-    public static function create_translation_if_missing( $source_post_id, $target_lang ) {
+	/**
+	 * Create translation post if missing.
+	 *
+	 * @param int    $source_post_id Source post ID.
+	 * @param string $target_lang     Target language code.
+	 * @return int Translation post ID or 0 on failure.
+	 */
+	public static function create_translation_if_missing( $source_post_id, $target_lang ) {
 		global $wpdb;
 
-		$source = $wpdb->get_row( $wpdb->prepare(
-			"SELECT trid, element_type
-			FROM {$wpdb->prefix}icl_translations
-			WHERE element_id = %d
-			LIMIT 1",
-			$source_post_id
-		) );
+		$source_post_id = absint( $source_post_id );
+		$target_lang    = sanitize_text_field( $target_lang );
 
-		if ( ! $source ) return 0;
+		if ( ! $source_post_id || ! $target_lang ) {
+			return 0;
+		}
 
-		// Check existing translation
-		$existing = $wpdb->get_var( $wpdb->prepare(
-			"SELECT element_id FROM {$wpdb->prefix}icl_translations
-			WHERE trid = %d AND language_code = %s",
-			$source->trid,
-			$target_lang
-		) );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- WPML uses custom table structure, direct query necessary.
+		$source = $wpdb->get_row(
+			$wpdb->prepare(
+				"SELECT trid, element_type
+				FROM {$wpdb->prefix}icl_translations
+				WHERE element_id = %d
+				LIMIT 1",
+				$source_post_id
+			)
+		);
+
+		if ( ! $source ) {
+			return 0;
+		}
+
+		// Check existing translation.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- WPML uses custom table structure, direct query necessary.
+		$existing = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT element_id FROM {$wpdb->prefix}icl_translations
+				WHERE trid = %d AND language_code = %s",
+				$source->trid,
+				$target_lang
+			)
+		);
 
 		if ( $existing ) {
 			return (int) $existing;
 		}
 
 		$src = get_post( $source_post_id );
-		if ( ! $src ) return 0;
+		if ( ! $src ) {
+			return 0;
+		}
 
-		// 🔥 Detect editor from SOURCE
+		// Detect editor from SOURCE.
 		$editor = CP_WPML_Google_Auto_Translate_Ajax::detect_editor( $source_post_id );
 
-		// Create empty shell
-		$new_id = wp_insert_post([
-			'post_type'    => $src->post_type,
-			'post_status'  => 'draft',
-			'post_title'   => $src->post_title,
-			'post_content' => '', // IMPORTANT
-			'post_author'  => $src->post_author,
-		]);
+		// Create empty shell.
+		$new_id = wp_insert_post(
+			array(
+				'post_type'    => $src->post_type,
+				'post_status'  => 'draft',
+				'post_title'   => $src->post_title,
+				'post_content' => '', // IMPORTANT.
+				'post_author'  => $src->post_author,
+			),
+			true
+		);
 
-		if ( is_wp_error( $new_id ) ) return 0;
+		if ( is_wp_error( $new_id ) ) {
+			return 0;
+		}
 
-		// Link WPML
+		// Link WPML.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- WPML uses custom table structure, direct query necessary.
 		$wpdb->insert(
 			"{$wpdb->prefix}icl_translations",
-			[
-				'element_type' => $source->element_type,
-				'element_id'   => $new_id,
-				'trid'         => $source->trid,
-				'language_code'=> $target_lang,
+			array(
+				'element_type'        => $source->element_type,
+				'element_id'          => $new_id,
+				'trid'               => $source->trid,
+				'language_code'      => $target_lang,
 				'source_language_code' => null,
-			]
+			)
 		);
 
 		/* ===============================
@@ -244,7 +274,7 @@ class WPML_AT_Helper {
 
 		if ( $editor === 'elementor' ) {
 
-			// ✅ Clone Elementor data
+			// Clone Elementor data
 			$elementor_data = get_post_meta( $source_post_id, '_elementor_data', true );
 
 			update_post_meta( $new_id, '_elementor_data', $elementor_data );
@@ -253,7 +283,7 @@ class WPML_AT_Helper {
 
 		} elseif ( $editor === 'gutenberg' ) {
 
-			// ✅ Clone Gutenberg structure
+			// Clone Gutenberg structure
 			wp_update_post([
 				'ID'           => $new_id,
 				'post_content' => $src->post_content,

@@ -245,7 +245,14 @@ class WPML_AT_Custom_Block_Post {
 			wp_die( '0', 403 );
 		}
 
-		$json = isset( $_POST['save_block_data'] ) ? wp_unslash( $_POST['save_block_data'] ) : false;
+		// Sanitize JSON input before decoding.
+		$json = isset( $_POST['save_block_data'] ) ? sanitize_textarea_field( wp_unslash( $_POST['save_block_data'] ) ) : false;
+		
+		if ( false === $json || empty( $json ) ) {
+			wp_send_json_error( __( 'No block data provided.', 'wpml-auto-translate-addon' ) );
+			wp_die( '0', 400 );
+		}
+		
 		$updated_blocks_data = json_decode( $json, true );
 		
 		if ( json_last_error() !== JSON_ERROR_NONE ) {
