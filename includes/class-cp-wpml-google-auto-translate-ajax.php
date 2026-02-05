@@ -696,6 +696,7 @@ class CP_WPML_Google_Auto_Translate_Ajax {
                     // Apply translation using the field_key path
                     if ( self::replace_block_text( $block, $field_key, $translated_value, $original_value ) ) {
                         $replacement_count++;
+                    } else {
                     }
                 }
             }
@@ -755,7 +756,20 @@ class CP_WPML_Google_Auto_Translate_Ajax {
                 }
             }
             
+            // Get original innerContent value for syncing
+            $original_inner_content = isset( $ref['innerContent'][ $index ] ) ? $ref['innerContent'][ $index ] : '';
+            $original_text = wp_strip_all_tags( $original_inner_content );
+            $translated_text = wp_strip_all_tags( $value );
+            
+            // CRITICAL: Also sync block attributes when innerContent is updated
+            // This prevents block validation errors (blocks like UAGB buttons store text in both attrs and innerContent)
+            // Matches Polylang's approach: when innerContent is updated, attributes should also be updated
+            if ( ! empty( trim( $original_text ) ) && ! empty( trim( $translated_text ) ) && isset( $ref['attrs'] ) && is_array( $ref['attrs'] ) ) {
+                self::sync_attributes_with_inner_content( $ref['attrs'], trim( $original_text ), trim( $translated_text ) );
+            }
+            
             // Replace ONLY the specific innerContent entry (preserve null placeholders)
+            // $value already contains the translated HTML, so use it directly
             $ref['innerContent'][ $index ] = $value;
             
             return true;
@@ -820,8 +834,31 @@ class CP_WPML_Google_Auto_Translate_Ajax {
         $attr_ref = &$ref['attrs'];
         
         // Simple attribute (e.g., "content" without nesting)
-        if ( strpos( $attr_path, ':') === false && strpos( $attr_path, '.' ) === false ) {
-            $attr_ref[ $attr_path ] = $value;
+        if ( strpos( $attr_path, ':') === false && strpos( $attr_path, '.' ) === false ) {            
+            // Store original value before updating
+            $original_attr_value = isset( $attr_ref[ $attr_path ] ) ? $attr_ref[ $attr_path ] : '';
+            $original_text = wp_strip_all_tags( $original_attr_value );
+            $translated_text = wp_strip_all_tags( $value );
+            
+            // If original attribute value contains HTML, preserve HTML structure when updating
+            // This handles HTML-type attributes (like label with type: "html")
+            if ( preg_match( '/<[^>]+>/', $original_attr_value ) && ! preg_match( '/<[^>]+>/', $value ) ) {
+                // Original has HTML but translated value is plain text - replace text within HTML
+                $new_value = self::replace_text_outside_html_tags( $original_attr_value, trim( $original_text ), trim( $translated_text ) );
+                $attr_ref[ $attr_path ] = $new_value;
+            } else {
+                // No HTML in original, or translated value already has HTML - use translated value directly
+                $attr_ref[ $attr_path ] = $value;
+            }
+            
+            
+            // CRITICAL: Also sync innerContent when attributes are updated
+            // This prevents block validation errors (blocks like UAGB buttons store text in both attrs and innerContent)
+            // Matches Polylang's approach: when attributes are updated, innerContent should also be updated
+            if ( ! empty( trim( $original_text ) ) && ! empty( trim( $translated_text ) ) ) {
+                self::sync_inner_content_with_attributes( $ref, trim( $original_text ), trim( $translated_text ) );
+            }
+            
             return true;
         }
         
@@ -889,13 +926,53 @@ class CP_WPML_Google_Auto_Translate_Ajax {
                 return false;
             }
             if ( isset( $attr_ref[ $final_key ][ $final_index ] ) ) {
-                $attr_ref[ $final_key ][ $final_index ] = $value;
+                // Store original value before updating
+                $original_attr_value = $attr_ref[ $final_key ][ $final_index ];
+                $original_text = wp_strip_all_tags( $original_attr_value );
+                $translated_text = wp_strip_all_tags( $value );
+                
+                // If original attribute value contains HTML, preserve HTML structure when updating
+                // This handles HTML-type attributes (like label with type: "html")
+                if ( preg_match( '/<[^>]+>/', $original_attr_value ) && ! preg_match( '/<[^>]+>/', $value ) ) {
+                    // Original has HTML but translated value is plain text - replace text within HTML
+                    $attr_ref[ $final_key ][ $final_index ] = self::replace_text_outside_html_tags( $original_attr_value, trim( $original_text ), trim( $translated_text ) );
+                } else {
+                    // No HTML in original, or translated value already has HTML - use translated value directly
+                    $attr_ref[ $final_key ][ $final_index ] = $value;
+                }
+                
+                // CRITICAL: Also sync innerContent when attributes are updated
+                if ( ! empty( trim( $original_text ) ) && ! empty( trim( $translated_text ) ) ) {
+                    self::sync_inner_content_with_attributes( $ref, trim( $original_text ), trim( $translated_text ) );
+                }
+                
                 return true;
             }
             return false;
         } else {
             // Regular key - set the value
-            $attr_ref[ $final_key ] = $value;
+            // Store original value before updating
+            $original_attr_value = isset( $attr_ref[ $final_key ] ) ? $attr_ref[ $final_key ] : '';
+            $original_text = wp_strip_all_tags( $original_attr_value );
+            $translated_text = wp_strip_all_tags( $value );
+            
+            // If original attribute value contains HTML, preserve HTML structure when updating
+            // This handles HTML-type attributes (like label with type: "html")
+            if ( preg_match( '/<[^>]+>/', $original_attr_value ) && ! preg_match( '/<[^>]+>/', $value ) ) {
+                // Original has HTML but translated value is plain text - replace text within HTML
+                $attr_ref[ $final_key ] = self::replace_text_outside_html_tags( $original_attr_value, trim( $original_text ), trim( $translated_text ) );
+            } else {
+                // No HTML in original, or translated value already has HTML - use translated value directly
+                $attr_ref[ $final_key ] = $value;
+            }
+            
+            // CRITICAL: Also sync innerContent when attributes are updated
+            // This prevents block validation errors (blocks like UAGB buttons store text in both attrs and innerContent)
+            // Matches Polylang's approach: when attributes are updated, innerContent should also be updated
+            if ( ! empty( trim( $original_text ) ) && ! empty( trim( $translated_text ) ) ) {
+                self::sync_inner_content_with_attributes( $ref, trim( $original_text ), trim( $translated_text ) );
+            }
+            
             return true;
         }
     }
@@ -929,6 +1006,152 @@ class CP_WPML_Google_Auto_Translate_Ajax {
     
         $ref = $value;
         return true;
+    }
+    
+    /**
+     * Sync innerContent with block attributes when attributes are updated
+     * This is the reverse of sync_attributes_with_inner_content
+     * Prevents block validation errors by keeping innerContent in sync with attributes
+     * Matches Polylang's approach: when attributes are updated, innerContent should also be updated
+     * 
+     * @param array &$block Block to update
+     * @param string $original_text Original plain text (from attribute)
+     * @param string $translated_text Translated text
+     * @return void
+     */
+    private static function sync_inner_content_with_attributes( array &$block, string $original_text, string $translated_text ) {
+        if ( empty( $original_text ) || empty( $translated_text ) ) {
+            return;
+        }
+        
+        // Normalize text for comparison
+        $original_text = trim( $original_text );
+        $translated_text = trim( $translated_text );
+        
+        // Update innerHTML if it exists and contains the original text
+        // Use partial matching since innerHTML may contain multiple attributes concatenated
+        if ( isset( $block['innerHTML'] ) && is_string( $block['innerHTML'] ) ) {
+            $inner_html_text = wp_strip_all_tags( $block['innerHTML'] );
+            $inner_html_text_trimmed = trim( $inner_html_text );
+            
+            // Check if innerHTML contains the original text (partial match, not exact)
+            if ( strpos( $inner_html_text_trimmed, $original_text ) !== false ) {
+                // Replace text within HTML using PHP-compatible method
+                if ( preg_match( '/<[^>]+>/', $block['innerHTML'] ) ) {
+                    $old_inner_html = $block['innerHTML'];
+                    $block['innerHTML'] = self::replace_text_outside_html_tags( $block['innerHTML'], $original_text, $translated_text );
+                } else {
+                    // No HTML tags, use simple string replacement
+                    $old_inner_html = $block['innerHTML'];
+                    $block['innerHTML'] = str_replace( $original_text, $translated_text, $block['innerHTML'] );
+                }
+            }
+        }
+        
+        // Update innerContent array entries
+        // Use partial matching since innerContent may contain multiple attributes concatenated
+        if ( isset( $block['innerContent'] ) && is_array( $block['innerContent'] ) ) {
+            foreach ( $block['innerContent'] as $idx => &$content ) {
+                if ( is_string( $content ) && trim( $content ) !== '' ) {
+                    $content_text = wp_strip_all_tags( $content );
+                    $content_text_trimmed = trim( $content_text );
+                    
+                    // Check if innerContent contains the original text (partial match, not exact)
+                    if ( strpos( $content_text_trimmed, $original_text ) !== false ) {
+                        // Replace text within HTML using PHP-compatible method
+                        if ( preg_match( '/<[^>]+>/', $content ) ) {
+                            $old_content = $content;
+                            $content = self::replace_text_outside_html_tags( $content, $original_text, $translated_text );
+                        } else {
+                            // No HTML tags, use simple string replacement
+                            $old_content = $content;
+                            $content = str_replace( $original_text, $translated_text, $content );
+                        }
+                    } else {
+                    }
+                }
+            }
+        }
+    }
+    
+    /**
+     * Replace text outside HTML tags (PHP-compatible version of Polylang's regex)
+     * PHP doesn't support variable-length lookbehind, so we use a simpler regex approach
+     * 
+     * @param string $html HTML content with text to replace
+     * @param string $original_text Original text to find
+     * @param string $replacement_text Replacement text
+     * @return string HTML with text replaced outside tags
+     */
+    private static function replace_text_outside_html_tags( string $html, string $original_text, string $replacement_text ): string {
+        if ( empty( trim( $original_text ) ) || empty( trim( $replacement_text ) ) ) {
+            return $html;
+        }
+        
+        // Normalize whitespace for comparison
+        $original_text = trim( $original_text );
+        $replacement_text = trim( $replacement_text );
+        
+        // Escape special regex characters
+        $escaped_original = preg_quote( $original_text, '/' );
+        
+        // PHP-compatible pattern: Match text that is NOT inside HTML tags
+        // Pattern: Match text that comes after > or at start, and before < or at end
+        // This avoids variable-length lookbehind by using a simpler approach
+        $pattern = '/(?<=>|^)([^<]*?)' . $escaped_original . '([^<]*?)(?=<|$)/u';
+        
+        $result = preg_replace_callback( $pattern, function( $matches ) use ( $replacement_text, $original_text ) {
+            // Replace only the original text, preserve surrounding text
+            return $matches[1] . $replacement_text . $matches[2];
+        }, $html, 1 ); // Limit to 1 replacement to match Polylang behavior
+        
+        // If replacement failed, return original
+        return $result !== null ? $result : $html;
+    }
+    
+    /**
+     * Sync block attributes with innerContent when innerContent is updated
+     * Matches Polylang's updateCustomBlockInnerHtml approach for custom blocks
+     * This prevents block validation errors for blocks that store text in both attrs and innerContent
+     * 
+     * @param array &$attrs Block attributes to search and update
+     * @param string $original_text Original plain text (from innerContent)
+     * @param string $translated_text Translated text
+     * @return void
+     */
+    private static function sync_attributes_with_inner_content( array &$attrs, string $original_text, string $translated_text ) {
+        if ( empty( $original_text ) || empty( $translated_text ) ) {
+            return;
+        }
+        
+        // Normalize text for comparison (trim whitespace)
+        $original_text = trim( $original_text );
+        $translated_text = trim( $translated_text );
+        
+        foreach ( $attrs as $key => &$attr_value ) {
+            if ( is_string( $attr_value ) ) {
+                // Extract plain text from attribute
+                $attr_text = wp_strip_all_tags( $attr_value );
+                $attr_text = trim( $attr_text );
+                
+                // If attribute text matches original innerContent text, update it
+                if ( $attr_text === $original_text ) {
+                    // Replace text in attribute (preserve HTML if present)
+                    if ( preg_match( '/<[^>]+>/', $attr_value ) ) {
+                        // Has HTML - replace text within HTML using PHP-compatible method
+                        $old_value = $attr_value;
+                        $attr_value = self::replace_text_outside_html_tags( $attr_value, $original_text, $translated_text );
+                    } else {
+                        // No HTML - direct replacement
+                        $old_value = $attr_value;
+                        $attr_value = $translated_text;
+                    }
+                }
+            } elseif ( is_array( $attr_value ) ) {
+                // Recursively check nested arrays (for complex attributes)
+                self::sync_attributes_with_inner_content( $attr_value, $original_text, $translated_text );
+            }
+        }
     }
     
 }
