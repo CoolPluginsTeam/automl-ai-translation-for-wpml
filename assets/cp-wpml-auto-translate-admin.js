@@ -546,11 +546,21 @@
             $modal.data('editor-type', 'strings');
             $modal.data('target-lang', targetLang);
     
-            $.post(CP_WPML_AUTO_TRANSLATE.ajax, {
-                action: 'cp_wpml_google_auto_translate_get_strings',
-                nonce: CP_WPML_AUTO_TRANSLATE.nonce,
-                target_lang: targetLang
-            })
+                                               // Get all filter values from the WPML string translation filters
+                        const filterContext = $('select[name="icl_st_filter_context"]').val() || '';
+                        const filterStatus = $('select[name="icl_st_filter_status"]').val() || '';
+                        const filterSearch = $('#icl_st_filter_search').val() || '';
+                        const filterPriority = $('select[name="icl-st-filter-translation-priority"]').val() || '';
+            
+                        $.post(CP_WPML_AUTO_TRANSLATE.ajax, {
+                            action: 'cp_wpml_google_auto_translate_get_strings',
+                            nonce: CP_WPML_AUTO_TRANSLATE.nonce,
+                            target_lang: targetLang,
+                            context: filterContext,
+                            status: filterStatus,
+                            search: filterSearch,
+                            'translation-priority': filterPriority
+                        })
                 .done(function (resp) {
                     if (resp && resp.success && resp.data) {
                         const data = resp.data;

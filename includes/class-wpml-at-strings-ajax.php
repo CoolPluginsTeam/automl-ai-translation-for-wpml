@@ -50,9 +50,23 @@ class WPML_AT_Strings_Ajax {
 		if ( empty( $target_lang ) ) {
 			wp_send_json_error( array( 'msg' => esc_html__( 'Target language is required.', 'wpml-auto-translate-addon' ) ) );
 		}
+
+				// Get context from POST if provided
+				if ( isset( $_POST['context'] ) && ! empty( $_POST['context'] ) ) {
+					$_GET['context'] = sanitize_text_field( wp_unslash( $_POST['context'] ) );
+				}
+				if( isset ($_POST['translation-priority']) && ! empty( $_POST['translation-priority'] ) ) {
+					$_GET['translation-priority'] = sanitize_text_field( wp_unslash( $_POST['translation-priority'] ) );
+				}
+				if( isset ($_POST['status']) && ! empty( $_POST['status'] ) ) {
+					$_GET['status'] = sanitize_text_field( wp_unslash( $_POST['status'] ) );
+				}
+				if( isset ($_POST['search']) && ! empty( $_POST['search'] ) ) {
+					$_GET['search'] = sanitize_text_field( wp_unslash( $_POST['search'] ) );
+				}
 		
-		// Force WPML to return all strings instead of paginated results.
-		$_GET['show_results'] = 'all';
+				// Force WPML to return all strings instead of paginated results.
+				$_GET['show_results'] = 'all';
 		
 		$all_strings = icl_get_string_translations();
 		if ( ! is_array( $all_strings ) ) {
