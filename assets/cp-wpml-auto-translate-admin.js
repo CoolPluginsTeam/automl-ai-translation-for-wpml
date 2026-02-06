@@ -917,11 +917,19 @@
                 return;
             }
     
-            $.post(CP_WPML_AUTO_TRANSLATE.ajax, {
-                action: 'cp_wpml_google_auto_translate_save_string_translations',
-                nonce: CP_WPML_AUTO_TRANSLATE.nonce,
-                target_lang: targetLang,
-                translated_strings: translated_strings
+            // Send as JSON to avoid max_input_vars limit
+            // Include action in URL so WordPress recognizes it as AJAX request
+            $.ajax({
+                url: CP_WPML_AUTO_TRANSLATE.ajax + '?action=cp_wpml_google_auto_translate_save_string_translations',
+                type: 'POST',
+                contentType: 'application/json; charset=utf-8',
+                data: JSON.stringify({
+                    action: 'cp_wpml_google_auto_translate_save_string_translations',
+                    nonce: CP_WPML_AUTO_TRANSLATE.nonce,
+                    target_lang: targetLang,
+                    translated_strings: translated_strings
+                }),
+                dataType: 'json'
             })
                 .done(function (resp) {
                     if (resp && resp.success) {
