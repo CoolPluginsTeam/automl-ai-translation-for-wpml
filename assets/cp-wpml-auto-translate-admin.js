@@ -81,6 +81,39 @@
         return GOOGLE_SUPPORTED_LANGUAGES.indexOf(googleLang) !== -1;
     }
 
+        /**
+     * Show language modal for translating WPML strings (no post IDs).
+     */
+        function showLanguageModalForStrings() {
+            const $modal = $(SELECTORS.languageModal);
+            const $langSelect = $(SELECTORS.langSelect);
+    
+            if (!$modal.length || !$langSelect.length) {
+                console.error('Language modal elements not found');
+                return;
+            }
+    
+            $langSelect.empty();
+            $langSelect.append('<option value="">Select Language</option>');
+    
+            const defaultLang = (CP_WPML_AUTO_TRANSLATE.default_lang || '').toLowerCase();
+            const languages = CP_WPML_AUTO_TRANSLATE.languages || [];
+            if (Array.isArray(languages)) {
+                languages.forEach(function (lang) {
+                    if (lang && lang.code && lang.name) {
+                        const code = (lang.code || '').toLowerCase();
+                        if (code && code !== defaultLang) {
+                            $langSelect.append('<option value="' + esc_attr(lang.code) + '">' + esc_html(lang.name) + ' (' + esc_html(lang.code) + ')</option>');
+                        }
+                    }
+                });
+            }
+    
+            $modal.data('translate-mode', 'strings');
+            $modal.data('selected-ids', []);
+            $modal.css('display', 'flex');
+        }
+
     /**
      * Map WPML language code to Google Translate language code
      */
@@ -378,6 +411,7 @@
         const $modal = $(SELECTORS.translationPopup);
         $modal.data('post-id', postId);
         $modal.data('target-lang', targetLang);
+        $modal.data('editor-type', 'post');
 
         $.post(CP_WPML_AUTO_TRANSLATE.ajax, {
             action: 'cp_wpml_google_auto_translate_get_post_contents',
@@ -422,7 +456,14 @@
             e.preventDefault();
             e.stopPropagation();
             if (!$(this).prop('disabled')) {
-                saveTranslationFromTable(postId, targetLang);
+                const editorType = $(SELECTORS.translationPopup).data('editor-type');
+                const targetLangVal = $(SELECTORS.translationPopup).data('target-lang');
+                if (editorType === 'strings') {
+                    saveStringTranslationsFromTable(targetLangVal);
+                } else {
+                    const postIdVal = $(SELECTORS.translationPopup).data('post-id');
+                    saveTranslationFromTable(postIdVal, targetLangVal);
+                }
             }
         });
 
@@ -435,6 +476,135 @@
             updateSaveButtonState();
         });
     }
+        /**
+     * Open translation popup for WPML strings (no post).
+     *
+     * @param {string} targetLang Target language code
+     */
+        function openStringTranslationPopup(targetLang) {
+            if (!targetLang) {
+                alert(CP_WPML_AUTO_TRANSLATE.i18n?.errorInvalidData || 'Invalid post ID or language.');
+                return;
+            }
+    
+            if (!isGoogleTranslateSupported(targetLang)) {
+                const langName = CP_WPML_AUTO_TRANSLATE.languages && Array.isArray(CP_WPML_AUTO_TRANSLATE.languages)
+                    ? CP_WPML_AUTO_TRANSLATE.languages.find(function(l) { return l && l.code === targetLang; })
+                    : null;
+                const langDisplayName = langName ? langName.name : targetLang;
+                alert('Sorry, Google Translate does not support "' + esc_html(langDisplayName) + '" language. Please select a different language.');
+                return;
+            }
+    
+            $(SELECTORS.translationPopup).remove();
+    
+            const modalHtml = `
+                <div id="${SELECTORS.translationPopup.replace('#', '')}" style="position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.7); z-index:100001; display:flex; align-items:center; justify-content:center;">
+                    <div style="background:#fff; max-width:1200px; width:95%; max-height:90vh; overflow:hidden; box-shadow:0 2px 10px rgba(0,0,0,.2); display:flex; flex-direction:column;">
+                        <div style="background:#4CAF50; color:#fff; padding:15px 20px; display:flex; justify-content:space-between; align-items:center;">
+                            <h2 style="margin:0; color:#fff; font-size:18px;">Start Automatic Translation Process</h2>
+                            <div>
+                                <button type="button" class="button button-primary" id="cp-wpml-auto-translate-translation-save" style="background:#ccc; color:#666; border:none; margin-right:10px; cursor:not-allowed;" disabled>Update Content</button>
+                                <button type="button" id="cp-wpml-auto-translate-translation-close" style="background:transparent; border:none; color:#fff; font-size:20px; cursor:pointer; padding:0 10px;">&times;</button>
+                            </div>
+                        </div>
+                        <div style="padding:20px; overflow-y:auto; flex:1;">
+                            <div style="margin-bottom:20px; display:flex; align-items:center; gap:15px;">
+                                <h3 style="margin:0; color:#4CAF50;">Translate strings</h3>
+                            </div>
+                            <div style="margin-bottom:20px;">
+                                <h4 style="margin:0 0 10px 0;">Google Translator</h4>
+                                <div id="${SELECTORS.googleTranslateElement.replace('#', '')}" style="min-height:40px;"></div>
+                            </div>
+                            <div style="overflow-x:auto;">
+                                <table id="${SELECTORS.translationTable.replace('#', '')}" style="width:100%; border-collapse:collapse; border:1px solid #ddd;">
+                                    <thead>
+                                        <tr style="background:#f5f5f5;">
+                                            <th style="padding:12px; text-align:left; border:1px solid #ddd; width:60px;">S.No</th>
+                                            <th style="padding:12px; text-align:left; border:1px solid #ddd;">Source Text</th>
+                                            <th style="padding:12px; text-align:left; border:1px solid #ddd;">Translation</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="${SELECTORS.translationTbody.replace('#', '')}">
+                                        <tr>
+                                            <td colspan="3" style="padding:20px; text-align:center; color:#666;">Loading content...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div style="background:#4CAF50; padding:15px 20px; text-align:right;">
+                            <button type="button" class="button button-primary" id="cp-wpml-auto-translate-translation-save-footer" style="background:#ccc; color:#666; border:none; padding:10px 20px; font-weight:bold; cursor:not-allowed;" disabled>Update Content</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+    
+            $('body').append(modalHtml);
+    
+            const $modal = $(SELECTORS.translationPopup);
+            $modal.data('editor-type', 'strings');
+            $modal.data('target-lang', targetLang);
+    
+            $.post(CP_WPML_AUTO_TRANSLATE.ajax, {
+                action: 'cp_wpml_google_auto_translate_get_strings',
+                nonce: CP_WPML_AUTO_TRANSLATE.nonce,
+                target_lang: targetLang
+            })
+                .done(function (resp) {
+                    if (resp && resp.success && resp.data) {
+                        const data = resp.data;
+                        const postData = {
+                            strings: data.strings || [],
+                            title: data.title || '',
+                            editor_type: 'strings'
+                        };
+                        populateTranslationTable(postData, targetLang);
+                        initGoogleTranslateWidget(targetLang);
+                    } else {
+                        const errorMsg = (resp && resp.data && resp.data.msg) ? resp.data.msg : 'Failed to load strings.';
+                        alert(esc_html(errorMsg));
+                        $modal.remove();
+                    }
+                })
+                .fail(function (xhr, status, error) {
+                    console.error('AJAX error while loading strings:', status, error);
+                    alert(CP_WPML_AUTO_TRANSLATE.i18n?.errorAjax || 'AJAX error while loading content.');
+                    $modal.remove();
+                });
+    
+            $(document).off('click', '#cp-wpml-auto-translate-translation-close').on('click', '#cp-wpml-auto-translate-translation-close', function () {
+                $(SELECTORS.translationPopup).remove();
+            });
+    
+            $modal.on('click', function (e) {
+                if (e.target.id === SELECTORS.translationPopup.replace('#', '')) {
+                    $(SELECTORS.translationPopup).remove();
+                }
+            });
+    
+            $(document).off('click', '#cp-wpml-auto-translate-translation-save, #cp-wpml-auto-translate-translation-save-footer').on('click', '#cp-wpml-auto-translate-translation-save, #cp-wpml-auto-translate-translation-save-footer', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                if (!$(this).prop('disabled')) {
+                    const editorType = $(SELECTORS.translationPopup).data('editor-type');
+                    const targetLangVal = $(SELECTORS.translationPopup).data('target-lang');
+                    if (editorType === 'strings') {
+                        saveStringTranslationsFromTable(targetLangVal);
+                    } else {
+                        const postId = $(SELECTORS.translationPopup).data('post-id');
+                        saveTranslationFromTable(postId, targetLangVal);
+                    }
+                }
+            });
+    
+            $(document).on('input change', '.' + CLASSES.translationField + '.target', function() {
+                const $field = $(this);
+                const currentText = $field.text();
+                $field.attr('data-translated-html', currentText);
+                updateSaveButtonState();
+            });
+        }
 
     /**
      * Populate translation table with post content using WPML package data
@@ -712,6 +882,53 @@
             alert(CP_WPML_AUTO_TRANSLATE.i18n?.errorAjaxSave || 'AJAX error while saving.');
         });
     }
+        /**
+     * Save string translations from table (WPML strings, no post).
+     *
+     * @param {string} targetLang Target language code
+     */
+        function saveStringTranslationsFromTable(targetLang) {
+            if (!targetLang) {
+                alert(CP_WPML_AUTO_TRANSLATE.i18n?.errorInvalidData || 'Invalid post ID or language.');
+                return;
+            }
+    
+            const translated_strings = [];
+            $('.' + CLASSES.translationField + '.target').each(function () {
+                const $field = $(this);
+                const fieldKey = $field.data('field-key') || $field.closest('tr').data('field-key') || '';
+                const translated = ($field.attr('data-translated-html') || $field.text()).trim();
+                if (!fieldKey) return;
+                translated_strings.push({ field_key: fieldKey, translated: translated });
+            });
+    
+            if (translated_strings.length === 0) {
+                alert(CP_WPML_AUTO_TRANSLATE.i18n?.errorNoStrings || 'No translation strings found.');
+                return;
+            }
+    
+            $.post(CP_WPML_AUTO_TRANSLATE.ajax, {
+                action: 'cp_wpml_google_auto_translate_save_string_translations',
+                nonce: CP_WPML_AUTO_TRANSLATE.nonce,
+                target_lang: targetLang,
+                translated_strings: translated_strings
+            })
+                .done(function (resp) {
+                    if (resp && resp.success) {
+                        $(SELECTORS.translationPopup).remove();
+                        const msg = (resp.data && resp.data.msg) ? resp.data.msg : 'Translations saved.';
+                        alert(msg);
+                        location.reload();
+                    } else {
+                        const errorMsg = (resp && resp.data && resp.data.msg) ? resp.data.msg : (CP_WPML_AUTO_TRANSLATE.i18n?.errorUnknown || 'Unknown error');
+                        alert(esc_html(errorMsg));
+                    }
+                })
+                .fail(function (xhr, status, error) {
+                    console.error('AJAX error while saving strings:', status, error);
+                    alert(CP_WPML_AUTO_TRANSLATE.i18n?.errorAjaxSave || 'AJAX error while saving.');
+                });
+        }
 
     /**
      * Initialize Google Translate widget
@@ -1006,6 +1223,7 @@
         e.stopPropagation();
         const $modal = $(SELECTORS.languageModal);
         const selectedIds = $modal.data('selected-ids') || [];
+        const isStringsMode = $modal.data('translate-mode') === 'strings';
         const selectedLanguage = $(SELECTORS.langSelect).val();
 
         if (!selectedLanguage) {
@@ -1013,7 +1231,7 @@
             return;
         }
 
-        if (!selectedIds.length) {
+        if (!isStringsMode && !selectedIds.length) {
             alert(CP_WPML_AUTO_TRANSLATE.i18n?.errorNoSelection || 'No posts selected for translation.');
             return;
         }
@@ -1029,7 +1247,11 @@
         }
 
         hideLanguageModal();
-        openTranslationTablePopup(selectedIds[0], selectedLanguage);
+        if (isStringsMode) {
+            openStringTranslationPopup(selectedLanguage);
+        } else {
+            openTranslationTablePopup(selectedIds[0], selectedLanguage);
+        }
     });
 
     $(document).on('click', SELECTORS.languageModal, function (e) {
@@ -1037,6 +1259,31 @@
             hideLanguageModal();
         }
     });
+
+        /**
+     * Inject "Translate strings" button on WPML String Translation page.
+     */
+        function initStringsTranslateButton() {
+            if (!CP_WPML_AUTO_TRANSLATE.stringsTranslateEnabled) {
+                return;
+            }
+            const $wrap = $('#icl_string_translations_wrap');
+            if (!$wrap.length) {
+                return;
+            }
+            if ($wrap.find('.cp-wpml-strings-translate-btn').length) {
+                return;
+            }
+            const label = (CP_WPML_AUTO_TRANSLATE.i18n && CP_WPML_AUTO_TRANSLATE.i18n.translateStrings) ? CP_WPML_AUTO_TRANSLATE.i18n.translateStrings : 'Translate strings';
+            const $toolbar = $('<div class="cp-wpml-strings-translate-toolbar" style="margin-bottom:12px;">').append(
+                $('<button type="button" class="button button-primary cp-wpml-strings-translate-btn">').text(label)
+            );
+            $wrap.prepend($toolbar);
+            $toolbar.on('click', '.cp-wpml-strings-translate-btn', function (e) {
+                e.preventDefault();
+                showLanguageModalForStrings();
+            });
+        }
 
     /**
      * Initialize row action translate button
@@ -1062,6 +1309,7 @@
     ensureGoogleButtons(document);
     initBulkTranslateButton();
     createLanguageModal();
+    initStringsTranslateButton();
     initRowActionTranslateButton();
 
     // Watch DOM changes

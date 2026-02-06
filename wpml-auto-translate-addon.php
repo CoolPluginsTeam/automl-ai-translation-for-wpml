@@ -87,6 +87,9 @@ final class WPML_Auto_Translate_Addon {
 				require_once $file_path;
 			}
 		}
+
+		// Load string translation AJAX only when WPML String Translation is active.
+				require_once WPML_AT_PLUGIN_DIR . 'includes/class-wpml-at-strings-ajax.php';
 	}
 	
 
@@ -105,6 +108,9 @@ final class WPML_Auto_Translate_Addon {
 		// Initialize AJAX handlers.
 		if ( class_exists( 'CP_WPML_Google_Auto_Translate_Ajax' ) ) {
 			CP_WPML_Google_Auto_Translate_Ajax::init();
+		}
+		if ( class_exists( 'WPML_AT_Strings_Ajax' ) ) {
+			add_action( 'wp_loaded', array( 'WPML_AT_Strings_Ajax', 'init' ), 20 );
 		}
 
 		// Initialize admin classes.

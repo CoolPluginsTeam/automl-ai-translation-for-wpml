@@ -38,9 +38,9 @@ class WPML_AT_Admin {
 		$is_translation_dashboard = ! empty( $page ) && strpos( $page, 'tm/menu/main.php' ) !== false;
 		$is_post_list              = strpos( $hook, 'edit.php' ) !== false;
 		$is_post_edit              = strpos( $hook, 'post.php' ) !== false || strpos( $hook, 'post-new.php' ) !== false;
-
+        $is_string_translation_page = ! empty( $page ) && strpos( $page, 'string-translation' ) !== false;
 		// Enqueue translation dashboard/post list scripts.
-		if ( $is_translation_dashboard || $is_post_list ) {
+		if ( $is_translation_dashboard || $is_post_list || $is_string_translation_page ) {
 			wp_enqueue_script(
 				'cp-wpml-auto-translate-admin',
 				WPML_AT_PLUGIN_URL . 'assets/cp-wpml-auto-translate-admin.js',
@@ -50,6 +50,7 @@ class WPML_AT_Admin {
 			);
 
 			$languages = WPML_AT_Helper::get_wpml_languages();
+			$default_lang = apply_filters( 'wpml_default_language', 'en' );
 
 			wp_localize_script(
 				'cp-wpml-auto-translate-admin',
@@ -58,8 +59,11 @@ class WPML_AT_Admin {
 					'ajax'      => esc_url( admin_url( 'admin-ajax.php' ) ),
 					'nonce'     => wp_create_nonce( CP_WPML_Google_Auto_Translate_Ajax::NONCE ),
 					'languages' => $languages,
+					'default_lang'            => $default_lang,
+                    'stringsTranslateEnabled' => $is_string_translation_page,
 					'admin_url' => esc_url( admin_url() ),
 					'i18n'      => array(
+						'translateStrings'  => esc_html__( 'Translate strings', 'wpml-auto-translate-addon' ),
 						'errorPageId'      => esc_html__( 'Could not detect page ID for this row.', 'wpml-auto-translate-addon' ),
 						'errorNoSelection' => esc_html__( 'Please select at least one post to translate.', 'wpml-auto-translate-addon' ),
 						'errorNoLanguage'  => esc_html__( 'Please select a target language.', 'wpml-auto-translate-addon' ),

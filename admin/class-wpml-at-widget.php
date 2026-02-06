@@ -31,13 +31,14 @@ class WPML_AT_Widget {
 	public function load_widget_scripts() {
 		global $pagenow;
 
-		// Sanitize and validate page parameter.
+				// Sanitize and validate page parameter.
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading GET parameter for conditional logic, not processing form data.
 		$page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
-		$is_translation_dashboard = ! empty( $page ) && strpos( $page, 'tm/menu/main.php' ) !== false;
-		$is_post_list             = 'edit.php' === $pagenow;
+		$is_translation_dashboard   = ! empty( $page ) && strpos( $page, 'tm/menu/main.php' ) !== false;
+		$is_post_list               = 'edit.php' === $pagenow;
+		$is_string_translation_page = ! empty( $page ) && strpos( $page, 'string-translation' ) !== false;
 
-		if ( ! $is_translation_dashboard && ! $is_post_list ) {
+		if ( ! $is_translation_dashboard && ! $is_post_list && ! $is_string_translation_page ) {
 			return;
 		}
 

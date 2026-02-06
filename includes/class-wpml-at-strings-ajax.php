@@ -1,0 +1,151 @@
+<?php
+/**
+ * AJAX handlers for WPML String Translation (plugin/theme strings) via Google Translate.
+ * Uses WPML ST APIs: icl_get_string_translations(), icl_add_string_translation().
+ * Reuses the same nonce as post translation (CP_WPML_Google_Auto_Translate_Ajax::NONCE).
+ *
+ * @package WPML_Auto_Translate
+ */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+/**
+ * Strings AJAX handler class.
+ */
+class WPML_AT_Strings_Ajax {
+
+	/**
+	 * Initialize AJAX handlers. Call only when WPML String Translation is active.
+	 *
+	 * @return void
+	 */
+    public static function init() {
+		add_action( 'wp_ajax_cp_wpml_google_auto_translate_get_strings', array( __CLASS__, 'get_strings' ) );
+		add_action( 'wp_ajax_cp_wpml_google_auto_translate_save_string_translations', array( __CLASS__, 'save_string_translations' ) );
+	}
+
+	/**
+	 * Get strings that are missing translation for the given target language.
+	 * Uses WPML's icl_get_string_translations() and filters by missing translations.
+	 *
+	 * @return void
+	 */
+    public static function get_strings() {
+        if ( ! check_ajax_referer( CP_WPML_Google_Auto_Translate_Ajax::NONCE, 'nonce', false ) ) {
+			wp_send_json_error( array( 'msg' => __( 'Security check failed. Please refresh the page and try again.', 'wpml-auto-translate-addon' ) ) );
+			return;
+		}
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'msg' => esc_html__( 'Insufficient permissions.', 'wpml-auto-translate-addon' ) ) );
+		}
+
+		if ( ! function_exists( 'icl_get_string_translations' ) ) {
+			wp_send_json_error( array( 'msg' => esc_html__( 'WPML String Translation is not active.', 'wpml-auto-translate-addon' ) ) );
+		}
+
+		$target_lang = isset( $_POST['target_lang'] ) ? sanitize_text_field( wp_unslash( $_POST['target_lang'] ) ) : '';
+		if ( empty( $target_lang ) ) {
+			wp_send_json_error( array( 'msg' => esc_html__( 'Target language is required.', 'wpml-auto-translate-addon' ) ) );
+		}
+
+		$all_strings = icl_get_string_translations();
+		if ( ! is_array( $all_strings ) ) {
+			$all_strings = array();
+		}
+
+		$rows = array();
+		foreach ( $all_strings as $string_id => $item ) {
+			// Skip if this string already has a translation for target language.
+			if ( ! empty( $item['translations'][ $target_lang ] ) ) {
+				continue;
+			}
+			$value = isset( $item['value'] ) ? $item['value'] : '';
+			if ( trim( (string) $value ) === '' ) {
+				continue;
+			}
+			$rows[] = array(
+				'field_key'  => (string) $string_id,
+				'original'   => $value,
+				'translate'  => 1,
+				'context'    => isset( $item['context'] ) ? $item['context'] : '',
+				'name'       => isset( $item['name'] ) ? $item['name'] : '',
+			);
+		}
+
+		// Format for same table structure as post translation (strings array).
+		$strings = array();
+		foreach ( $rows as $row ) {
+			$strings[] = array(
+				'text'       => $row['original'],
+				'html'       => $row['original'],
+				'field_key'  => $row['field_key'],
+				'field_name' => ! empty( $row['name'] ) ? $row['name'] : $row['field_key'],
+				'format'     => 'html',
+			);
+		}
+
+		wp_send_json_success( array(
+			'strings'      => $strings,
+			'target_lang'  => $target_lang,
+			'title'        => '',
+			'editor_type'  => 'strings',
+		) );
+	}
+
+	/**
+	 * Save string translations into icl_string_translations via WPML's API.
+	 *
+	 * @return void
+	 */
+    public static function save_string_translations() {
+		if ( ! check_ajax_referer( CP_WPML_Google_Auto_Translate_Ajax::NONCE, 'nonce', false ) ) {
+			wp_send_json_error( array( 'msg' => esc_html__( 'Security check failed. Please refresh the page and try again.', 'wpml-auto-translate-addon' ) ) );
+			return;
+		}
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'msg' => esc_html__( 'Insufficient permissions.', 'wpml-auto-translate-addon' ) ) );
+		}
+
+		if ( ! function_exists( 'icl_add_string_translation' ) ) {
+			wp_send_json_error( array( 'msg' => esc_html__( 'WPML String Translation is not active.', 'wpml-auto-translate-addon' ) ) );
+		}
+
+		$target_lang = isset( $_POST['target_lang'] ) ? sanitize_text_field( wp_unslash( $_POST['target_lang'] ) ) : '';
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitized per item
+		$translated_strings = isset( $_POST['translated_strings'] ) ? (array) $_POST['translated_strings'] : array();
+
+		if ( empty( $target_lang ) || empty( $translated_strings ) ) {
+			wp_send_json_error( array( 'msg' => esc_html__( 'Missing target language or translated strings.', 'wpml-auto-translate-addon' ) ) );
+		}
+
+		$status = defined( 'ICL_TM_COMPLETE' ) ? ICL_TM_COMPLETE : 10;
+
+		$saved = 0;
+		foreach ( $translated_strings as $row ) {
+			$string_id = isset( $row['field_key'] ) ? absint( $row['field_key'] ) : 0;
+			$value     = isset( $row['translated'] ) ? $row['translated'] : '';
+			if ( ! $string_id ) {
+				continue;
+			}
+			$value = html_entity_decode( $value, ENT_QUOTES | ENT_HTML5, 'UTF-8' );
+			$value = wp_kses_post( $value );
+			$id    = icl_add_string_translation( $string_id, $target_lang, $value, $status );
+			if ( $id ) {
+				++$saved;
+			}
+		}
+
+		wp_send_json_success( array(
+			'msg'   => sprintf(
+				/* translators: %d: number of strings */
+				esc_html__( '%d string(s) translated and saved.', 'wpml-auto-translate-addon' ),
+				$saved
+			),
+			'saved' => $saved,
+		) );
+	}
+}
