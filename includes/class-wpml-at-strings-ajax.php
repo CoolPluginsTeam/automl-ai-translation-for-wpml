@@ -50,7 +50,10 @@ class WPML_AT_Strings_Ajax {
 		if ( empty( $target_lang ) ) {
 			wp_send_json_error( array( 'msg' => esc_html__( 'Target language is required.', 'wpml-auto-translate-addon' ) ) );
 		}
-
+		
+		// Force WPML to return all strings instead of paginated results.
+		$_GET['show_results'] = 'all';
+		
 		$all_strings = icl_get_string_translations();
 		if ( ! is_array( $all_strings ) ) {
 			$all_strings = array();
