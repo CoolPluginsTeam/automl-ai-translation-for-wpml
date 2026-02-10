@@ -78,6 +78,7 @@ final class WPML_Auto_Translate_Addon {
 			'admin/class-wpml-at-widget.php',
 			'admin/class-wpml-at-supported-blocks.php',
 			'admin/class-wpml-at-custom-block-post.php',
+			'includes/class-wpml-at-strings-ajax.php',
 			'includes/class-cp-wpml-google-auto-translate-ajax.php',
 		);
 
@@ -105,6 +106,9 @@ final class WPML_Auto_Translate_Addon {
 		// Initialize AJAX handlers.
 		if ( class_exists( 'CP_WPML_Google_Auto_Translate_Ajax' ) ) {
 			CP_WPML_Google_Auto_Translate_Ajax::init();
+		}
+		if ( class_exists( 'WPML_AT_Strings_Ajax' ) ) {
+			WPML_AT_Strings_Ajax::init();
 		}
 
 		// Initialize admin classes.
