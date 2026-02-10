@@ -1,4 +1,6 @@
 import { filterContent, updateFilterContent } from './components/filter-content';
+import { AITranslationRequest } from './helper';
+import ChromeAiTranslator from './components/translate-provider/local-ai/local-ai-translate';
 import { updatePendingPosts, unsetPendingPost, updateCompletedPosts, updateTranslatePostInfo, updateCountInfo, updateSourceContent, updateParentPostsInfo, updateTargetContent, updateTargetLanguages, updateBlockParseRules, updateProgressStatus, updateErrorPostsInfo } from './redux-store/features/actions';
 import { store } from './redux-store/store';
 import { __, sprintf } from '@wordpress/i18n';
@@ -444,5 +446,379 @@ const bulkTranslateEntries = async ({ ids, langs, storeDispatch }) => {
         return { postKeys, nonce: untranslatedPostsData.data.CreateTranslatePostNonce };
     }
 }
+/**
+ * Bulk translate strings for String Translation page.
+ * Gets strings via get_strings AJAX endpoint and translates them.
+ */
+const bulkTranslateStrings = async ({ langs, storeDispatch, stringFilters }) => {
+    const ajaxUrl = atfpp_bulk_translate_object.ajax;
+    const nonce = atfpp_bulk_translate_object.nonce;
 
-export { bulkTranslateEntries, initBulkTranslate };
+    const stringKeys = [];
+    const stringsByLanguage = {};
+    const PAGE_SIZE = 500; // 🔢 fetch 500 strings per request
+
+    for (const lang of langs) {
+        console.log('lang', lang);
+
+        let offset = 0;
+        let hasMore = true;
+
+        while (hasMore) {
+            try {
+                const formData = new URLSearchParams();
+                formData.append('action', 'cp_wpml_google_auto_translate_get_strings');
+                formData.append('nonce', nonce);
+                formData.append('target_lang', lang);
+                formData.append('limit', PAGE_SIZE.toString());
+                formData.append('offset', offset.toString());
+
+                // Pass filters individually so PHP can read them from $_POST.
+                if (stringFilters.status) {
+                    formData.append('status', stringFilters.status);
+                }
+                if (stringFilters.context) {
+                    formData.append('context', stringFilters.context);
+                }
+                if (stringFilters['translation-priority']) {
+                    formData.append('translation-priority', stringFilters['translation-priority']);
+                }
+                if (stringFilters.search) {
+                    formData.append('search', stringFilters.search);
+                }
+
+                const response = await fetch(
+                    ajaxUrl + '?action=cp_wpml_google_auto_translate_get_strings',
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                            'Accept': 'application/json',
+                        },
+                        body: formData,
+                    }
+                );
+
+                const data = await response.json();
+                console.log('get_strings response', data);
+
+                if (data.success && data.data && Array.isArray(data.data.strings) && data.data.strings.length > 0) {
+                    const strings = data.data.strings;
+
+                    // Accumulate all strings for this language (used later by initBulkTranslateStrings)
+                    if (!stringsByLanguage[lang]) {
+                        stringsByLanguage[lang] = [];
+                    }
+                    stringsByLanguage[lang].push(...strings);
+
+                    // Collect keys and set up Redux state for this batch
+                    const flagUrl = atfpp_bulk_translate_object.languageObject[lang]?.flag || '';
+                    const languageName = atfpp_bulk_translate_object.languageObject[lang]?.name || lang;
+                    const pendingKeys = [];
+                    const translatePostInfoBatch = {};
+
+                    strings.forEach((str, index) => {
+                        const key = `string_${str.field_key}_${lang}`;
+                        stringKeys.push(key);
+                        pendingKeys.push(key);
+
+                        translatePostInfoBatch[key] = {
+                            parentPostId: str.field_key,
+                            targetPostId: null,
+                            targetLanguage: lang,
+                            postLink: null,
+                            status: 'pending',
+                            parentPostTitle: str.field_name || str.field_key,
+                            firstPostLanguage: (offset === 0 && index === 0),
+                            flagUrl: flagUrl,
+                            languageName: languageName,
+                            messageClass: 'warning',
+                            editorType: 'strings',
+                        };
+                    });
+
+                    // Batch dispatch to reduce Redux actions
+                    storeDispatch(updatePendingPosts(pendingKeys));
+                    storeDispatch(updateTranslatePostInfo(translatePostInfoBatch));
+
+                    // Update pagination
+                    offset += strings.length;
+                    const total = data.data.total || 0;
+                    hasMore = total > offset;
+                } else {
+                    // No more strings for this language
+                    hasMore = false;
+                }
+            } catch (error) {
+                console.error(`Error fetching strings for language ${lang}:`, error);
+                hasMore = false;
+            }
+        }
+    }
+
+    if (stringKeys.length === 0) {
+        return { success: false, message: __('No strings found to translate.', 'wpml-auto-translate-addon') };
+    }
+
+    // Initialize counters for string translation (1 "post" entry per string key)
+    storeDispatch(updateCountInfo({
+        totalPosts: stringKeys.length,
+    }));
+
+    return {
+        success: true,
+        stringKeys: stringKeys,
+        stringsByLanguage: stringsByLanguage,
+        nonce: nonce,
+    };
+};
+/**
+ * Translate an array of plain strings using Chrome built-in AI (client-side).
+ * Returns Promise<string[]> with same order as input, or rejects on error.
+ */
+const translateStringsWithChromeAI = (strings, sourceLang, targetLang) => {
+    const languageObject = atfpp_bulk_translate_object?.languageObject || {};
+    const textContentObject = strings.reduce((acc, text, i) => {
+        acc[i] = text || '';
+        return acc;
+    }, {});
+
+    return new Promise((resolve, reject) => {
+        const translations = [];
+        ChromeAiTranslator.Object({
+            sourceLanguage: sourceLang,
+            targetLanguage: targetLang,
+            sourceLanguageLabel: languageObject[sourceLang]?.name || sourceLang,
+            targetLanguageLabel: languageObject[targetLang]?.name || targetLang,
+            onAfterTranslate: (key, translated) => {
+                const index = parseInt(key, 10);
+                if (!Number.isNaN(index)) {
+                    translations[index] = translated || '';
+                }
+            },
+            onComplete: () => resolve(translations),
+            onLanguageError: (err) => reject(err?.message ? new Error(err.message) : new Error('Chrome AI translation failed')),
+        })
+            .then((translatorObj) => {
+                if (!translatorObj?.init || !translatorObj?.startTranslation) {
+                    reject(new Error(__('Chrome AI is not available. Use Chrome and enable the Translation API.', 'wpml-auto-translate-addon')));
+                    return;
+                }
+                translatorObj.init(textContentObject);
+                translatorObj.startTranslation();
+            })
+            .catch(reject);
+    });
+};
+
+/**
+ * Initialize bulk translation for strings.
+ * Similar to initBulkTranslate but for strings.
+ */
+const initBulkTranslateStrings = async (stringKeys = [], stringsByLanguage = {}, nonce, storeDispatch, prefix, updateDestoryHandler) => {
+    const pendingPosts = store.getState().pendingPosts;
+
+    if (pendingPosts.length < 1) {
+        return;
+    }
+
+    let modalClosed = false;
+
+    updateDestoryHandler(() => {
+        modalClosed = true;
+    });
+
+    // Get source language from WPML settings (default language)
+    const sourceLang = atfpp_bulk_translate_object.default_language_slug || 'en';
+    
+    // Group strings by language for translation
+    const translateStringsForLanguage = async (lang, strings) => {
+        if (!strings || strings.length === 0 || modalClosed) {
+            return;
+        }
+    
+        const activeProvider = store.getState().serviceProvider;
+        console.log('activeProvider', activeProvider);
+    
+        // Get service slug for AI translation
+        let serviceSlug = activeProvider;
+        if (serviceSlug && serviceSlug.endsWith('_ai')) {
+            serviceSlug = serviceSlug.replace('_ai', '');
+        }
+    
+        // Use batches of 500 for translation + saving
+        const BATCH_SIZE = 500;
+        const controller = new AbortController();
+    
+        // Mark all strings as in-progress first
+        const allKeys = strings.map(str => `string_${str.field_key}_${lang}`);
+        allKeys.forEach(key => {
+            storeDispatch(updateTranslatePostInfo({
+                [key]: {
+                    status: 'in-progress',
+                    messageClass: 'in-progress'
+                }
+            }));
+        });
+    
+        // Process strings in batches of 500 until all are done
+        for (let i = 0; i < strings.length; i += BATCH_SIZE) {
+            if (modalClosed) {
+                controller.abort();
+                break;
+            }
+    
+            const batch = strings.slice(i, i + BATCH_SIZE);
+    
+            try {
+                // Prepare strings for translation API
+                const stringsToTranslate = batch.map(str => ({
+                    text: str.text || str.html || '',
+                    field_key: str.field_key,
+                }));
+    
+                // Call AI translation API
+                let translationResponse;
+                if (activeProvider === 'localAiTranslator') {
+                    const translations = await translateStringsWithChromeAI(
+                        stringsToTranslate.map(s => s.text),
+                        sourceLang,
+                        lang
+                    );
+                    translationResponse = {
+                        success: true,
+                        data: { translations }
+                    };
+                } else {
+                    translationResponse = await AITranslationRequest({
+                        controller: controller,
+                        Strings: stringsToTranslate.map(s => s.text),
+                        slug: serviceSlug,
+                        source_language: sourceLang,
+                        target_language: lang
+                    });
+                }
+    
+                if (translationResponse && translationResponse.success && translationResponse.data) {
+                    const translations = Array.isArray(translationResponse.data)
+                        ? translationResponse.data
+                        : (translationResponse.data.translations || []);
+    
+                    // Prepare this batch for saving (max 500 per request)
+                    const batchToSave = [];
+    
+                    batch.forEach((str, index) => {
+                        const key = `string_${str.field_key}_${lang}`;
+                        const sourceText = str.text || str.html || '';
+                        const translatedText = translations[index] || sourceText;
+    
+                        batchToSave.push({
+                            field_key: str.field_key,
+                            translated: translatedText,
+                        });
+    
+                        // Update status to completed
+                        storeDispatch(updateTranslatePostInfo({
+                            [key]: {
+                                status: 'completed',
+                                messageClass: 'success',
+                                targetPostTitle: translatedText.substring(0, 50) + (translatedText.length > 50 ? '...' : '')
+                            }
+                        }));
+    
+                        // Update counters (strings + characters)
+                        const state = store.getState();
+                        const currentCount = state.countInfo || {};
+                        const currentStrings = currentCount.stringsTranslated || 0;
+                        const currentChars = currentCount.charactersTranslated || 0;
+    
+                        storeDispatch(updateCountInfo({
+                            stringsTranslated: currentStrings + 1,
+                            charactersTranslated: currentChars + sourceText.length,
+                        }));
+    
+                        storeDispatch(unsetPendingPost(key));
+                        storeDispatch(updateCompletedPosts([key]));
+                        storeDispatch(updateProgressStatus(100 / pendingPosts.length));
+                    });
+    
+                    // 🚩 Save this batch (up to 500 strings) in one request
+                    if (batchToSave.length > 0) {
+                        await saveStringTranslations(lang, batchToSave, nonce);
+                    }
+                } else {
+                    console.log('translationResponse', translationResponse);
+                    // Handle translation error for this batch
+                    const errorMsg = translationResponse?.data?.message || __('Translation failed', 'wpml-auto-translate-addon');
+                    batch.forEach((str) => {
+                        const key = `string_${str.field_key}_${lang}`;
+                        storeDispatch(updateTranslatePostInfo({
+                            [key]: {
+                                status: 'error',
+                                messageClass: 'error',
+                                errorMessage: errorMsg
+                            }
+                        }));
+                        storeDispatch(unsetPendingPost(key));
+                        storeDispatch(updateCompletedPosts([key]));
+                    });
+                }
+            } catch (error) {
+                console.log('error', error);
+                // Handle error for this batch
+                const errorMsg = error.message || __('Translation failed', 'wpml-auto-translate-addon');
+                batch.forEach((str) => {
+                    const key = `string_${str.field_key}_${lang}`;
+                    storeDispatch(updateTranslatePostInfo({
+                        [key]: {
+                            status: 'error',
+                            messageClass: 'error',
+                            errorMessage: errorMsg
+                        }
+                    }));
+                    storeDispatch(unsetPendingPost(key));
+                    storeDispatch(updateCompletedPosts([key]));
+                });
+            }
+        }
+    };
+    
+    // Process each language
+    for (const lang of Object.keys(stringsByLanguage)) {
+        if (modalClosed) break;
+        await translateStringsForLanguage(lang, stringsByLanguage[lang]);
+    }
+};
+
+/**
+ * Save translated strings via AJAX.
+ */
+const saveStringTranslations = async (targetLang, translatedStrings, nonce) => {
+    const ajaxUrl = atfpp_bulk_translate_object.ajax;
+
+    try {
+        const response = await fetch(ajaxUrl + '?action=cp_wpml_google_auto_translate_save_string_translations', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json; charset=utf-8',
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({
+                action: 'cp_wpml_google_auto_translate_save_string_translations',
+                nonce: nonce,
+                target_lang: targetLang,
+                translated_strings: translatedStrings
+            })
+        });
+
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Error saving string translations:', error);
+        throw error;
+    }
+};
+
+
+export { bulkTranslateEntries, initBulkTranslate, bulkTranslateStrings, initBulkTranslateStrings };
+

@@ -15,7 +15,9 @@ const App = ({ onDestory, prefix, postIds }) => {
     const { languageObject = {} } = atfpp_bulk_translate_object || {};
     const emptyPostIdsErrorMessage = sprintf(__('Please select at least one %s for translation.', 'autopoly-ai-translation-for-polylang-pro'), atfpp_bulk_translate_object.post_label);
     const [selectedLanguages, setSelectedLanguages] = useState([]);
-    const [errorMessage, setErrorMessage] = useState(postIds.length === 0 ? emptyPostIdsErrorMessage : '');
+    // Don't show error for string translation page even if postIds is empty
+    const isStringTranslationPage = window.wpmlIsStringTranslationPage || false;
+    const [errorMessage, setErrorMessage] = useState((postIds.length === 0 && !isStringTranslationPage) ? emptyPostIdsErrorMessage : '');
     const [settingModalVisibility, setSettingModalVisibility] = useState(false);
     const [statusModalVisibility, setStatusModalVisibility] = useState(false);
     const translatePostsCount = useSelector(selectCountInfo).totalPosts;
@@ -61,6 +63,7 @@ const App = ({ onDestory, prefix, postIds }) => {
 
     const handleLanguageChange = (e) => {
         const { value } = e.target;
+        console.log('value', value);
         const checked = e.target.checked;
         if (checked) {
             setSelectedLanguages([...selectedLanguages, value]);
@@ -86,7 +89,7 @@ const App = ({ onDestory, prefix, postIds }) => {
         dispatch(updateServiceProvider(services));
         setSettingModalVisibility(false);
         setStatusModalVisibility(true);
-        setIsLoading(true);
+        setIsLoading(false);
     }
 
     const containerCls=()=>{
@@ -169,14 +172,14 @@ const App = ({ onDestory, prefix, postIds }) => {
                                 {Object.keys(languageObject).map((language) => {
                                     return (atfpp_bulk_translate_object.default_language_slug && atfpp_bulk_translate_object.default_language_slug === language ? null : <div key={language} className={`${prefix}-language`}>
                                         <div
-                                            title={!postIds.length ? emptyPostIdsErrorMessage : languageObject[language].name}>
+                                            title={(!postIds.length && !isStringTranslationPage) ? emptyPostIdsErrorMessage : languageObject[language].name}>
                                             <input
                                                 type="checkbox"
                                                 name="languages"
                                                 id={language}
                                                 value={language}
                                                 onChange={(e) => handleLanguageChange(e)}
-                                                disabled={!postIds.length}
+                                                disabled={!postIds.length && !isStringTranslationPage}
                                                 checked={selectedLanguages.includes(language)} />
                                             <label
                                                 htmlFor={language}
@@ -212,14 +215,14 @@ const App = ({ onDestory, prefix, postIds }) => {
                             <button
                                 className={`${prefix}-footer-button button button-primary`}
                                 onClick={destroyApp}
-                                title={!postIds.length ? emptyPostIdsErrorMessage : ''}>
+                                title={(!postIds.length && !isStringTranslationPage) ? emptyPostIdsErrorMessage : ''}>
                                 {__('Close', 'autopoly-ai-translation-for-polylang-pro')}
                             </button>
                             <button
                                 className={`${prefix}-footer-button button button-primary`}
                                 onClick={settingModalVisibilityHandler}
-                                disabled={!postIds.length || !selectedLanguages.length}
-                                title={!postIds.length ? emptyPostIdsErrorMessage : (!selectedLanguages.length ? __('Please select at least one language', 'autopoly-ai-translation-for-polylang-pro') : '')}>
+                                disabled={(!postIds.length && !isStringTranslationPage) || !selectedLanguages.length}
+                                title={(!postIds.length && !isStringTranslationPage) ? emptyPostIdsErrorMessage : (!selectedLanguages.length ? __('Please select at least one language', 'autopoly-ai-translation-for-polylang-pro') : '')}>
                                 {__('Translate', 'autopoly-ai-translation-for-polylang-pro')}
                             </button>
                         </div>

@@ -104,17 +104,78 @@ import LocalAITranslate from './components/translate-provider/local-ai/local-ai-
             document.addEventListener('mousemove', onMouseMove);
         };
 
+        // const bulkTranslationHandler = (e) => {
+        //     e.preventDefault();
+
+        //     let checkboxClass = 'table.widefat input[name="post[]"]:checked';
+
+        //     if (atfpp_bulk_translate_object.taxonomy_page && '' !== atfpp_bulk_translate_object.taxonomy_page) {
+        //         checkboxClass = 'table.widefat input[name="delete_tags[]"]:checked';
+        //     }
+
+        //     const selectedPostIds = document.querySelectorAll(checkboxClass);
+        //     const postIds = Array.from(selectedPostIds).map(postId => postId.value);
+
+        //     checkLanguagePackAvailability();
+
+        //     setPostIds(postIds);
+        //     handleModalVisibility(e);
+        // }
         const bulkTranslationHandler = (e) => {
             e.preventDefault();
 
+            // Check if we're on the String Translation page
+            const isStringTranslationPage = window.location.href.indexOf('wpml-string-translation') !== -1;
+            
             let checkboxClass = 'table.widefat input[name="post[]"]:checked';
+            let postIds = [];
+            let stringFilters = {};
 
-            if (atfpp_bulk_translate_object.taxonomy_page && '' !== atfpp_bulk_translate_object.taxonomy_page) {
-                checkboxClass = 'table.widefat input[name="delete_tags[]"]:checked';
+            if (isStringTranslationPage) {
+                // Collect filter values from String Translation page
+                // Use more specific selectors to ensure we get the values
+                const statusSelect = document.querySelector('select[name="icl_st_filter_status"]');
+                const contextSelect = document.querySelector('select[name="icl_st_filter_context"]');
+                const prioritySelect = document.querySelector('select[name="icl-st-filter-translation-priority"]');
+                const searchInput = document.querySelector('input#icl_st_filter_search');
+                const searchTranslationCheckbox = document.querySelector('input#search_translation:not([disabled])');
+                const exactMatchCheckbox = document.querySelector('input#icl_st_filter_search_em:not([disabled])');
+
+                // Get values - use empty string if not found
+                const statusValue = statusSelect ? (statusSelect.value || '') : '';
+                const contextValue = contextSelect ? (contextSelect.value || '') : '';
+                const priorityValue = prioritySelect ? (prioritySelect.value || '') : '';
+                const searchValue = searchInput ? (searchInput.value || '') : '';
+                const searchTranslationValue = (searchTranslationCheckbox && searchTranslationCheckbox.checked) ? '1' : '';
+                const exactMatchValue = (exactMatchCheckbox && exactMatchCheckbox.checked) ? '1' : '';
+
+                stringFilters = {
+                    status: statusValue,
+                    context: contextValue,
+                    'translation-priority': priorityValue,
+                    search: searchValue,
+                    search_translation: searchTranslationValue,
+                    exact_match: exactMatchValue
+                };
+
+                // Store string filters globally for use in App/StatusModal
+                window.wpmlStringFilters = stringFilters;
+                window.wpmlIsStringTranslationPage = true;
+                // For strings, we don't need postIds - we'll translate ALL strings matching filters
+                postIds = [];
+            } else {
+                // Normal post/taxonomy flow
+                if (atfpp_bulk_translate_object.taxonomy_page && '' !== atfpp_bulk_translate_object.taxonomy_page) {
+                    checkboxClass = 'table.widefat input[name="delete_tags[]"]:checked';
+                }
+
+                const selectedPostIds = document.querySelectorAll(checkboxClass);
+                postIds = Array.from(selectedPostIds).map(postId => postId.value);
+                
+                // Clear string translation flags
+                window.wpmlStringFilters = {};
+                window.wpmlIsStringTranslationPage = false;
             }
-
-            const selectedPostIds = document.querySelectorAll(checkboxClass);
-            const postIds = Array.from(selectedPostIds).map(postId => postId.value);
 
             checkLanguagePackAvailability();
 
@@ -166,6 +227,17 @@ import LocalAITranslate from './components/translate-provider/local-ai/local-ai-
         const prefix = 'atfpp-bulk-translate';
 
         await new Promise(resolve => setTimeout(resolve, 500));
+
+        // Move bulk translate button to correct position on string translation page
+        const bulkTranslateBtn = document.querySelector(`.${prefix}-btn`);
+        bulkTranslateBtn.style.display = 'block';
+        const stringFilterDiv = document.querySelector('.wpml-string-translation-filter');
+        const filterButton = document.querySelector('#icl_st_filter_search_sb');
+
+        if (bulkTranslateBtn && stringFilterDiv && filterButton) {
+            // Insert the button after the filter button
+            filterButton.insertAdjacentElement('afterend', bulkTranslateBtn);
+        }
 
         ReactDOM.createRoot(document.getElementById(`${prefix}-wrapper`)).render(
             <Provider store={store}>

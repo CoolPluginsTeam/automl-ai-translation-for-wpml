@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { bulkTranslateEntries, initBulkTranslate } from '../bulk-translate';
+import { bulkTranslateEntries, initBulkTranslate, bulkTranslateStrings, initBulkTranslateStrings } from '../bulk-translate';
 import { useSelector, useDispatch } from 'react-redux';
 import { selectTranslatePostInfo, selectProgressStatus, selectCountInfo, selectPendingPosts, selectServiceProvider, selectErrorPostsInfo, selectTargetLanguages } from '../redux-store/features/selectors';
 import { __, sprintf } from '@wordpress/i18n';
@@ -29,18 +29,40 @@ const StatusModal = ({ postIds, selectedLanguages, prefix, onDestory }) => {
     progressStatus = Math.min(progressStatus, 100);
 
     useEffect(() => {
-        const translatePosts = async () => {
-            const response = await bulkTranslateEntries({ ids: postIds, langs: selectedLanguages, storeDispatch });
-            setIsLoading(false);
+        const translateContent = async () => {
+            const isStringTranslationPage = window.wpmlIsStringTranslationPage || false;
+            const stringFilters = window.wpmlStringFilters || {};
+            if (isStringTranslationPage) {
+                // String translation flow
+                const { bulkTranslateStrings } = await import('../bulk-translate');
+                const response = await bulkTranslateStrings({ 
+                    langs: selectedLanguages, 
+                    storeDispatch,
+                    stringFilters: stringFilters
+                });
+                console.log('response', response);
+                setIsLoading(false);
+                if (!response.success) {
+                    setEmptyPostMessage(response.message || __('No strings found to translate.', 'wpml-auto-translate-addon'));
+                    return;
+                }
+                console.log('response.stringKeys', response.stringKeys);
+                // Initialize string translation flow
+                initBulkTranslateStrings(response.stringKeys, response.stringsByLanguage, response.nonce, storeDispatch, prefix, updateDestoryHandler);
+            } else {
+                // Post/taxonomy translation flow
+                const response = await bulkTranslateEntries({ ids: postIds, langs: selectedLanguages, storeDispatch });
+                setIsLoading(false);
 
-            if (!response.success && false === response.success && response.message) {
-                setEmptyPostMessage(response.message);
-                return;
+                if (!response.success && false === response.success && response.message) {
+                    setEmptyPostMessage(response.message);
+                    return;
+                }
+
+                initBulkTranslate(response.postKeys, response.nonce, storeDispatch, prefix, updateDestoryHandler);
             }
-
-            initBulkTranslate(response.postKeys, response.nonce, storeDispatch, prefix, updateDestoryHandler);
         }
-        translatePosts();
+        translateContent();
     }, []);
 
     const handleErrorModal = (data) => {
@@ -128,7 +150,7 @@ const StatusModal = ({ postIds, selectedLanguages, prefix, onDestory }) => {
 
     useEffect(() => {
         if (progressStatus >= 100 && pendingPosts.length < 1) {
-            if (countInfo.postsTranslated < 1) {
+            if (countInfo.postsTranslated < 1 && countInfo.stringsTranslated < 1) {
                 setProgressBarVisibility(false);
                 setCharactersCountVisibility(false);
                 return;
@@ -228,7 +250,7 @@ const StatusModal = ({ postIds, selectedLanguages, prefix, onDestory }) => {
             <div id={`${prefix}-status-modal-container`}>
                 <h2 className={`${prefix}-bulk-status-heading ${bulkStatus}`}>{sprintf(__('Bulk Translation %s', 'autopoly-ai-translation-for-polylang-pro'), getBulkStatus())}{bulkStatus === 'running' && <span className={`${prefix}-bulk-status-running`}></span>}</h2>
                 <div className={`${prefix}-status-modal-close`} onClick={onModalClose}>&times;</div>
-                {(countInfo.totalPosts < 1 && countInfo.errorPosts < 1) && !isLoading ?
+                {(countInfo.totalPosts < 1 && countInfo.errorPosts < 1 && countInfo.stringsTranslated < 1) && !isLoading ?
                     <p>{emptyPostMessage}</p> :
                     <>
                         {isLoading && <div className={`${prefix}-progress-skeleton`}></div>}
@@ -246,15 +268,8 @@ const StatusModal = ({ postIds, selectedLanguages, prefix, onDestory }) => {
                                         <strong> {getServiceProviderLabel()}</strong>
                                     </div>
                                 }
-                            </> : (countInfo.postsTranslated > 0 &&
+                            </> : ( countInfo.stringsTranslated > 0 &&
                                 <div className={`${prefix}-count-container`}>
-                                    <div className={`${prefix}-post-count`}>
-                                        <span className={`${prefix}-count-text-heading`}>{__('Posts Translated:', 'autopoly-ai-translation-for-polylang-pro')} </span>
-                                        <span className={`${prefix}-post-translated-post`}>{countInfo.postsTranslated}</span>
-                                        <span className={`${prefix}-post-text`}> {__('out of', 'autopoly-ai-translation-for-polylang-pro')} </span>
-                                        <span className={`${prefix}-post-total`}>{countInfo.totalPosts}</span>
-                                        <span className={`${prefix}-post-total-text`}> {__('posts translated', 'autopoly-ai-translation-for-polylang-pro')}</span>
-                                    </div>
                                     <div className={`${prefix}-string-count`}>
                                         <span className={`${prefix}-count-text-heading`}>{__('Strings:', 'autopoly-ai-translation-for-polylang-pro')} </span>
                                         <span className={`${prefix}-string-number`}>{countInfo.stringsTranslated}</span>
@@ -266,7 +281,7 @@ const StatusModal = ({ postIds, selectedLanguages, prefix, onDestory }) => {
                                 </div>
                             )
                         }
-
+               
                         <div className={`${prefix}-status-table-container`}>
                             <div>
                                 <table className={`${prefix}-status-table`}>
