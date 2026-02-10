@@ -23,6 +23,9 @@ define( 'WPML_AT_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'WPML_AT_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'WPML_AT_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
 
+use AUTOML_WPML\Includes\Routes\Bulk_Translation_Route;
+use AUTOML_WPML\Helper\Helper;
+
 /**
  * Main plugin class.
  */
@@ -59,6 +62,15 @@ final class WPML_Auto_Translate_Addon {
 	 * Load required files.
 	 */
 	private function load_dependencies() {
+		require_once WPML_AT_PLUGIN_DIR . 'helper/helper.php';
+
+		if(class_exists(Helper::class)){
+			new Helper();
+		}
+
+		require_once WPML_AT_PLUGIN_DIR . 'includes/routes/bulk-translation-route.php';
+		require_once WPML_AT_PLUGIN_DIR . 'includes/bulk-translation/bulk-translation.php';
+		require_once WPML_AT_PLUGIN_DIR . 'includes/bulk-translation/register-assets.php';
 		require_once WPML_AT_PLUGIN_DIR . 'includes/class-wpml-at-helper.php';
 		require_once WPML_AT_PLUGIN_DIR . 'includes/class-wpml-at-ajax.php';
 		require_once WPML_AT_PLUGIN_DIR . 'admin/class-wpml-at-admin.php';
@@ -76,6 +88,7 @@ final class WPML_Auto_Translate_Addon {
 		}
 
 		// Initialize components.
+		new Bulk_Translation_Route('automl-wpml');
 		new WPML_AT_Helper();
 		new WPML_AT_Ajax();
 		new WPML_AT_Admin();
