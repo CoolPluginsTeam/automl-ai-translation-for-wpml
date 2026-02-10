@@ -40,7 +40,7 @@ class WPML_AT_Helper {
 			if ( ! empty( $wpml_languages ) && is_array( $wpml_languages ) ) {
 				foreach ( $wpml_languages as $lang ) {
 					$languages[] = array(
-						'code' => $code,
+						'code' => $lang['code'],
 						'name' => $lang['native_name'],
 						'flag_url' => $lang['country_flag_url'],
 						'locale' => $lang['default_locale'],
