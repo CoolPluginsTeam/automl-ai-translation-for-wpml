@@ -272,7 +272,24 @@ if ( ! class_exists( 'Bulk_Translation_Route' ) ) :
 				wp_send_json_error( 'You are not authorized to perform this action.' );
 			}
 
+			if(!isset($params['lang']) || empty($params['lang'])) {
+				wp_send_json_error( 'Empty target language Select at least one language' );
+			}
+
+			if(!isset($params['ids']) || empty($params['ids'])) {
+				wp_send_json_error( 'Empty post IDs Select at least one post to translate' );
+			}
+			
+			$active_languages = apply_filters( 'wpml_active_languages', null, null );
+			
+			$active_languages_slugs = array_column($active_languages, 'code');
+			
 			$post_ids           = json_decode( $params['ids'] );
+			$post_ids = array_map('absint', $post_ids);
+			$target_language = json_decode($params['lang']);
+			$target_language = array_map('sanitize_text_field', $target_language);
+
+			$valid_target_languages = array_intersect($target_language, $active_languages_slugs);
 
 			require_once WPML_AT_PLUGIN_DIR . 'includes/wpml/get-package-content.php';
 
@@ -291,6 +308,22 @@ if ( ! class_exists( 'Bulk_Translation_Route' ) ) :
 
 				if(isset($translatable_strings['title']) && !empty($translatable_strings['title'])) {
 					$automl_wpml_content_translation[$post_id]['title'] = $translatable_strings['title'];
+				}
+
+				$automl_wpml_post_element_type = apply_filters('wpml_element_type', get_post_type($post_id));
+
+				// Get the translation group ID (trid) of the post
+				$automl_wpml_trid = apply_filters('wpml_element_trid', null, $post_id);
+
+				// Get all translations of the element using the trid and element type
+				$automl_wpml_translations = apply_filters('wpml_get_element_translations', null, $automl_wpml_trid, $automl_wpml_post_element_type);
+
+				$automl_wpml_post_translated_languages=array_column($automl_wpml_translations, 'language_code');
+
+				$untranslated_languages=array_diff($target_language, $automl_wpml_post_translated_languages);
+
+				if(count($untranslated_languages) > 0) {
+					$automl_wpml_content_translation[$post_id]['languages'] = $untranslated_languages;
 				}
 			}
 
