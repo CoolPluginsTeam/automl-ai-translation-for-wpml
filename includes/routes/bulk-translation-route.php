@@ -6,6 +6,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+use WPML_AT_Helper;
+use AUTOML_WPML\Includes\Wpml\Get_Package_Content;
+
 if ( ! class_exists( 'Bulk_Translation_Route' ) ) :
 	/**
 	 * Bulk_Translation_Route
@@ -269,22 +272,29 @@ if ( ! class_exists( 'Bulk_Translation_Route' ) ) :
 				wp_send_json_error( 'You are not authorized to perform this action.' );
 			}
 
-			global $polylang;
-
-			$slug_translation_option = get_option( 'automl_wpml_slug_translation_option', 'title_translate' );
-
-			// check language exists or not
-			$translate_lang = json_decode( $params['lang'] );
-
 			$post_ids           = json_decode( $params['ids'] );
-			$posts_translate    = array();
-		}
 
-		private function fetch_translation_data( $post_id, &$Object, $target_language, $slug_translation, $allowed_meta_fields, $post_meta_sync, $pll_langs_slugs, &$gutenberg_block = false,) {
-			global $polylang;
+			require_once WPML_AT_PLUGIN_DIR . 'includes/wpml/get-package-content.php';
 
-			$postId    = intval( $post_id );
-			$post_data = get_post( $postId );
+			$automl_wpml_content_translation=array();
+
+			foreach($post_ids as $post_id) {
+				$source_lang = WPML_AT_Helper::get_post_source_language($post_id, get_post_type($post_id));
+				$get_package_content = new Get_Package_Content($post_id, $source_lang);
+				$translatable_strings = $get_package_content->get_translatable_strings();
+
+				$automl_wpml_content_translation[$post_id] = array();
+
+				if(isset($translatable_strings['contents']) && !empty($translatable_strings['contents'])) {
+					$automl_wpml_content_translation[$post_id]['contents'] = $translatable_strings['contents'];
+				}
+
+				if(isset($translatable_strings['title']) && !empty($translatable_strings['title'])) {
+					$automl_wpml_content_translation[$post_id]['title'] = $translatable_strings['title'];
+				}
+			}
+
+			wp_send_json_success($automl_wpml_content_translation);
 		}
 
 		public function create_translate_post( $params ) {
