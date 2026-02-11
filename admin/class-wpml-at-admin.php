@@ -51,13 +51,13 @@ class WPML_AT_Admin
         
         $slug_translation_option = get_option('automl_wpml_slug_translation_option','title_translate');
 
-        $editor_script_asset = include WPML_AT_PLUGIN_DIR . 'assets/bulk-translate/index.asset.php';
+        $editor_script_asset = include WPML_AT_PLUGIN_DIR . 'assets/bulk-string-translate/index.asset.php';
         
         $rtl=function_exists('is_rtl') ? is_rtl() : false;
         $css_file=$rtl ? 'index-rtl.css' : 'index.css';
       
-        wp_enqueue_script('automl-wpml-bulk-translate', WPML_AT_PLUGIN_URL . 'assets/bulk-translate/index.js', $editor_script_asset['dependencies'], $editor_script_asset['version'], true);
-        wp_enqueue_style('automl-wpml-bulk-translate', WPML_AT_PLUGIN_URL . 'assets/bulk-translate/'.$css_file, array(), $editor_script_asset['version']);
+        wp_enqueue_script('automl-wpml-bulk-translate', WPML_AT_PLUGIN_URL . 'assets/bulk-string-translate/index.js', $editor_script_asset['dependencies'], $editor_script_asset['version'], true);
+        wp_enqueue_style('automl-wpml-bulk-translate', WPML_AT_PLUGIN_URL . 'assets/bulk-string-translate/'.$css_file, array(), $editor_script_asset['version']);
 
         $languages = WPML_AT_Helper::get_wpml_languages();
 
@@ -175,11 +175,11 @@ class WPML_AT_Admin
 			// Enqueue bulk translate build files on string translation page.
 			if ($is_string_translation) {
 
-				$asset_file = include WPML_AT_PLUGIN_DIR . 'assets/bulk-translate/index.asset.php';
+				$asset_file = include WPML_AT_PLUGIN_DIR . 'assets/bulk-string-translate/index.asset.php';
 
 				wp_enqueue_script(
 					'wpml-at-bulk-translate',
-					WPML_AT_PLUGIN_URL . 'assets/bulk-translate/index.js',
+					WPML_AT_PLUGIN_URL . 'assets/bulk-string-translate/index.js',
 					$asset_file['dependencies'],
 					$asset_file['version'],
 					true
@@ -187,7 +187,7 @@ class WPML_AT_Admin
 
 				wp_enqueue_style(
 					'wpml-at-bulk-translate',
-					WPML_AT_PLUGIN_URL . 'assets/bulk-translate/index.css',
+					WPML_AT_PLUGIN_URL . 'assets/bulk-string-translate/index.css',
 					array(),
 					$asset_file['version']
 				);

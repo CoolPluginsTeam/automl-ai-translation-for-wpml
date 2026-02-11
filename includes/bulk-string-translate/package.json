@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "build": "wp-scripts build index.js --output-path=../../assets/bulk-translate/",
-    "start": "wp-scripts start index.js --output-path=../../assets/bulk-translate/ --watch"
+    "build:string": "wp-scripts build index.js --output-path=../../assets/bulk-string-translate/",
+    "start:string": "wp-scripts start index.js --output-path=../../assets/bulk-string-translate/ --watch"
   },
   "repository": {
     "type": "git",

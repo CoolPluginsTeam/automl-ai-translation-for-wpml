@@ -1,0 +1,197 @@
+<?php
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+if ( ! current_user_can( 'manage_options' ) ) {
+	wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'wpml-auto-translate-addon' ) );
+}
+?>
+<div class="wpml-auto-dashboard-settings">
+	<div class="wpml-auto-dashboard-settings-container">
+		<div class="header">
+			<h1><?php echo esc_html__( 'WPML Auto Translate Settings', 'wpml-auto-translate-addon' ); ?></h1>
+		</div>
+
+		<p class="description">
+			<?php
+			echo esc_html__(
+				'Configure your AI providers and translation models here. Keys are stored via the WP AI Client option and models via the WPML addon model option.',
+				'wpml-auto-translate-addon'
+			);
+			?>
+		</p>
+
+		<div class="wpml-auto-dashboard-api-settings-container">
+			<div class="wpml-auto-dashboard-api-settings">
+				<form method="post" action="options.php">
+					<?php
+                     // Dummy username field to satisfy browser heuristics; not used by backend.
+                        ?>
+                        <input
+                            type="text"
+                            name="wpml_auto_dummy_api_key"
+                            autocomplete="api-key"
+                            style="display:none;"
+                            aria-hidden="true"
+                        />
+                        <?php
+					// AI SDK credentials (wp-ai-client).
+                    settings_fields( 'wp-ai-client-settings' );
+          
+					// Current AI SDK credentials.
+					$wp_ai_credentials = get_option( 'wp_ai_client_provider_credentials', array() );
+
+					// Current selected models (saved by the addon).
+					$current_models       = get_option( 'wpml_at_ai_translation_models', array() );
+					$current_openai_model = isset( $current_models['openai'] ) ? $current_models['openai'] : '';
+					$current_google_model = isset( $current_models['google'] ) ? $current_models['google'] : '';
+
+					$openai_models = array();
+					$google_models = array();
+
+					if ( class_exists( '\WordPress\AiClient\AiClient' ) ) {
+						$registry = \WordPress\AiClient\AiClient::defaultRegistry();
+
+						// OpenAI models.
+						if ( $registry->isProviderConfigured( 'openai' ) ) {
+							$openai_class = $registry->getProviderClassName( 'openai' );
+							try {
+								$directory     = $openai_class::modelMetadataDirectory();
+								$openai_models = array_map(
+									static function ( $model ) {
+										/** @var \WordPress\AiClient\Providers\Models\DTO\ModelMetadata $model */
+										return $model->getId();
+									},
+									$directory->listModelMetadata()
+								);
+							} catch ( \Throwable $e ) {
+								$openai_models = array();
+							}
+						}
+
+						// Google / Gemini models.
+						if ( $registry->isProviderConfigured( 'google' ) ) {
+							$google_class = $registry->getProviderClassName( 'google' );
+							try {
+								$directory     = $google_class::modelMetadataDirectory();
+								$google_models = array_map(
+									static function ( $model ) {
+										/** @var \WordPress\AiClient\Providers\Models\DTO\ModelMetadata $model */
+										return $model->getId();
+									},
+									$directory->listModelMetadata()
+								);
+							} catch ( \Throwable $e ) {
+								$google_models = array();
+							}
+						}
+					}
+
+					?>
+					<div class="wpml-auto-dashboard-api-settings-form">
+						<?php
+						// Providers shown in the UI.
+						$wpml_auto_api_settings = array(
+							'openai' => array(
+								'name'        => 'OpenAI',
+								'doc_url'     => 'https://developer.wordpress.org/docs/ai/#openai',
+								'placeholder' => 'sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+							),
+							'google' => array(
+								'name'        => 'Google / Gemini',
+								'doc_url'     => 'https://developer.wordpress.org/docs/ai/#google-gemini',
+								'placeholder' => 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+							),
+						);
+
+						foreach ( $wpml_auto_api_settings as $api_key => $settings ) :
+							?>
+							<label for="<?php echo esc_attr( $api_key ); ?>-api">
+								<?php
+								// translators: %s: API name.
+								printf(
+									esc_html__( 'Add %s API key', 'wpml-auto-translate-addon' ),
+									esc_html( $settings['name'] )
+								);
+								?>
+							</label>
+							<div class="input-group">
+                            <input
+                                type="password"
+                                id="<?php echo esc_attr( $api_key ); ?>-api"
+                                name="wp_ai_client_provider_credentials[<?php echo esc_attr( $api_key ); ?>]"
+                                value="<?php echo isset( $wp_ai_credentials[ $api_key ] ) ? esc_attr( $wp_ai_credentials[ $api_key ] ) : ''; ?>"
+                                placeholder="<?php echo esc_attr( $settings['placeholder'] ); ?>"
+                                autocomplete="new-password"
+                            />
+							</div>
+
+							<?php
+							$has_key = ! empty( $wp_ai_credentials[ $api_key ] );
+
+							// OpenAI model selector.
+							if ( 'openai' === $api_key && $has_key && ! empty( $openai_models ) ) : ?>
+								<div class="wpml-auto-dashboard-api-settings-openai-model">
+									<label for="wpml_selected_openai_model" class="api-settings-label">
+										<?php esc_html_e( 'Select OpenAI Model', 'wpml-auto-translate-addon' ); ?>
+									</label>
+									<select
+										id="wpml_selected_openai_model"
+										name="wpml_at_ai_translation_models[openai]"
+										class="wpml-openai-model-select"
+									>
+										<option value=""><?php esc_html_e( 'Select model...', 'wpml-auto-translate-addon' ); ?></option>
+										<?php foreach ( $openai_models as $model_id ) : ?>
+											<option value="<?php echo esc_attr( $model_id ); ?>" <?php selected( $current_openai_model, $model_id ); ?>>
+												<?php echo esc_html( $model_id ); ?>
+											</option>
+										<?php endforeach; ?>
+									</select>
+								</div>
+							<?php
+							endif;
+
+							// Google / Gemini model selector.
+							if ( 'google' === $api_key && $has_key && ! empty( $google_models ) ) : ?>
+								<div class="wpml-auto-dashboard-api-settings-google-model">
+									<label for="wpml_selected_google_model" class="api-settings-label">
+										<?php esc_html_e( 'Select Gemini Model', 'wpml-auto-translate-addon' ); ?>
+									</label>
+									<select
+										id="wpml_selected_google_model"
+										name="wpml_at_ai_translation_models[google]"
+										class="wpml-google-model-select"
+									>
+										<option value=""><?php esc_html_e( 'Select model...', 'wpml-auto-translate-addon' ); ?></option>
+										<?php foreach ( $google_models as $model_id ) : ?>
+											<option value="<?php echo esc_attr( $model_id ); ?>" <?php selected( $current_google_model, $model_id ); ?>>
+												<?php echo esc_html( $model_id ); ?>
+											</option>
+										<?php endforeach; ?>
+									</select>
+								</div>
+							<?php
+							endif;
+
+							printf(
+								// translators: 1: Click here link, 2: API name.
+								esc_html__( '%1$s to see how to configure %2$s in the AI SDK.', 'wpml-auto-translate-addon' ),
+								'<a href="' . esc_url( $settings['doc_url'] ) . '" target="_blank">' . esc_html__( 'Click here', 'wpml-auto-translate-addon' ) . '</a>',
+								esc_html( $settings['name'] )
+							);
+							echo '<br/><br/>';
+						endforeach;
+						?>
+
+						<hr style="margin: 2rem 0px;">
+
+						<div class="wpml-auto-dashboard-save-btn-container">
+							<?php submit_button( __( 'Save (via WP AI Client & WPML Addon)', 'wpml-auto-translate-addon' ) ); ?>
+						</div>
+					</div><!-- .wpml-auto-dashboard-api-settings-form -->
+				</form>
+			</div>
+		</div>
+	</div>
+</div>

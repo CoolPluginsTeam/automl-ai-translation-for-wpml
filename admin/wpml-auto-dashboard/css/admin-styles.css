@@ -1,0 +1,961 @@
+/*
+=======================================================
+WPML Auto Dashboard - Admin Panel Styles
+=======================================================
+*/
+
+:root {
+    --primary-color: #30b230;
+    --secondary-color: #239d23;
+    --background-color: #f8f9fa;
+    --border-color: #ddd;
+    --text-color: #222;
+    --text-color-light: #666;
+    --shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    --font-size-base: 16px;
+    --line-height-base: 1.5;
+}
+
+/* General Wrapper */
+.wpml-auto-dashboard-wrapper {
+    margin: 0 auto;
+    padding: 0 20px 0 0;
+    max-width: 1240px;
+    box-sizing: border-box;
+}
+
+.wpml-auto-dashboard-wrapper * {
+    box-sizing: border-box;
+    font-family: Inter, Roboto, Helvetica, Arial, sans-serif;
+}
+
+.wpml-auto-dashboard-wrapper h3 {
+    margin: 0 0 20px;
+    padding: 0;
+}
+
+/* Adjust WP admin body margins for this page */
+:is(.settings_page_wpml-auto-dashboard) #wpbody #wpbody-content {
+    margin-top: 80px !important;
+    margin-block-start: 80px !important;
+}
+
+/* ================================================
+   Buttons & Links
+================================================ */
+.wpml-auto-dashboard-btns-row {
+    display: flex;
+    gap: 10px;
+}
+
+.wpml-auto-dashboard-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.3s ease-in-out;
+    border: 1px solid var(--border-color);
+    background: var(--background-color);
+    color: var(--text-color);
+}
+
+.wpml-auto-dashboard-btn:focus {
+   box-shadow: none;
+}
+
+.wpml-auto-dashboard-btn.primary {
+    background: var(--primary-color);
+    color: #fff;
+    border-color: var(--secondary-color);
+}
+
+.wpml-auto-dashboard-btn:hover {
+    background: #efffef;
+    color: var(--primary-color);
+    border-color: var(--border-color);
+}
+
+/* ================================================
+   Header Section
+================================================ */
+.wpml-auto-dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--background-color);
+    padding: 5px 20px;
+    border-bottom: 1px solid var(--border-color);
+    border-radius: 6px 6px 0 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: calc(100% + 20px);
+    margin: 0 0 0 -20px;
+    box-shadow: var(--shadow);
+    height: 48px;
+}
+
+.wpml-auto-dashboard-social-icons a:focus {
+    box-shadow: none;
+}
+
+.wpml-auto-dashboard-header-left {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.wpml-auto-dashboard-logo-link:focus,
+.wpml-auto-dashboard-logo-link:hover {
+    box-shadow: none;
+}
+
+.wpml-auto-dashboard-header-left img {
+    max-width: 170px;
+}
+
+.wpml-auto-dashboard-header-left svg {
+    height: 50px;
+}
+
+.wpml-auto-dashboard-tab-title {
+    display: flex;
+    gap: 5px;
+    font-size: 14px;
+}
+
+.wpml-auto-dashboard-header-right {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+/* ================================================
+   Dashboard Layout
+================================================ */
+.wpml-auto-dashboard-dashboard {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-top: 25px;
+    flex: 2;
+}
+
+@media (min-width: 768px) {
+    .wpml-auto-dashboard-dashboard {
+        flex-direction: row;
+        gap: 40px;
+    }
+}
+
+.wpml-auto-dashboard-left-section {
+    width: auto;
+    flex: 2;
+    margin-top: 25px;
+}
+
+/* ================================================
+   Get Started / Welcome Section
+================================================ */
+.wpml-auto-dashboard-welcome {
+    display: flex;
+    justify-content: space-between;
+    padding: 20px;
+    background: #fff;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow);
+    gap: 5px;
+}
+
+.wpml-auto-dashboard-get-started {
+    padding: 20px;
+    background: #fff;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow);
+}
+
+.wpml-auto-dashboard-get-started-grid {
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    padding: 13px 15px 15px 15px;
+}
+
+.wpml-auto-dashboard-get-started-grid div {
+    max-width: 100%;
+}
+
+.wpml-auto-dashboard-get-started-grid div ul {
+    list-style: disc;
+    padding-left: 30px;
+}
+
+.wpml-auto-dashboard-get-started-grid div:nth-child(2) {
+   display: flex;
+}
+
+.wpml-auto-dashboard-get-started-grid iframe {
+    max-width: 100%;
+    width: 100%;
+    aspect-ratio: 2/1;
+}
+
+.wpml-auto-dashboard-get-started-grid:nth-child(3) {
+    margin-block: 24px;
+}
+
+.wpml-auto-dashboard-translation-providers {
+    margin-top: 24px;
+}
+
+.wpml-auto-dashboard-welcome-text {
+    width: calc(100% - 45px);
+    flex-direction: column;
+}
+
+.wpml-auto-dashboard-welcome-text h2 {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin: 10px 0;
+    line-height: 25px;
+}
+
+.wpml-auto-dashboard-welcome p {
+    font-size: 0.875rem;
+    color: var(--text-color-light);
+    margin: 10px 0 20px;
+}
+
+.wpml-auto-dashboard-welcome-video {
+    width: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.wpml-auto-dashboard-welcome-video .play-icon {
+    width: 54px;
+    height: 54px;
+    position: absolute;
+    left: calc(50% - 27px);
+    top: calc(50% - 27px);
+    animation: play-icon 1s ease-in-out infinite;
+}
+
+.wpml-auto-dashboard-welcome-video img.loco-video {
+    width: 100%;
+    height: auto;
+}
+
+a.wpml-auto-dashboard-docs {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 30px;
+    font-size: 14px;
+    color: var(--text-color);
+    font-weight: 500;
+    text-decoration: underline;
+}
+
+a.wpml-auto-dashboard-docs:hover {
+    color: var(--primary-color);
+}
+
+/* ================================================
+   Translation Providers (generic)
+================================================ */
+.wpml-auto-dashboard-providers-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 20px;
+}
+
+.wpml-auto-dashboard-provider-card {
+    background: #fff;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow);
+}
+
+.wpml-auto-dashboard-provider-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 15px;
+}
+
+.wpml-auto-dashboard-provider-header img {
+    height: 25px;
+}
+
+.wpml-auto-dashboard-badge {
+    background: #131413;
+    color: #fff;
+    padding: 2px 8px;
+    font-size: 12px;
+    border-radius: 12px;
+}
+
+.wpml-auto-dashboard-badge.free {
+    background: var(--primary-color);
+}
+
+.wpml-auto-dashboard-provider-buttons {
+    display: flex;
+    gap: 10px;
+    font-size: 11px;
+}
+
+/* ================================================
+   Sidebar
+================================================ */
+.wpml-auto-dashboard-sidebar {
+    width: 548px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-top: 25px;
+    flex: 1;
+}
+
+/* Translation Status */
+.wpml-auto-dashboard-sidebar .wpml-auto-dashboard-status {
+    display: flex;
+    justify-content: space-between;
+    padding: 20px 20px 10px;
+    background: #fff;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow);
+    flex-direction: column;
+}
+
+.wpml-auto-dashboard-sts-top {
+    display: flex;
+    flex-direction: column;
+    margin: 15px 0;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #c3c4c7;
+    gap: 12px;
+    font-size: 15px;
+}
+
+.wpml-auto-dashboard-sts-top span:first-child {
+    font-weight: 800;
+    font-size: 24px;
+}
+
+ul.wpml-auto-dashboard-sts-btm {
+    padding: 0;
+    margin: 9px 0;
+}
+
+ul.wpml-auto-dashboard-sts-btm li {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+    padding: 0;
+}
+
+ul.wpml-auto-dashboard-sts-btm li span:first-child {
+    font-weight: 600;
+}
+
+/* Full Website Translate */
+.wpml-auto-dashboard-translate-full .wpml-auto-dashboard-addon {
+    border-bottom: 1px solid #c3c4c7;
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    display: flex;
+    gap: 15px;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.wpml-auto-dashboard-addon.first {
+    border-top: 1px solid #c3c4c7;
+    padding-top: 15px;
+}
+
+.wpml-auto-dashboard-addon-l {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 3px;
+}
+
+.wpml-auto-dashboard-addon-r img {
+    width: 72px;
+}
+
+.wpml-auto-dashboard-translate-full .installed {
+    background: #cfd5d1;
+    color: #7f7f7f;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+.wpml-auto-dashboard-translate-full .addon-desc {
+    font-size: 12px;
+    color: #838389;
+    margin-bottom: 5px;
+}
+
+/* ================================================
+   Rate Us Section
+================================================ */
+.wpml-auto-dashboard-rate-us {
+    background: #fff;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow);
+}
+
+.wpml-auto-dashboard-rate-us h3 {
+    line-height: 25px;
+}
+
+.wpml-auto-dashboard-rate-us .review-link {
+    display: inline-block;
+    margin-top: 10px;
+    color: #007cba;
+    font-weight: bold;
+}
+
+/* ================================================
+   Animations
+================================================ */
+@keyframes play-icon {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+/*===============================================
+    Tab Content
+================================================ */
+.wpml-auto-dashboard-wrapper .tab-content {
+    display: flex;
+    gap: 25px;
+}
+
+.wpml-auto-dashboard-free-vs-pro .header,
+.wpml-auto-dashboard-ai-translations .header,
+.wpml-auto-dashboard-license .header,
+.wpml-auto-dashboard-settings .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+:where(.wpml-auto-dashboard-free-vs-pro,
+       .wpml-auto-dashboard-ai-translations,
+       .wpml-auto-dashboard-license,
+       .wpml-auto-dashboard-settings)
+       .wpml-auto-dashboard-status {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+:where(.wpml-auto-dashboard-free-vs-pro,
+       .wpml-auto-dashboard-ai-translations,
+       .wpml-auto-dashboard-license,
+       .wpml-auto-dashboard-settings)
+       .wpml-auto-dashboard-status span {
+    font-size: 15px;
+    font-weight: 600;
+}
+
+/* ================================================
+   Free vs Other Solutions
+================================================ */
+.wpml-auto-dashboard-free-vs-pro {
+    width: 100%;
+    margin-top: 25px;
+    flex: 2;
+}
+
+.wpml-auto-dashboard-free-vs-pro-container {
+    background: white;
+    padding: 24px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+.wpml-auto-dashboard-free-vs-pro p {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 20px;
+}
+
+.wpml-auto-dashboard-free-vs-pro table {
+    width: 100%;
+    border-collapse: collapse;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid #eee;
+}
+
+.wpml-auto-dashboard-free-vs-pro th {
+    background-color: #e7e7e7;
+    text-align: left;
+    font-size: 14px;
+    font-weight: 700;
+    padding: 12px;
+}
+
+.wpml-auto-dashboard-free-vs-pro td {
+    padding: 12px;
+    font-size: 14px;
+    border-bottom: 1px solid #eee;
+}
+
+.wpml-auto-dashboard-free-vs-pro .check {
+    color: green;
+    font-size: 16px;
+}
+
+.wpml-auto-dashboard-free-vs-pro .cross {
+    color: red;
+    font-size: 16px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .wpml-auto-dashboard-free-vs-pro {
+        width: 100%;
+        padding: 16px;
+    }
+}
+
+/* ================================================
+   AI Translations
+================================================ */
+.wpml-auto-dashboard-ai-translations {
+    width: auto;
+    flex: 2;
+    margin-top: 25px;
+}
+
+.wpml-auto-dashboard-ai-translations-container {
+    background: white;
+    padding: 24px;
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+}
+
+.wpml-auto-dashboard-ai-translations .description {
+    font-size: 14px;
+    color: #666;
+    margin: 10px 0;
+}
+
+.wpml-auto-dashboard-ai-translations .wpml-auto-dashboard-translations {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.wpml-auto-dashboard-ai-translations .wpml-auto-dashboard-translation-card {
+    margin-top: 35px;
+    position: relative;
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    padding: 13px 15px 15px 15px;
+    text-align: start;
+    width: 31.5%;
+}
+
+.wpml-auto-dashboard-ai-translations .wpml-auto-dashboard-translation-card h3 {
+    margin-top: 12px;
+    font-size: 1.0rem;
+    margin-bottom: 10px;
+}
+
+.wpml-auto-dashboard-ai-translations .wpml-auto-dashboard-translation-card p {
+    padding-right: 4px;
+}
+
+.wpml-auto-dashboard-ai-translations .wpml-auto-dashboard-translation-card .logo {
+    background-color: white;
+    left: 20px;
+    position: absolute;
+    top: -14px;
+    border: 1px solid var(--border-color);
+    border-radius: 30px;
+    padding: 4px 10px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.wpml-auto-dashboard-ai-translations .wpml-auto-dashboard-translation-card .logo img {
+    width: 100%;
+    height: 20px;
+}
+
+.wpml-auto-dashboard-ai-translations .wpml-auto-dashboard-translation-card .play-btn-container img {
+    width: 100%;
+    height: 100%;
+}
+
+.wpml-auto-dashboard-ai-translations .wpml-auto-dashboard-translation-card .play-btn-container a:focus {
+    box-shadow: none;
+}
+
+.wpml-auto-dashboard-ai-translations .wpml-auto-dashboard-play-btn {
+    background: #00cc66;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 18px;
+}
+
+.wpml-auto-dashboard-ai-translations .wpml-auto-dashboard-ai-translations-container .header h1 {
+    line-height: 25px;
+}
+
+/* ================================================
+   License
+================================================ */
+.wpml-auto-dashboard-license {
+    width: 100%;
+    margin-top: 25px;
+    flex: 2;
+}
+
+.wpml-auto-dashboard-license-container {
+    background: white;
+    font-family: Arial, sans-serif;
+    color: #333;
+    border: 1px solid #ddd;
+    padding: 24px;
+    border-radius: 5px;
+}
+
+.wpml-auto-dashboard-license h1 {
+    font-weight: 600;
+    color: #000;
+    margin: 14px 0px 22px 0px;
+    font-size: 22px;
+}
+
+.wpml-auto-dashboard-license p {
+    margin: 5px 0;
+    font-size: 14px;
+}
+
+.wpml-auto-dashboard-upgrade-box {
+    background-color: #f3fcf3;
+    padding: 10px;
+    border-radius: 5px;
+    margin-top: 10px;
+    border-left: 4px solid #30b230;
+}
+
+.wpml-auto-dashboard-upgrade-box a {
+    color: #0073aa;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.wpml-auto-dashboard-upgrade-box a:hover {
+    text-decoration: underline;
+}
+
+.wpml-auto-dashboard-upgrade-box em {
+    display: block;
+    margin-top: 5px;
+    font-size: 13px;
+    color: #555;
+}
+
+/* ================================================
+   Settings Section
+================================================ */
+.wpml-auto-dashboard-settings {
+    width: 100%;
+    margin-top: 25px;
+    flex: 2;
+}
+
+.wpml-auto-dashboard-settings-container {
+    padding: 24px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+
+.wpml-auto-dashboard-settings h1 {
+    margin: 14px 0px 22px 0px;
+    font-size: 22px;
+    line-height: 25px;
+}
+
+.wpml-auto-dashboard-feedback-container {
+    margin: 25px 0px 18px 0px;
+}
+
+.wpml-auto-dashboard-api-settings-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.wpml-auto-dashboard-api-settings {
+    width: 100%;
+}
+
+.wpml-auto-dashboard-api-settings label {
+    display: block;
+    font-weight: bold;
+    margin: 30px 0px 10px 0px;
+}
+
+.wpml-auto-dashboard-api-settings .input-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 60%;
+}
+
+.wpml-auto-dashboard-api-settings .input-group input {
+    width: calc(100% - 70px);
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    margin: 0;
+}
+
+.wpml-auto-dashboard-api-settings input[type="text"] {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.wpml-auto-dashboard-feedback-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.wpml-auto-dashboard-api-settings textarea {
+    width: 100%;
+    min-height: 100px;
+    padding: 8px 12px;
+    border: 1px solid(var(--border-color));
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    margin: 0;
+    font-family: inherit;
+    resize: vertical;
+}
+
+.wpml-auto-dashboard-api-settings a {
+    margin: 10px 0px 10px 0px;
+    display: inline-block;
+    font-size: 14px;
+    color: #0073aa;
+    text-decoration: none;
+}
+
+.wpml-auto-dashboard-ai-request-container > div[class^="wpml-auto-dashboard-ai-"] {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.wpml-auto-dashboard-ai-request-container label {
+    margin: 0;
+    white-space: nowrap;
+    min-width: 150px;
+}
+
+.wpml-auto-dashboard-ai-request-container h2 {
+    margin: 0px 0 10px;
+}
+
+.wpml-auto-dashboard-ai-request-container p {
+    padding: 0;
+    margin: 3px 0 0;
+}
+
+.wpml-auto-bulk-translation-post-status-options {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.wpml-auto-bulk-translation-post-status-options input {
+    margin-right: 10px;
+    width: 10px;
+}
+
+.wpml-auto-bulk-translation-post-status-options label {
+    margin-right: 10px;
+    margin-block: 0px;
+}
+
+.wpml-auto-dashboard-api-settings .wpml-auto-dashboard-save-btn-container {
+    margin-top: 20px;
+}
+
+/* ================================================
+   Info / Footer
+================================================ */
+.wpml-auto-dashboard-info {
+    margin-top: 70px;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.wpml-auto-dashboard-info-links {
+    font-size: 14px;
+}
+
+.wpml-auto-dashboard-info-links p {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.wpml-auto-dashboard-info .logo {
+    width: 150px;
+    height: 16px;
+    margin-bottom: 10px;
+}
+
+.wpml-auto-dashboard-info .logo a:focus {
+    box-shadow: none;
+}
+
+.wpml-auto-dashboard-info-links a {
+    color: #0073aa;
+    text-decoration: none;
+}
+
+.wpml-auto-dashboard-social-icons a:focus {
+     text-decoration: underline;
+}
+
+.wpml-auto-dashboard-social-icons img {
+    margin-top: 10px;
+}
+
+.wpml-auto-dashboard-social-icons svg {
+    width: 32px;
+    height: 32px;
+}
+
+/* Responsive tweaks */
+@media (max-width: 488px) and (min-width: 100px) {
+    .wpml-auto-dashboard-ai-translations .wpml-auto-dashboard-ai-translations-container .header,
+    .wpml-auto-dashboard-free-vs-pro-container .header,
+    .wpml-auto-dashboard-settings-container .header,
+    .wpml-auto-dashboard-license-container .header {
+        flex-direction: column;
+        align-items: start;
+        padding-bottom: 10px;
+    }
+    .wpml-auto-dashboard-ai-translations .wpml-auto-dashboard-translations {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 767px) {
+    .wpml-auto-dashboard-wrapper .tab-content {
+        flex-direction: column;
+        gap: 0px;
+    }
+    .wpml-auto-dashboard-sidebar {
+        width: auto;
+    }
+    .wpml-auto-dashboard-header {
+        padding: 0px 11px 11px 20px;
+        height: auto;
+        min-height: 110px;
+        flex-direction: column;
+        gap: 15px;
+        top: 0;
+    }
+    .wpml-auto-dashboard-welcome {
+        flex-direction: column;
+    }
+    .wpml-auto-dashboard-welcome-text {
+        width: 100%;
+    }
+    .wpml-auto-dashboard-welcome-video {
+        width: 100%;
+    }
+    .wpml-auto-dashboard-wrapper {
+        padding: 60px 12px 0px 0px;
+    }
+    .wpml-auto-dashboard-header-right {
+        gap: 6px;
+    }
+    .wpml-auto-dashboard-ai-translations .wpml-auto-dashboard-ai-translations-container .header,
+    .wpml-auto-dashboard-free-vs-pro-container .header,
+    .wpml-auto-dashboard-settings-container .header,
+    .wpml-auto-dashboard-license-container .header {
+        flex-direction: column;
+        align-items: start;
+        padding-bottom: 10px;
+    }
+    .wpml-auto-dashboard-ai-translations .wpml-auto-dashboard-translations {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 766px) and (min-width: 601px) {
+    .wpml-auto-dashboard-header {
+        top: 0px;
+    }
+}
+
+@media (max-width: 767px) and (min-width: 375px) {
+    .wpml-auto-dashboard-header {
+        height: 110px;
+    }
+}
+
+@media (max-width: 1024px) {
+    .wpml-auto-dashboard-header-left svg {
+        max-width: 120px;
+    }
+    .wpml-auto-dashboard-header {
+        gap: 15px;
+    }
+    .wpml-auto-dashboard-header-left img {
+        max-width: 125px;
+    }
+    .wpml-auto-dashboard-btn {
+        padding: 8px 6px;
+    }
+    .wpml-auto-dashboard-header-right {
+        gap: 13px;
+    }
+    .wpml-auto-dashboard-ai-translations .wpml-auto-dashboard-translations {
+        gap: 7px;
+    }
+}

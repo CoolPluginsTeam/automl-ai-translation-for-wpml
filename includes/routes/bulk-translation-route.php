@@ -220,8 +220,7 @@ if ( ! class_exists( 'Bulk_Translation_Route' ) ) :
             }
         
             // Get selected model for this provider from our option.
-            $models   = get_option( \WPML_Auto_Translate_Addon::OPTION_TRANSLATION_MODELS, array() );
-            $models = array('google' => 'gemini-2.5-flash');
+            $models   = get_option( 'wpml_at_ai_translation_models', array() );
             $model_id = isset( $models[ $service_slug ] ) ? $models[ $service_slug ] : '';
             if ( ! $model_id ) {
                 wp_send_json_error( 'No AI model selected for this provider.' );
