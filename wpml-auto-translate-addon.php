@@ -32,6 +32,12 @@ if ( ! defined( 'WPML_AT_PLUGIN_URL' ) ) {
 if ( ! defined( 'WPML_AT_PLUGIN_BASENAME' ) ) {
 	define( 'WPML_AT_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
 }
+$autoload = WPML_AT_PLUGIN_DIR . 'vendor/autoload.php';
+if ( file_exists( $autoload ) ) {
+	require_once $autoload;
+}
+
+use WordPress\AI_Client\AI_Client;
 
 /**
  * Main plugin class.
@@ -63,6 +69,9 @@ final class WPML_Auto_Translate_Addon {
 	private function __construct() {
 		$this->load_dependencies();
 		$this->init();
+		add_action( 'init', array( AI_Client::class, 'init' ) );
+		
+		
 	}
 
 	/**

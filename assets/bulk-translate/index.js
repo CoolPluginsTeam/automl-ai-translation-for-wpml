@@ -843,7 +843,7 @@ const bulkTranslateEntries = async ({
 };
 /**
  * Bulk translate strings for String Translation page.
- * Gets strings via get_strings AJAX endpoint and translates them.
+ * Fetches first page only; initBulkTranslateStrings will fetch further pages in a pipeline (no 10k in memory).
  */
 const bulkTranslateStrings = async ({
   langs,
@@ -852,96 +852,75 @@ const bulkTranslateStrings = async ({
 }) => {
   const ajaxUrl = atfpp_bulk_translate_object.ajax;
   const nonce = atfpp_bulk_translate_object.nonce;
-  const stringKeys = [];
+  const PAGE_SIZE = 500;
   const stringsByLanguage = {};
-  const PAGE_SIZE = 500; // 🔢 fetch 500 strings per request
+  const totalPerLanguage = {};
+  const stringKeys = []; // only used for count; we don't put 10k keys in Redux
 
-  for (const lang of langs) {
-    console.log('lang', lang);
-    let offset = 0;
-    let hasMore = true;
-    while (hasMore) {
-      try {
-        const formData = new URLSearchParams();
-        formData.append('action', 'cp_wpml_google_auto_translate_get_strings');
-        formData.append('nonce', nonce);
-        formData.append('target_lang', lang);
-        formData.append('limit', PAGE_SIZE.toString());
-        formData.append('offset', offset.toString());
+  const fetchPage = async lang => {
+    const formData = new URLSearchParams();
+    formData.append('action', 'cp_wpml_google_auto_translate_get_strings');
+    formData.append('nonce', nonce);
+    formData.append('target_lang', lang);
+    formData.append('limit', PAGE_SIZE.toString());
+    formData.append('offset', '0'); // always 0: "give me first 500 untranslated"
 
-        // Pass filters individually so PHP can read them from $_POST.
-        if (stringFilters.status) {
-          formData.append('status', stringFilters.status);
-        }
-        if (stringFilters.context) {
-          formData.append('context', stringFilters.context);
-        }
-        if (stringFilters['translation-priority']) {
-          formData.append('translation-priority', stringFilters['translation-priority']);
-        }
-        if (stringFilters.search) {
-          formData.append('search', stringFilters.search);
-        }
-        const response = await fetch(ajaxUrl + '?action=cp_wpml_google_auto_translate_get_strings', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-            'Accept': 'application/json'
-          },
-          body: formData
-        });
-        const data = await response.json();
-        console.log('get_strings response', data);
-        if (data.success && data.data && Array.isArray(data.data.strings) && data.data.strings.length > 0) {
-          const strings = data.data.strings;
-
-          // Accumulate all strings for this language (used later by initBulkTranslateStrings)
-          if (!stringsByLanguage[lang]) {
-            stringsByLanguage[lang] = [];
-          }
-          stringsByLanguage[lang].push(...strings);
-
-          // Collect keys and set up Redux state for this batch
-          const flagUrl = atfpp_bulk_translate_object.languageObject[lang]?.flag || '';
-          const languageName = atfpp_bulk_translate_object.languageObject[lang]?.name || lang;
-          const pendingKeys = [];
-          const translatePostInfoBatch = {};
-          strings.forEach((str, index) => {
-            const key = `string_${str.field_key}_${lang}`;
-            stringKeys.push(key);
-            pendingKeys.push(key);
-            translatePostInfoBatch[key] = {
-              parentPostId: str.field_key,
-              targetPostId: null,
-              targetLanguage: lang,
-              postLink: null,
-              status: 'pending',
-              parentPostTitle: str.field_name || str.field_key,
-              firstPostLanguage: offset === 0 && index === 0,
-              flagUrl: flagUrl,
-              languageName: languageName,
-              messageClass: 'warning',
-              editorType: 'strings'
-            };
-          });
-
-          // Batch dispatch to reduce Redux actions
-          storeDispatch((0,_redux_store_features_actions__WEBPACK_IMPORTED_MODULE_3__.updatePendingPosts)(pendingKeys));
-          storeDispatch((0,_redux_store_features_actions__WEBPACK_IMPORTED_MODULE_3__.updateTranslatePostInfo)(translatePostInfoBatch));
-
-          // Update pagination
-          offset += strings.length;
-          const total = data.data.total || 0;
-          hasMore = total > offset;
-        } else {
-          // No more strings for this language
-          hasMore = false;
-        }
-      } catch (error) {
-        console.error(`Error fetching strings for language ${lang}:`, error);
-        hasMore = false;
-      }
+    if (stringFilters.status) formData.append('status', stringFilters.status);
+    if (stringFilters.context) formData.append('context', stringFilters.context);
+    if (stringFilters['translation-priority']) formData.append('translation-priority', stringFilters['translation-priority']);
+    if (stringFilters.search) formData.append('search', stringFilters.search);
+    if (stringFilters.selected_string_ids && Array.isArray(stringFilters.selected_string_ids) && stringFilters.selected_string_ids.length > 0) {
+      formData.append('selected_string_ids', JSON.stringify(stringFilters.selected_string_ids));
     }
+    const response = await fetch(ajaxUrl + '?action=cp_wpml_google_auto_translate_get_strings', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+        'Accept': 'application/json'
+      },
+      body: formData
+    });
+    const data = await response.json();
+    if (!data.success || !data.data) return {
+      strings: [],
+      total: 0
+    };
+    return {
+      strings: data.data.strings || [],
+      total: data.data.total || 0
+    };
+  };
+  for (const lang of langs) {
+    const {
+      strings,
+      total
+    } = await fetchPage(lang, 0);
+    if (total === 0 || !strings.length) continue;
+    totalPerLanguage[lang] = total;
+    stringsByLanguage[lang] = strings; // first page only
+
+    const flagUrl = atfpp_bulk_translate_object.languageObject[lang]?.flag || '';
+    const languageName = atfpp_bulk_translate_object.languageObject[lang]?.name || lang;
+
+    // One Redux entry per language (not 10k entries)
+    const key = `strings_${lang}`;
+    stringKeys.push(key);
+    storeDispatch((0,_redux_store_features_actions__WEBPACK_IMPORTED_MODULE_3__.updatePendingPosts)([key]));
+    storeDispatch((0,_redux_store_features_actions__WEBPACK_IMPORTED_MODULE_3__.updateTranslatePostInfo)({
+      [key]: {
+        parentPostId: `strings_${lang}`,
+        targetLanguage: lang,
+        status: 'in-progress',
+        messageClass: 'in-progress',
+        parentPostTitle: languageName,
+        firstPostLanguage: true,
+        flagUrl,
+        languageName,
+        editorType: 'strings',
+        total,
+        completed: 0
+      }
+    }));
   }
   if (stringKeys.length === 0) {
     return {
@@ -949,16 +928,17 @@ const bulkTranslateStrings = async ({
       message: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)('No strings found to translate.', 'wpml-auto-translate-addon')
     };
   }
-
-  // Initialize counters for string translation (1 "post" entry per string key)
+  const totalStrings = Object.values(totalPerLanguage).reduce((a, b) => a + b, 0);
   storeDispatch((0,_redux_store_features_actions__WEBPACK_IMPORTED_MODULE_3__.updateCountInfo)({
-    totalPosts: stringKeys.length
+    totalPosts: totalStrings
   }));
   return {
     success: true,
-    stringKeys: stringKeys,
-    stringsByLanguage: stringsByLanguage,
-    nonce: nonce
+    stringKeys,
+    stringsByLanguage,
+    totalPerLanguage,
+    nonce,
+    fetchPage
   };
 };
 /**
@@ -999,65 +979,36 @@ const translateStringsWithChromeAI = (strings, sourceLang, targetLang) => {
 
 /**
  * Initialize bulk translation for strings.
- * Similar to initBulkTranslate but for strings.
+ * Pipeline: fetch one page (500) → translate → save → fetch next page. Never holds more than 500 strings in memory.
  */
-const initBulkTranslateStrings = async (stringKeys = [], stringsByLanguage = {}, nonce, storeDispatch, prefix, updateDestoryHandler) => {
+const initBulkTranslateStrings = async (stringKeys = [], stringsByLanguage = {}, nonce, storeDispatch, prefix, updateDestoryHandler, totalPerLanguage = {}, fetchPage = null) => {
   const pendingPosts = _redux_store_store__WEBPACK_IMPORTED_MODULE_4__.store.getState().pendingPosts;
-  if (pendingPosts.length < 1) {
-    return;
-  }
+  if (pendingPosts.length < 1 || !fetchPage) return;
   let modalClosed = false;
   updateDestoryHandler(() => {
     modalClosed = true;
   });
-
-  // Get source language from WPML settings (default language)
   const sourceLang = atfpp_bulk_translate_object.default_language_slug || 'en';
-
-  // Group strings by language for translation
-  const translateStringsForLanguage = async (lang, strings) => {
-    if (!strings || strings.length === 0 || modalClosed) {
-      return;
-    }
+  const BATCH_SIZE = 500;
+  const translateStringsForLanguage = async (lang, initialStrings) => {
+    if (!initialStrings?.length || modalClosed) return;
     const activeProvider = _redux_store_store__WEBPACK_IMPORTED_MODULE_4__.store.getState().serviceProvider;
-    console.log('activeProvider', activeProvider);
-
-    // Get service slug for AI translation
     let serviceSlug = activeProvider;
-    if (serviceSlug && serviceSlug.endsWith('_ai')) {
-      serviceSlug = serviceSlug.replace('_ai', '');
-    }
-
-    // Use batches of 500 for translation + saving
-    const BATCH_SIZE = 500;
+    if (serviceSlug?.endsWith('_ai')) serviceSlug = serviceSlug.replace('_ai', '');
     const controller = new AbortController();
-
-    // Mark all strings as in-progress first
-    const allKeys = strings.map(str => `string_${str.field_key}_${lang}`);
-    allKeys.forEach(key => {
-      storeDispatch((0,_redux_store_features_actions__WEBPACK_IMPORTED_MODULE_3__.updateTranslatePostInfo)({
-        [key]: {
-          status: 'in-progress',
-          messageClass: 'in-progress'
-        }
-      }));
-    });
-
-    // Process strings in batches of 500 until all are done
-    for (let i = 0; i < strings.length; i += BATCH_SIZE) {
-      if (modalClosed) {
-        controller.abort();
-        break;
-      }
-      const batch = strings.slice(i, i + BATCH_SIZE);
+    const totalForLang = totalPerLanguage[lang] || initialStrings.length;
+    const langKey = `strings_${lang}`;
+    let offset = 0;
+    let strings = initialStrings;
+    let batchStringsTranslated = 0;
+    let batchCharsTranslated = 0;
+    while (strings.length > 0 && !modalClosed) {
+      const batch = strings.slice(0, BATCH_SIZE);
       try {
-        // Prepare strings for translation API
         const stringsToTranslate = batch.map(str => ({
           text: str.text || str.html || '',
           field_key: str.field_key
         }));
-
-        // Call AI translation API
         let translationResponse;
         if (activeProvider === 'localAiTranslator') {
           const translations = await translateStringsWithChromeAI(stringsToTranslate.map(s => s.text), sourceLang, lang);
@@ -1069,92 +1020,88 @@ const initBulkTranslateStrings = async (stringKeys = [], stringsByLanguage = {},
           };
         } else {
           translationResponse = await (0,_helper__WEBPACK_IMPORTED_MODULE_1__.AITranslationRequest)({
-            controller: controller,
+            controller,
             Strings: stringsToTranslate.map(s => s.text),
             slug: serviceSlug,
             source_language: sourceLang,
             target_language: lang
           });
         }
-        if (translationResponse && translationResponse.success && translationResponse.data) {
+        if (translationResponse?.success && translationResponse.data) {
           const translations = Array.isArray(translationResponse.data) ? translationResponse.data : translationResponse.data.translations || [];
-
-          // Prepare this batch for saving (max 500 per request)
           const batchToSave = [];
           batch.forEach((str, index) => {
-            const key = `string_${str.field_key}_${lang}`;
             const sourceText = str.text || str.html || '';
             const translatedText = translations[index] || sourceText;
             batchToSave.push({
               field_key: str.field_key,
               translated: translatedText
             });
-
-            // Update status to completed
-            storeDispatch((0,_redux_store_features_actions__WEBPACK_IMPORTED_MODULE_3__.updateTranslatePostInfo)({
-              [key]: {
-                status: 'completed',
-                messageClass: 'success',
-                targetPostTitle: translatedText.substring(0, 50) + (translatedText.length > 50 ? '...' : '')
-              }
-            }));
-
-            // Update counters (strings + characters)
-            const state = _redux_store_store__WEBPACK_IMPORTED_MODULE_4__.store.getState();
-            const currentCount = state.countInfo || {};
-            const currentStrings = currentCount.stringsTranslated || 0;
-            const currentChars = currentCount.charactersTranslated || 0;
-            storeDispatch((0,_redux_store_features_actions__WEBPACK_IMPORTED_MODULE_3__.updateCountInfo)({
-              stringsTranslated: currentStrings + 1,
-              charactersTranslated: currentChars + sourceText.length
-            }));
-            storeDispatch((0,_redux_store_features_actions__WEBPACK_IMPORTED_MODULE_3__.unsetPendingPost)(key));
-            storeDispatch((0,_redux_store_features_actions__WEBPACK_IMPORTED_MODULE_3__.updateCompletedPosts)([key]));
-            storeDispatch((0,_redux_store_features_actions__WEBPACK_IMPORTED_MODULE_3__.updateProgressStatus)(100 / pendingPosts.length));
+            batchStringsTranslated += 1;
+            batchCharsTranslated += sourceText.length;
           });
-
-          // 🚩 Save this batch (up to 500 strings) in one request
           if (batchToSave.length > 0) {
             await saveStringTranslations(lang, batchToSave, nonce);
           }
-        } else {
-          console.log('translationResponse', translationResponse);
-          // Handle translation error for this batch
-          const errorMsg = translationResponse?.data?.message || (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)('Translation failed', 'wpml-auto-translate-addon');
-          batch.forEach(str => {
-            const key = `string_${str.field_key}_${lang}`;
-            storeDispatch((0,_redux_store_features_actions__WEBPACK_IMPORTED_MODULE_3__.updateTranslatePostInfo)({
-              [key]: {
-                status: 'error',
-                messageClass: 'error',
-                errorMessage: errorMsg
-              }
-            }));
-            storeDispatch((0,_redux_store_features_actions__WEBPACK_IMPORTED_MODULE_3__.unsetPendingPost)(key));
-            storeDispatch((0,_redux_store_features_actions__WEBPACK_IMPORTED_MODULE_3__.updateCompletedPosts)([key]));
-          });
-        }
-      } catch (error) {
-        console.log('error', error);
-        // Handle error for this batch
-        const errorMsg = error.message || (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)('Translation failed', 'wpml-auto-translate-addon');
-        batch.forEach(str => {
-          const key = `string_${str.field_key}_${lang}`;
+          offset += batch.length;
+          const state = _redux_store_store__WEBPACK_IMPORTED_MODULE_4__.store.getState();
+          const prev = state.translatePostInfo[langKey] || {};
+          const completed = (prev.completed || 0) + batch.length;
           storeDispatch((0,_redux_store_features_actions__WEBPACK_IMPORTED_MODULE_3__.updateTranslatePostInfo)({
-            [key]: {
+            [langKey]: {
+              ...prev,
+              status: offset >= totalForLang ? 'completed' : 'in-progress',
+              messageClass: offset >= totalForLang ? 'success' : 'in-progress',
+              completed,
+              total: totalForLang
+            }
+          }));
+          const count = state.countInfo || {};
+          storeDispatch((0,_redux_store_features_actions__WEBPACK_IMPORTED_MODULE_3__.updateCountInfo)({
+            stringsTranslated: (count.stringsTranslated || 0) + batchStringsTranslated,
+            charactersTranslated: (count.charactersTranslated || 0) + batchCharsTranslated
+          }));
+          batchStringsTranslated = 0;
+          batchCharsTranslated = 0;
+          const totalStrings = Object.values(totalPerLanguage).reduce((a, b) => a + b, 0);
+          storeDispatch((0,_redux_store_features_actions__WEBPACK_IMPORTED_MODULE_3__.updateProgressStatus)(100 * batch.length / totalStrings));
+          if (offset >= totalForLang) {
+            storeDispatch((0,_redux_store_features_actions__WEBPACK_IMPORTED_MODULE_3__.unsetPendingPost)(langKey));
+            storeDispatch((0,_redux_store_features_actions__WEBPACK_IMPORTED_MODULE_3__.updateCompletedPosts)([langKey]));
+            return;
+          }
+        } else {
+          const errorMsg = translationResponse?.data?.message || (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)('Translation failed', 'wpml-auto-translate-addon');
+          storeDispatch((0,_redux_store_features_actions__WEBPACK_IMPORTED_MODULE_3__.updateTranslatePostInfo)({
+            [langKey]: {
               status: 'error',
               messageClass: 'error',
               errorMessage: errorMsg
             }
           }));
-          storeDispatch((0,_redux_store_features_actions__WEBPACK_IMPORTED_MODULE_3__.unsetPendingPost)(key));
-          storeDispatch((0,_redux_store_features_actions__WEBPACK_IMPORTED_MODULE_3__.updateCompletedPosts)([key]));
-        });
+          storeDispatch((0,_redux_store_features_actions__WEBPACK_IMPORTED_MODULE_3__.unsetPendingPost)(langKey));
+          storeDispatch((0,_redux_store_features_actions__WEBPACK_IMPORTED_MODULE_3__.updateCompletedPosts)([langKey]));
+          return;
+        }
+      } catch (err) {
+        const errorMsg = err?.message || (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)('Translation failed', 'wpml-auto-translate-addon');
+        storeDispatch((0,_redux_store_features_actions__WEBPACK_IMPORTED_MODULE_3__.updateTranslatePostInfo)({
+          [langKey]: {
+            status: 'error',
+            messageClass: 'error',
+            errorMessage: errorMsg
+          }
+        }));
+        storeDispatch((0,_redux_store_features_actions__WEBPACK_IMPORTED_MODULE_3__.unsetPendingPost)(langKey));
+        storeDispatch((0,_redux_store_features_actions__WEBPACK_IMPORTED_MODULE_3__.updateCompletedPosts)([langKey]));
+        return;
       }
+      const next = await fetchPage(lang, offset);
+      strings = next.strings || [];
     }
+    storeDispatch((0,_redux_store_features_actions__WEBPACK_IMPORTED_MODULE_3__.unsetPendingPost)(langKey));
+    storeDispatch((0,_redux_store_features_actions__WEBPACK_IMPORTED_MODULE_3__.updateCompletedPosts)([langKey]));
   };
-
-  // Process each language
   for (const lang of Object.keys(stringsByLanguage)) {
     if (modalClosed) break;
     await translateStringsForLanguage(lang, stringsByLanguage[lang]);
@@ -4660,6 +4607,7 @@ const StatusModal = ({
   let progressStatus = (0,react_redux__WEBPACK_IMPORTED_MODULE_2__.useSelector)(_redux_store_features_selectors__WEBPACK_IMPORTED_MODULE_3__.selectProgressStatus);
   progressStatus = progressStatus.toFixed(1);
   progressStatus = Math.min(progressStatus, 100);
+  const isStringTranslationPage = window.wpmlIsStringTranslationPage || false;
   (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
     const translateContent = async () => {
       const isStringTranslationPage = window.wpmlIsStringTranslationPage || false;
@@ -4682,7 +4630,7 @@ const StatusModal = ({
         }
         console.log('response.stringKeys', response.stringKeys);
         // Initialize string translation flow
-        (0,_bulk_translate__WEBPACK_IMPORTED_MODULE_1__.initBulkTranslateStrings)(response.stringKeys, response.stringsByLanguage, response.nonce, storeDispatch, prefix, updateDestoryHandler);
+        (0,_bulk_translate__WEBPACK_IMPORTED_MODULE_1__.initBulkTranslateStrings)(response.stringKeys, response.stringsByLanguage, response.nonce, storeDispatch, prefix, updateDestoryHandler, response.totalPerLanguage || {}, response.fetchPage || null);
       } else {
         // Post/taxonomy translation flow
         const response = await (0,_bulk_translate__WEBPACK_IMPORTED_MODULE_1__.bulkTranslateEntries)({
@@ -4931,7 +4879,7 @@ const StatusModal = ({
             children: countInfo.charactersTranslated
           })]
         })]
-      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("div", {
+      }), (!isStringTranslationPage || !isLoading && pendingPosts.length === 0) && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("div", {
         className: `${prefix}-status-table-container`,
         children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("div", {
           children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsxs)("table", {
@@ -5011,8 +4959,36 @@ const StatusModal = ({
                 }, key);
               }), !isLoading && Object.keys(translatePostInfo).map((key, index) => {
                 const info = translatePostInfo[key];
+                const isStringAggregate = key.startsWith('strings_');
+                const workingStatus = info.status === 'running' || info.status === 'in-progress';
+                if (isStringAggregate) {
+                  const total = info.total || 0;
+                  const completed = info.completed || 0;
+                  const pct = total > 0 ? Math.min(100, Math.round(100 * completed / total)) : 0;
+                  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsxs)("tr", {
+                    className: `${prefix}-td-${info.status}`,
+                    children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("td", {
+                      className: `${prefix}-status-flag`,
+                      children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsxs)("div", {
+                        children: [info.flagUrl && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("img", {
+                          src: info.flagUrl,
+                          width: "20",
+                          alt: info.targetLanguage
+                        }), info.languageName || info.targetLanguage]
+                      })
+                    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("td", {
+                      children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsxs)("span", {
+                        className: `${prefix}-status ${info.messageClass || ''} ${info.status || ''}`,
+                        children: [info.status === 'completed' && (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('Completed', 'autopoly-ai-translation-for-polylang-pro'), info.status === 'error' && info.errorMessage, workingStatus && `${completed}/${total} ${(0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('strings', 'wpml-auto-translate-addon')}`, info.status === 'pending' && (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('Pending', 'autopoly-ai-translation-for-polylang-pro')]
+                      })
+                    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("td", {
+                      children: workingStatus ? `${completed} / ${total}` : info.status === 'completed' ? `${total} ${(0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('translated', 'wpml-auto-translate-addon')}` : '—'
+                    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("td", {
+                      children: "\u2014"
+                    })]
+                  }, key);
+                }
                 const rows = [];
-                const workingStatus = info.status === 'running' || info.status === 'in-progress' ? true : false;
                 if (info.firstPostLanguage) {
                   rows.push(/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("tr", {
                     className: `${prefix}-group-title`,
@@ -5022,8 +4998,6 @@ const StatusModal = ({
                     })
                   }, `group-title-${info.parentPostId || key}`));
                 }
-
-                // Language row
                 rows.push(/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsxs)("tr", {
                   className: `${prefix}-td-${info.status}`,
                   children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("td", {
@@ -5037,7 +5011,7 @@ const StatusModal = ({
                     })
                   }), info.status === 'error' ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.Fragment, {
                     children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("td", {
-                      colSpan: `${info.errorHtml ? '2' : '3'}`,
+                      colSpan: info.errorHtml ? '2' : '3',
                       children: info.errorMessage
                     }), info.errorHtml && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("td", {
                       colSpan: "1",
@@ -5061,11 +5035,11 @@ const StatusModal = ({
                             viewBox: "0 0 36 36",
                             children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("path", {
                               className: `${prefix}-bg`,
-                              d: "M18 2.0845\r a 15.9155 15.9155 0 0 1 0 31.831\r a 15.9155 15.9155 0 0 1 0 -31.831"
+                              d: "M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                             }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("path", {
                               className: `${prefix}-progress`,
                               strokeDasharray: "0, 100",
-                              d: "M18 2.0845\r a 15.9155 15.9155 0 0 1 0 31.831\r a 15.9155 15.9155 0 0 1 0 -31.831"
+                              d: "M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                             })]
                           }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("div", {
                             className: `${prefix}-percentage`,
@@ -5074,18 +5048,16 @@ const StatusModal = ({
                         })]
                       })
                     }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("td", {
-                      children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.Fragment, {
-                        children: info.status === 'completed' ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("a", {
-                          href: info.postLink,
-                          target: "_blank",
-                          rel: "noopener noreferrer",
-                          children: info.targetPostTitle
-                        }) : info.status === 'in-progress' ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsxs)("div", {
-                          className: `${prefix}-${info.messageClass}-text`,
-                          children: [(0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('In Progress', 'autopoly-ai-translation-for-polylang-pro'), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("span", {})]
-                        }) : /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("div", {
-                          className: `${prefix}-progress-skeleton short`
-                        })
+                      children: info.status === 'completed' ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("a", {
+                        href: info.postLink,
+                        target: "_blank",
+                        rel: "noopener noreferrer",
+                        children: info.targetPostTitle
+                      }) : info.status === 'in-progress' ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsxs)("div", {
+                        className: `${prefix}-${info.messageClass}-text`,
+                        children: [(0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('In Progress', 'autopoly-ai-translation-for-polylang-pro'), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("span", {})]
+                      }) : /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("div", {
+                        className: `${prefix}-progress-skeleton short`
                       })
                     }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("td", {
                       children: info.status === 'completed' && info.targetPostId ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("span", {
@@ -13248,6 +13220,9 @@ __webpack_require__.r(__webpack_exports__);
         const searchInput = document.querySelector('input#icl_st_filter_search');
         const searchTranslationCheckbox = document.querySelector('input#search_translation:not([disabled])');
         const exactMatchCheckbox = document.querySelector('input#icl_st_filter_search_em:not([disabled])');
+        const stringTable = document.querySelector('#icl_string_translations') || document.querySelector('table.js-wpml-st-table');
+        const checked = stringTable ? stringTable.querySelectorAll('input.wpml-checkbox-native:checked, input.js-icl-st-row-cb:checked') : [];
+        const selectedStringIds = Array.from(checked).map(el => el.value).filter(Boolean);
 
         // Get values - use empty string if not found
         const statusValue = statusSelect ? statusSelect.value || '' : '';
@@ -13264,6 +13239,9 @@ __webpack_require__.r(__webpack_exports__);
           search_translation: searchTranslationValue,
           exact_match: exactMatchValue
         };
+        if (selectedStringIds.length > 0) {
+          stringFilters.selected_string_ids = selectedStringIds;
+        }
 
         // Store string filters globally for use in App/StatusModal
         window.wpmlStringFilters = stringFilters;

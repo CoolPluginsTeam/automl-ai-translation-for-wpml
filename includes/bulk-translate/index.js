@@ -141,6 +141,10 @@ import LocalAITranslate from './components/translate-provider/local-ai/local-ai-
                 const searchTranslationCheckbox = document.querySelector('input#search_translation:not([disabled])');
                 const exactMatchCheckbox = document.querySelector('input#icl_st_filter_search_em:not([disabled])');
 
+                const stringTable = document.querySelector('#icl_string_translations') || document.querySelector('table.js-wpml-st-table');
+                const checked = stringTable ? stringTable.querySelectorAll('input.wpml-checkbox-native:checked, input.js-icl-st-row-cb:checked') : [];
+                const selectedStringIds = Array.from(checked).map(el => el.value).filter(Boolean);
+
                 // Get values - use empty string if not found
                 const statusValue = statusSelect ? (statusSelect.value || '') : '';
                 const contextValue = contextSelect ? (contextSelect.value || '') : '';
@@ -157,6 +161,9 @@ import LocalAITranslate from './components/translate-provider/local-ai/local-ai-
                     search_translation: searchTranslationValue,
                     exact_match: exactMatchValue
                 };
+                if (selectedStringIds.length > 0) {
+                    stringFilters.selected_string_ids = selectedStringIds;
+                }
 
                 // Store string filters globally for use in App/StatusModal
                 window.wpmlStringFilters = stringFilters;

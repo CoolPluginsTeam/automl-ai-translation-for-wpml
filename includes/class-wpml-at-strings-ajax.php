@@ -54,6 +54,17 @@ class WPML_AT_Strings_Ajax
     if (empty($target_lang)) {
         wp_send_json_error(array('msg' => esc_html__('Target language is required.', 'wpml-auto-translate-addon')));
     }
+	global $wpdb;
+
+// Optional: only translate strings that are checked in the table
+$selected_string_ids = array();
+if (! empty($_POST['selected_string_ids'])) {
+    $decoded = json_decode(stripslashes((string) $_POST['selected_string_ids']), true);
+    if (is_array($decoded)) {
+        $selected_string_ids = array_unique(array_map('absint', $decoded));
+        $selected_string_ids = array_filter($selected_string_ids);
+    }
+}
 
     // Get context from POST if provided
     if (isset($_POST['context']) && ! empty($_POST['context'])) {
@@ -69,17 +80,44 @@ class WPML_AT_Strings_Ajax
         $_GET['search'] = sanitize_text_field(wp_unslash($_POST['search']));
     }
 
-    // Force WPML to return all strings instead of paginated results.
-    // $_GET['show_results'] = 'all';
+    // Force WPML to return all results when we're not filtering by selected IDs
+$_GET['show_results'] = 'all';
 
+$rows = array();
+
+if (! empty($selected_string_ids)) {
+    // Fetch only selected strings from DB (no full icl_get_string_translations load)
+    $strings_table = $wpdb->prefix . 'icl_strings';
+    $trans_table   = $wpdb->prefix . 'icl_string_translations';
+
+    $placeholders = implode(',', array_fill(0, count($selected_string_ids), '%d'));
+    $query = $wpdb->prepare(
+        "SELECT s.id, s.value, s.context, s.name " .
+        "FROM {$strings_table} s " .
+        "LEFT JOIN {$trans_table} t ON t.string_id = s.id AND t.language = %s " .
+        "WHERE s.id IN ($placeholders) AND (t.string_id IS NULL OR t.value = '') AND TRIM(COALESCE(s.value, '')) != ''",
+        array_merge(array($target_lang), $selected_string_ids)
+    );
+
+    $results = $wpdb->get_results($query, ARRAY_A);
+
+    foreach ($results as $row) {
+        $rows[] = array(
+            'field_key' => (string) $row['id'],
+            'original'  => isset($row['value']) ? $row['value'] : '',
+            'translate' => 1,
+            'context'   => isset($row['context']) ? $row['context'] : '',
+            'name'      => isset($row['name']) ? $row['name'] : '',
+        );
+    }
+} else {
+    // No selection: use WPML API (all strings, respecting GET filters)
     $all_strings = icl_get_string_translations();
     if (! is_array($all_strings)) {
         $all_strings = array();
     }
 
-    $rows = array();
     foreach ($all_strings as $string_id => $item) {
-        // Skip if this string already has a translation for target language.
         if (! empty($item['translations'][$target_lang])) {
             continue;
         }
@@ -88,13 +126,14 @@ class WPML_AT_Strings_Ajax
             continue;
         }
         $rows[] = array(
-            'field_key'  => (string) $string_id,
-            'original'   => $value,
-            'translate'  => 1,
-            'context'    => isset($item['context']) ? $item['context'] : '',
-            'name'       => isset($item['name']) ? $item['name'] : '',
+            'field_key' => (string) $string_id,
+            'original'  => $value,
+            'translate' => 1,
+            'context'   => isset($item['context']) ? $item['context'] : '',
+            'name'      => isset($item['name']) ? $item['name'] : '',
         );
     }
+}
 
     // Format for same table structure as post translation (strings array).
     $strings = array();

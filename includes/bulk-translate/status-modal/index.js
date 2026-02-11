@@ -27,6 +27,7 @@ const StatusModal = ({ postIds, selectedLanguages, prefix, onDestory }) => {
     let progressStatus = useSelector(selectProgressStatus);
     progressStatus = progressStatus.toFixed(1);
     progressStatus = Math.min(progressStatus, 100);
+    const isStringTranslationPage = window.wpmlIsStringTranslationPage || false;
 
     useEffect(() => {
         const translateContent = async () => {
@@ -48,7 +49,16 @@ const StatusModal = ({ postIds, selectedLanguages, prefix, onDestory }) => {
                 }
                 console.log('response.stringKeys', response.stringKeys);
                 // Initialize string translation flow
-                initBulkTranslateStrings(response.stringKeys, response.stringsByLanguage, response.nonce, storeDispatch, prefix, updateDestoryHandler);
+                initBulkTranslateStrings(
+                    response.stringKeys,
+                    response.stringsByLanguage,
+                    response.nonce,
+                    storeDispatch,
+                    prefix,
+                    updateDestoryHandler,
+                    response.totalPerLanguage || {},
+                    response.fetchPage || null
+                );
             } else {
                 // Post/taxonomy translation flow
                 const response = await bulkTranslateEntries({ ids: postIds, langs: selectedLanguages, storeDispatch });
@@ -281,7 +291,7 @@ const StatusModal = ({ postIds, selectedLanguages, prefix, onDestory }) => {
                                 </div>
                             )
                         }
-               
+                        {(!isStringTranslationPage || (!isLoading && pendingPosts.length === 0)) && (
                         <div className={`${prefix}-status-table-container`}>
                             <div>
                                 <table className={`${prefix}-status-table`}>
@@ -344,104 +354,107 @@ const StatusModal = ({ postIds, selectedLanguages, prefix, onDestory }) => {
                                             })
                                         }
                                         {!isLoading && Object.keys(translatePostInfo).map((key, index) => {
-                                            const info = translatePostInfo[key];
-                                            const rows = [];
-                                            const workingStatus = info.status === 'running' || info.status === 'in-progress' ? true : false;
+    const info = translatePostInfo[key];
+    const isStringAggregate = key.startsWith('strings_');
+    const workingStatus = info.status === 'running' || info.status === 'in-progress';
 
-                                            if (info.firstPostLanguage) {
-                                                rows.push(
-                                                    <tr key={`group-title-${info.parentPostId || key}`} className={`${prefix}-group-title`}>
-                                                        <td colSpan="5">
-                                                            {info.parentPostTitle || __('Untitled', 'autopoly-ai-translation-for-polylang-pro')}
-                                                        </td>
-                                                    </tr>
-                                                );
-                                            }
+    if (isStringAggregate) {
+        const total = info.total || 0;
+        const completed = info.completed || 0;
+        const pct = total > 0 ? Math.min(100, Math.round((100 * completed) / total)) : 0;
+        return (
+            <tr key={key} className={`${prefix}-td-${info.status}`}>
+                <td className={`${prefix}-status-flag`}>
+                    <div>
+                        {info.flagUrl && <img src={info.flagUrl} width="20" alt={info.targetLanguage} />}
+                        {info.languageName || info.targetLanguage}
+                    </div>
+                </td>
+                <td>
+                    <span className={`${prefix}-status ${info.messageClass || ''} ${info.status || ''}`}>
+                        {info.status === 'completed' && __('Completed', 'autopoly-ai-translation-for-polylang-pro')}
+                        {info.status === 'error' && info.errorMessage}
+                        {workingStatus && `${completed}/${total} ${__('strings', 'wpml-auto-translate-addon')}`}
+                        {info.status === 'pending' && __('Pending', 'autopoly-ai-translation-for-polylang-pro')}
+                    </span>
+                </td>
+                <td>
+                    {workingStatus ? `${completed} / ${total}` : (info.status === 'completed' ? `${total} ${__('translated', 'wpml-auto-translate-addon')}` : '—')}
+                </td>
+                <td>—</td>
+            </tr>
+        );
+    }
 
-                                            // Language row
-                                            rows.push(
-                                                <tr key={key} className={`${prefix}-td-${info.status}`}>
-                                                    <td className={`${prefix}-status-flag`}>
-                                                        <div>
-                                                        {info.flagUrl && <img src={info.flagUrl} width="20" alt={info.targetLanguage} />}
-                                                        {info.languageName || info.targetLanguage}
-                                                        </div>
-                                                    </td>
-                                                    {info.status === 'error' ?
-                                                        <>
-                                                            <td colSpan={`${info.errorHtml ? '2' : '3'}`}>{info.errorMessage}</td>
-                                                            {info.errorHtml && <td colSpan="1" onClick={() => { handleErrorModal(info) }}><button className={`${prefix}-status-error-button`}>{__('Error Details', 'autopoly-ai-translation-for-polylang-pro')}</button></td>}
-                                                        </> :
-                                                        <>
-                                                            <td>
-                                                                <span className={`${prefix}-status ${info.messageClass} ${info.status}`}>
-                                                                    {info.status === 'pending' && __('Pending', 'autopoly-ai-translation-for-polylang-pro')}
-                                                                    {info.status === 'completed' && __('Completed', 'autopoly-ai-translation-for-polylang-pro')}
-                                                                    {workingStatus && <div className={`${prefix}-progress-bar-circular`} data-id={info.parentPostId + '_' + info.targetLanguage}>
-                                                                        <svg className={`${prefix}-circle`} viewBox="0 0 36 36">
-                                                                            <path className={`${prefix}-bg`} d="M18 2.0845
-                                                                    a 15.9155 15.9155 0 0 1 0 31.831
-                                                                    a 15.9155 15.9155 0 0 1 0 -31.831" />
-                                                                            <path className={`${prefix}-progress`}
-                                                                                strokeDasharray="0, 100"
-                                                                                d="M18 2.0845
-                                                                    a 15.9155 15.9155 0 0 1 0 31.831
-                                                                    a 15.9155 15.9155 0 0 1 0 -31.831" />
-                                                                        </svg>
-                                                                        <div className={`${prefix}-percentage`}>0%</div>
-                                                                    </div>}
-                                                                </span>
-                                                            </td>
-                                                            <td>
-                                                                <>
-                                                                    {info.status === 'completed' ?
-                                                                        <a href={info.postLink} target="_blank" rel="noopener noreferrer">{info.targetPostTitle}</a> :
-                                                                        (info.status === 'in-progress' ?
-                                                                            <div className={`${prefix}-${info.messageClass}-text`}>{__('In Progress', 'autopoly-ai-translation-for-polylang-pro')}<span></span></div> :
-                                                                            <div className={`${prefix}-progress-skeleton short`}></div>)
-                                                                    }
-                                                                </>
-                                                            </td>
-                                                            <td>
-                                                                {info.status === 'completed' && info.targetPostId ?
-                                                                    <span className={`${prefix}-view-link`}>
-                                                                        {allPostStatus(info.parentPostId) ? (
-                                                                            <a
-                                                                                href={info.postEditLink}
-                                                                                target="_blank"
-                                                                                rel="noopener noreferrer"
-                                                                                className="button button-primary"
-                                                                                title={sprintf(__('Open the translated %s for review', 'autopoly-ai-translation-for-polylang-pro'), atfpp_bulk_translate_object.post_label)}
-                                                                            >
-                                                                                {__('Review', 'autopoly-ai-translation-for-polylang-pro')}
-                                                                            </a>
-                                                                        ) : (
-                                                                            <button
-                                                                                className="button disabled"
-                                                                                disabled
-                                                                                title={sprintf(__('Please wait until all translations for this %s are complete before reviewing.', 'autopoly-ai-translation-for-polylang-pro'), atfpp_bulk_translate_object.post_label)}
-                                                                            >
-                                                                                {__('Review', 'autopoly-ai-translation-for-polylang-pro')}
-                                                                            </button>
-                                                                        )}
-                                                                    </span>
-                                                                    :
-                                                                    (info.status === 'in-progress' ?
-                                                                        <div className={`${prefix}-${info.messageClass}-text`}>{__('In Progress', 'autopoly-ai-translation-for-polylang-pro')}<span></span></div> :
-                                                                        <div className={`${prefix}-progress-skeleton short`}></div>)
-                                                                }
-                                                            </td>
-                                                        </>
-                                                    }
-                                                </tr>
-                                            );
+    const rows = [];
+    if (info.firstPostLanguage) {
+        rows.push(
+            <tr key={`group-title-${info.parentPostId || key}`} className={`${prefix}-group-title`}>
+                <td colSpan="5">
+                    {info.parentPostTitle || __('Untitled', 'autopoly-ai-translation-for-polylang-pro')}
+                </td>
+            </tr>
+        );
+    }
 
-                                            return rows;
-                                        })}
+    rows.push(
+        <tr key={key} className={`${prefix}-td-${info.status}`}>
+            <td className={`${prefix}-status-flag`}>
+                <div>
+                    {info.flagUrl && <img src={info.flagUrl} width="20" alt={info.targetLanguage} />}
+                    {info.languageName || info.targetLanguage}
+                </div>
+            </td>
+            {info.status === 'error' ?
+                <>
+                    <td colSpan={info.errorHtml ? '2' : '3'}>{info.errorMessage}</td>
+                    {info.errorHtml && <td colSpan="1" onClick={() => { handleErrorModal(info) }}><button className={`${prefix}-status-error-button`}>{__('Error Details', 'autopoly-ai-translation-for-polylang-pro')}</button></td>}
+                </> :
+                <>
+                    <td>
+                        <span className={`${prefix}-status ${info.messageClass} ${info.status}`}>
+                            {info.status === 'pending' && __('Pending', 'autopoly-ai-translation-for-polylang-pro')}
+                            {info.status === 'completed' && __('Completed', 'autopoly-ai-translation-for-polylang-pro')}
+                            {workingStatus && <div className={`${prefix}-progress-bar-circular`} data-id={info.parentPostId + '_' + info.targetLanguage}>
+                                <svg className={`${prefix}-circle`} viewBox="0 0 36 36">
+                                    <path className={`${prefix}-bg`} d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                    <path className={`${prefix}-progress`} strokeDasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                </svg>
+                                <div className={`${prefix}-percentage`}>0%</div>
+                            </div>}
+                        </span>
+                    </td>
+                    <td>
+                        {info.status === 'completed' ?
+                            <a href={info.postLink} target="_blank" rel="noopener noreferrer">{info.targetPostTitle}</a> :
+                            (info.status === 'in-progress' ?
+                                <div className={`${prefix}-${info.messageClass}-text`}>{__('In Progress', 'autopoly-ai-translation-for-polylang-pro')}<span></span></div> :
+                                <div className={`${prefix}-progress-skeleton short`}></div>)}
+                    </td>
+                    <td>
+                        {info.status === 'completed' && info.targetPostId ?
+                            <span className={`${prefix}-view-link`}>
+                                {allPostStatus(info.parentPostId) ? (
+                                    <a href={info.postEditLink} target="_blank" rel="noopener noreferrer" className="button button-primary" title={sprintf(__('Open the translated %s for review', 'autopoly-ai-translation-for-polylang-pro'), atfpp_bulk_translate_object.post_label)}>{__('Review', 'autopoly-ai-translation-for-polylang-pro')}</a>
+                                ) : (
+                                    <button className="button disabled" disabled title={sprintf(__('Please wait until all translations for this %s are complete before reviewing.', 'autopoly-ai-translation-for-polylang-pro'), atfpp_bulk_translate_object.post_label)}>{__('Review', 'autopoly-ai-translation-for-polylang-pro')}</button>
+                                )}
+                            </span> :
+                            (info.status === 'in-progress' ?
+                                <div className={`${prefix}-${info.messageClass}-text`}>{__('In Progress', 'autopoly-ai-translation-for-polylang-pro')}<span></span></div> :
+                                <div className={`${prefix}-progress-skeleton short`}></div>)}
+                    </td>
+                </>
+            }
+        </tr>
+    );
+    return rows;
+})}
                                     </tbody>
                                 </table>
                             </div>
                         </div>
+                        )}
                         {(countInfo.postsTranslated > 0 && !pendingPosts.length && !progressBarVisibility) &&
                             <div className={`${prefix}-progress-footer`}>
                                 <a className={`${prefix}-progress-button button button-primary`} href={getTranslatedPostLink()}>{sprintf(__('Check Translated %s', 'autopoly-ai-translation-for-polylang-pro'), atfpp_bulk_translate_object.post_label)}</a>
