@@ -68,9 +68,11 @@ final class WPML_Auto_Translate_Addon {
 			new Helper();
 		}
 
-		require_once WPML_AT_PLUGIN_DIR . 'includes/routes/bulk-translation-route.php';
 		require_once WPML_AT_PLUGIN_DIR . 'includes/bulk-translation/bulk-translation.php';
 		require_once WPML_AT_PLUGIN_DIR . 'includes/bulk-translation/register-assets.php';
+		
+		require_once WPML_AT_PLUGIN_DIR . 'includes/routes/bulk-translation-route.php';
+
 		require_once WPML_AT_PLUGIN_DIR . 'includes/class-wpml-at-helper.php';
 		require_once WPML_AT_PLUGIN_DIR . 'includes/class-wpml-at-ajax.php';
 		require_once WPML_AT_PLUGIN_DIR . 'admin/class-wpml-at-admin.php';
@@ -88,7 +90,7 @@ final class WPML_Auto_Translate_Addon {
 		}
 
 		// Initialize components.
-		new Bulk_Translation_Route('automl-wpml');
+		new Bulk_Translation_Route('automl-bulk-translation');
 		new WPML_AT_Helper();
 		new WPML_AT_Ajax();
 		new WPML_AT_Admin();
