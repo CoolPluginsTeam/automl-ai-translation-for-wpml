@@ -26,19 +26,19 @@ import LocalAITranslate from './components/translate-provider/local-ai/local-ai-
 
         // 1️⃣ Clear old cached data on page load
         const clearOldTranslatorCacheOnLoad = () => {
-            const loadKey = 'ATFPP_LOCAL_AI_PAGE_LOADED';
+            const loadKey = 'automl_wpml_LOCAL_AI_PAGE_LOADED';
 
             if (sessionStorage.getItem(loadKey)) {
                 return;
             }
 
-            localStorage.removeItem('ATFPP_AVAILABLE_LOCAL_AI_TRANSLATOR_LANGUAGES');
+            localStorage.removeItem('automl_wpml_AVAILABLE_LOCAL_AI_TRANSLATOR_LANGUAGES');
             sessionStorage.setItem(loadKey, '1');
         };
 
         // 2️⃣ Language pack availability check (gesture-based)
         const checkLanguagePackAvailability = async () => {
-            const languagesObj = { ...atfpp_bulk_translate_object.languageObject };
+            const languagesObj = { ...automl_wpml_bulk_translate_object.languageObject };
             const supportedLanguages = LocalAITranslate.supportedLanguages || [];
 
             delete languagesObj.en;
@@ -46,7 +46,7 @@ import LocalAITranslate from './components/translate-provider/local-ai/local-ai-
             let savedLanguages = [];
             try {
                 savedLanguages = JSON.parse(
-                    localStorage.getItem('ATFPP_AVAILABLE_LOCAL_AI_TRANSLATOR_LANGUAGES')
+                    localStorage.getItem('automl_wpml_AVAILABLE_LOCAL_AI_TRANSLATOR_LANGUAGES')
                 ) || [];
             } catch {
                 savedLanguages = [];
@@ -71,7 +71,7 @@ import LocalAITranslate from './components/translate-provider/local-ai/local-ai-
                             delete languagesObj[targetLang] ;
                             savedLanguages.push(targetLang);
                             localStorage.setItem(
-                                'ATFPP_AVAILABLE_LOCAL_AI_TRANSLATOR_LANGUAGES',
+                                'automl_wpml_AVAILABLE_LOCAL_AI_TRANSLATOR_LANGUAGES',
                                 JSON.stringify(savedLanguages)
                             );
                         }
@@ -109,7 +109,7 @@ import LocalAITranslate from './components/translate-provider/local-ai/local-ai-
 
         //     let checkboxClass = 'table.widefat input[name="post[]"]:checked';
 
-        //     if (atfpp_bulk_translate_object.taxonomy_page && '' !== atfpp_bulk_translate_object.taxonomy_page) {
+        //     if (automl_wpml_bulk_translate_object.taxonomy_page && '' !== automl_wpml_bulk_translate_object.taxonomy_page) {
         //         checkboxClass = 'table.widefat input[name="delete_tags[]"]:checked';
         //     }
 
@@ -172,7 +172,7 @@ import LocalAITranslate from './components/translate-provider/local-ai/local-ai-
                 postIds = [];
             } else {
                 // Normal post/taxonomy flow
-                if (atfpp_bulk_translate_object.taxonomy_page && '' !== atfpp_bulk_translate_object.taxonomy_page) {
+                if (automl_wpml_bulk_translate_object.taxonomy_page && '' !== automl_wpml_bulk_translate_object.taxonomy_page) {
                     checkboxClass = 'table.widefat input[name="delete_tags[]"]:checked';
                 }
 
@@ -231,7 +231,7 @@ import LocalAITranslate from './components/translate-provider/local-ai/local-ai-
     }
 
     window.addEventListener('load', async () => {
-        const prefix = 'atfpp-bulk-translate';
+        const prefix = 'automl-wpml-bulk-translate';
 
         await new Promise(resolve => setTimeout(resolve, 500));
 

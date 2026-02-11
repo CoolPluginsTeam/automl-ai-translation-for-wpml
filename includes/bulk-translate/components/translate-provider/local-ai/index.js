@@ -47,7 +47,7 @@ class LocalAiTranslate {
 
         if (this.stopTranslation) return;
 
-        const languageObject = atfpp_bulk_translate_object.languageObject;
+        const languageObject = automl_wpml_bulk_translate_object.languageObject;
         this.completedPostStatus = selectProgressStatus(store.getState());
 
         this.activeTargetLangs = targetLang;

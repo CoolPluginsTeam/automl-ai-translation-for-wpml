@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const bulkTranslateStore = createSlice({
-  name: 'atfp-bulk-translate',
+  name: 'automl-wpml-bulk-translate',
   initialState: {
     completedPosts: [],
     pendingPosts: [],

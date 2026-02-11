@@ -23,7 +23,7 @@ const StatusModal = ({ postIds, selectedLanguages, prefix, onDestory }) => {
     const [charactersCountVisibility, setCharactersCountVisibility] = useState(false);
     const [bulkStatus, setBulkStatus] = useState('status');
     const countInfo = useSelector(selectCountInfo);
-    let [emptyPostMessage, setEmptyPostMessage] = useState(sprintf(__('Translations already exist for all selected %s in the chosen languages. There are no new %s to translate.', 'autopoly-ai-translation-for-polylang-pro'), atfpp_bulk_translate_object.post_label, atfpp_bulk_translate_object.post_label));
+    let [emptyPostMessage, setEmptyPostMessage] = useState(sprintf(__('Translations already exist for all selected %s in the chosen languages. There are no new %s to translate.', 'autopoly-ai-translation-for-polylang-pro'), automl_wpml_bulk_translate_object.post_label, automl_wpml_bulk_translate_object.post_label));
     let progressStatus = useSelector(selectProgressStatus);
     progressStatus = progressStatus.toFixed(1);
     progressStatus = Math.min(progressStatus, 100);
@@ -435,9 +435,9 @@ const StatusModal = ({ postIds, selectedLanguages, prefix, onDestory }) => {
                         {info.status === 'completed' && info.targetPostId ?
                             <span className={`${prefix}-view-link`}>
                                 {allPostStatus(info.parentPostId) ? (
-                                    <a href={info.postEditLink} target="_blank" rel="noopener noreferrer" className="button button-primary" title={sprintf(__('Open the translated %s for review', 'autopoly-ai-translation-for-polylang-pro'), atfpp_bulk_translate_object.post_label)}>{__('Review', 'autopoly-ai-translation-for-polylang-pro')}</a>
+                                    <a href={info.postEditLink} target="_blank" rel="noopener noreferrer" className="button button-primary" title={sprintf(__('Open the translated %s for review', 'autopoly-ai-translation-for-polylang-pro'), automl_wpml_bulk_translate_object.post_label)}>{__('Review', 'autopoly-ai-translation-for-polylang-pro')}</a>
                                 ) : (
-                                    <button className="button disabled" disabled title={sprintf(__('Please wait until all translations for this %s are complete before reviewing.', 'autopoly-ai-translation-for-polylang-pro'), atfpp_bulk_translate_object.post_label)}>{__('Review', 'autopoly-ai-translation-for-polylang-pro')}</button>
+                                    <button className="button disabled" disabled title={sprintf(__('Please wait until all translations for this %s are complete before reviewing.', 'autopoly-ai-translation-for-polylang-pro'), automl_wpml_bulk_translate_object.post_label)}>{__('Review', 'autopoly-ai-translation-for-polylang-pro')}</button>
                                 )}
                             </span> :
                             (info.status === 'in-progress' ?
@@ -457,7 +457,7 @@ const StatusModal = ({ postIds, selectedLanguages, prefix, onDestory }) => {
                         )}
                         {(countInfo.postsTranslated > 0 && !pendingPosts.length && !progressBarVisibility) &&
                             <div className={`${prefix}-progress-footer`}>
-                                <a className={`${prefix}-progress-button button button-primary`} href={getTranslatedPostLink()}>{sprintf(__('Check Translated %s', 'autopoly-ai-translation-for-polylang-pro'), atfpp_bulk_translate_object.post_label)}</a>
+                                <a className={`${prefix}-progress-button button button-primary`} href={getTranslatedPostLink()}>{sprintf(__('Check Translated %s', 'autopoly-ai-translation-for-polylang-pro'), automl_wpml_bulk_translate_object.post_label)}</a>
                             </div>
                         }
                     </>

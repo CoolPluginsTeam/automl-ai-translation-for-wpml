@@ -66,14 +66,115 @@ final class WPML_Auto_Translate_Addon {
 	/**
 	 * Constructor.
 	 */
-	private function __construct() {
+	public function __construct() {
 		$this->load_dependencies();
 		$this->init();
 		add_action( 'init', array( AI_Client::class, 'init' ) );
-		
-		
+	
+		// Add our model selector section to the wp-ai-client settings page.
+		add_action( 'load-settings_page_wp-ai-client', array( $this, 'register_model_selector_section' ) );
 	}
+	
+	/**
+	 * Register the model selector section and setting on the wp-ai-client page.
+	 */
+	public function register_model_selector_section() {
+		if ( ! class_exists( '\WordPress\AiClient\AiClient' ) ) {
+			return;
+		}
+	
+		// Register our option with the same option group wp-ai-client uses.
+		// Group is 'wp-ai-client-settings' (from API_Credentials_Manager::OPTION_GROUP).
+		if ( ! isset( get_registered_settings()[ self::OPTION_TRANSLATION_MODELS ] ) ) {
+			register_setting(
+				'wp-ai-client-settings',
+				self::OPTION_TRANSLATION_MODELS,
+				array(
+					'type'              => 'array',
+					'default'           => array(),
+					'sanitize_callback' => function ( $value ) {
+						if ( ! is_array( $value ) ) {
+							return array();
+						}
+						$out = array();
+						foreach ( $value as $provider_id => $model_id ) {
+							if ( is_string( $provider_id ) && is_string( $model_id ) && $provider_id !== '' && $model_id !== '' ) {
+								$out[ sanitize_key( $provider_id ) ] = sanitize_text_field( $model_id );
+							}
+						}
+						return $out;
+					},
+				)
+			);
+		}
+	
+		add_settings_section(
+			'wp-ai-client-model-selector',
+			__( 'Translation Models (WPML Addon)', 'wpml-auto-translate-addon' ),
+			array( $this, 'render_model_selector_section' ),
+			'wp-ai-client'
+		);
+	}
+	public const OPTION_TRANSLATION_MODELS = 'wpml_at_ai_translation_models';
+	
+	/**
+	 * Render per-provider model dropdowns using the AI SDK registry.
+	 */
+	public function render_model_selector_section() {
+		if ( ! class_exists( '\WordPress\AiClient\AiClient' ) ) {
+			echo '<p class="description">' . esc_html__( 'AI SDK is not available.', 'wpml-auto-translate-addon' ) . '</p>';
+			return;
+		}
+	
+		$registry      = \WordPress\AiClient\AiClient::defaultRegistry();
+		$provider_ids  = $registry->getRegisteredProviderIds();
+		$saved         = get_option( self::OPTION_TRANSLATION_MODELS, array() );
+		$option_name   = self::OPTION_TRANSLATION_MODELS;
+	
+		echo '<p class="description">' . esc_html__( 'Select which model to use for translation per provider. Save your API keys first, then choose a model and click “Save Changes”.', 'wpml-auto-translate-addon' ) . '</p>';
+	
+		foreach ( $provider_ids as $provider_id ) {
+			if ( ! $registry->isProviderConfigured( $provider_id ) ) {
+				continue;
+			}
+	
+			$class_name        = $registry->getProviderClassName( $provider_id );
+			$provider_metadata = $class_name::metadata();
+			$provider_name     = $provider_metadata->getName();
+	
+			try {
+				$directory = $class_name::modelMetadataDirectory();
+				$models    = $directory->listModelMetadata();
+			} catch ( \Throwable $e ) {
+				echo '<p><strong>' . esc_html( $provider_name ) . '</strong>: <em>' . esc_html__( 'Could not load models.', 'wpml-auto-translate-addon' ) . ' ' . esc_html( $e->getMessage() ) . '</em></p>';
+				continue;
+			}
+	
+			if ( empty( $models ) ) {
+				echo '<p><strong>' . esc_html( $provider_name ) . '</strong>: <em>' . esc_html__( 'No models returned.', 'wpml-auto-translate-addon' ) . '</em></p>';
+				continue;
+			}
+	
+			$current    = isset( $saved[ $provider_id ] ) ? $saved[ $provider_id ] : '';
+			$field_name = $option_name . '[' . esc_attr( $provider_id ) . ']';
+	
+			echo '<p style="margin-bottom:0.5em;"><label for="wpml-at-model-' . esc_attr( $provider_id ) . '"><strong>' . esc_html( $provider_name ) . '</strong></label></p>';
+			echo '<select id="wpml-at-model-' . esc_attr( $provider_id ) . '" name="' . esc_attr( $field_name ) . '" style="min-width:220px;max-width:100%;">';
+			echo '<option value="">' . esc_html__( '— Select model for translation —', 'wpml-auto-translate-addon' ) . '</option>';
+	
+			foreach ( $models as $model ) {
+				$id   = $model->getId();
+				$name = $model->getName();
+				$label = ( $name !== $id ) ? $name . ' (' . $id . ')' : $id;
+				echo '<option value="' . esc_attr( $id ) . '"' . selected( $current, $id, false ) . '>' . esc_html( $label ) . '</option>';
+			}
+	
+			echo '</select>';
+		}
+	}
+	
 
+	
 	/**
 	 * Load required files.
 	 *
@@ -89,6 +190,7 @@ final class WPML_Auto_Translate_Addon {
 			'admin/class-wpml-at-custom-block-post.php',
 			'includes/class-wpml-at-strings-ajax.php',
 			'includes/class-cp-wpml-google-auto-translate-ajax.php',
+			'includes/routes/bulk-translation-route.php',
 		);
 
 		foreach ( $files as $file ) {
@@ -99,7 +201,7 @@ final class WPML_Auto_Translate_Addon {
 		}
 	}
 	
-
+  
 	/**
 	 * Initialize plugin.
 	 *
@@ -119,7 +221,9 @@ final class WPML_Auto_Translate_Addon {
 		if ( class_exists( 'WPML_AT_Strings_Ajax' ) ) {
 			WPML_AT_Strings_Ajax::init();
 		}
-
+        if ( class_exists( '\AUTOML_WPML\Includes\Routes\Bulk_Translation_Route' ) ) {
+			new \AUTOML_WPML\Includes\Routes\Bulk_Translation_Route( 'automl-wpml-translate' );
+		}
 		// Initialize admin classes.
 		if ( is_admin() ) {
 			if ( class_exists( 'WPML_AT_Admin' ) ) {

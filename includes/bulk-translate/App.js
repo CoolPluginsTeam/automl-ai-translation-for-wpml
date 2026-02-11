@@ -12,8 +12,8 @@ import Notice from './components/notice';
 
 const App = ({ onDestory, prefix, postIds }) => {
     const dispatch = useDispatch();
-    const { languageObject = {} } = atfpp_bulk_translate_object || {};
-    const emptyPostIdsErrorMessage = sprintf(__('Please select at least one %s for translation.', 'autopoly-ai-translation-for-polylang-pro'), atfpp_bulk_translate_object.post_label);
+    const { languageObject = {} } = automl_wpml_bulk_translate_object || {};
+    const emptyPostIdsErrorMessage = sprintf(__('Please select at least one %s for translation.', 'autopoly-ai-translation-for-polylang-pro'), automl_wpml_bulk_translate_object.post_label);
     const [selectedLanguages, setSelectedLanguages] = useState([]);
     // Don't show error for string translation page even if postIds is empty
     const isStringTranslationPage = window.wpmlIsStringTranslationPage || false;
@@ -170,7 +170,7 @@ const App = ({ onDestory, prefix, postIds }) => {
                             <div
                                 className={`${prefix}-languages`}>
                                 {Object.keys(languageObject).map((language) => {
-                                    return (atfpp_bulk_translate_object.default_language_slug && atfpp_bulk_translate_object.default_language_slug === language ? null : <div key={language} className={`${prefix}-language`}>
+                                    return (automl_wpml_bulk_translate_object.default_language_slug && automl_wpml_bulk_translate_object.default_language_slug === language ? null : <div key={language} className={`${prefix}-language`}>
                                         <div
                                             title={(!postIds.length && !isStringTranslationPage) ? emptyPostIdsErrorMessage : languageObject[language].name}>
                                             <input

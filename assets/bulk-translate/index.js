@@ -47,8 +47,8 @@ const App = ({
   const dispatch = (0,react_redux__WEBPACK_IMPORTED_MODULE_3__.useDispatch)();
   const {
     languageObject = {}
-  } = atfpp_bulk_translate_object || {};
-  const emptyPostIdsErrorMessage = (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.sprintf)((0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('Please select at least one %s for translation.', 'autopoly-ai-translation-for-polylang-pro'), atfpp_bulk_translate_object.post_label);
+  } = automl_wpml_bulk_translate_object || {};
+  const emptyPostIdsErrorMessage = (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.sprintf)((0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('Please select at least one %s for translation.', 'autopoly-ai-translation-for-polylang-pro'), automl_wpml_bulk_translate_object.post_label);
   const [selectedLanguages, setSelectedLanguages] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)([]);
   // Don't show error for string translation page even if postIds is empty
   const isStringTranslationPage = window.wpmlIsStringTranslationPage || false;
@@ -183,7 +183,7 @@ const App = ({
           children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_11__.jsx)(SelectLanguageNotice, {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_11__.jsx)("div", {
             className: `${prefix}-languages`,
             children: Object.keys(languageObject).map(language => {
-              return atfpp_bulk_translate_object.default_language_slug && atfpp_bulk_translate_object.default_language_slug === language ? null : /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_11__.jsx)("div", {
+              return automl_wpml_bulk_translate_object.default_language_slug && automl_wpml_bulk_translate_object.default_language_slug === language ? null : /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_11__.jsx)("div", {
                 className: `${prefix}-language`,
                 children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_11__.jsxs)("div", {
                   title: !postIds.length && !isStringTranslationPage ? emptyPostIdsErrorMessage : languageObject[language].name,
@@ -407,8 +407,8 @@ const updateContent = async ({
     editorType,
     service
   });
-  const bulkTranslateRouteUrl = atfpp_bulk_translate_object.bulkTranslateRouteUrl;
-  const nonce = atfpp_bulk_translate_object.nonce;
+  const bulkTranslateRouteUrl = automl_wpml_bulk_translate_object.bulkTranslateRouteUrl;
+  const nonce = automl_wpml_bulk_translate_object.nonce;
   storeDispatch((0,_redux_store_features_actions__WEBPACK_IMPORTED_MODULE_3__.updateTranslatePostInfo)({
     [postId + '_' + lang]: {
       status: 'in-progress',
@@ -427,7 +427,7 @@ const updateContent = async ({
     body.term_id = postId;
     body.taxonomy_name = updateContent.title || '';
     body.taxonomy_description = updateContent.content || '';
-    body.taxonomy = atfpp_bulk_translate_object.taxonomy_page;
+    body.taxonomy = automl_wpml_bulk_translate_object.taxonomy_page;
     if (updateContent.post_name && updateContent.post_name.trim() !== '') {
       body.taxonomy_slug = updateContent.post_name;
     }
@@ -452,7 +452,7 @@ const updateContent = async ({
     if (data.success && data.data.post_id) {
       const extraData = {};
       if (editorType === 'taxonomy') {
-        extraData.taxonomy = atfpp_bulk_translate_object.taxonomy_page;
+        extraData.taxonomy = automl_wpml_bulk_translate_object.taxonomy_page;
       }
       (0,_helper__WEBPACK_IMPORTED_MODULE_1__.updateTranslateData)({
         provider: service,
@@ -490,35 +490,35 @@ const updateContent = async ({
           status: 'error',
           messageClass: 'error',
           errorMessage: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)('Post not created. Please try again.', 'autopoly-ai-translation-for-polylang-pro'),
-          errorHtml: '<div class="atfpp-error-html">' + errorHtml + '</div>'
+          errorHtml: '<div class="automl-wpml-error-html">' + errorHtml + '</div>'
         };
       } else if (data.code && data.message) {
         updateData = {
           status: 'error',
           messageClass: 'error',
           errorMessage: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)('Post not created. Please try again.', 'autopoly-ai-translation-for-polylang-pro'),
-          errorHtml: '<div class="atfpp-error-html">' + data.message + '</div>'
+          errorHtml: '<div class="automl-wpml-error-html">' + data.message + '</div>'
         };
       } else if (!data.success || data.data) {
         updateData = {
           status: 'error',
           messageClass: 'error',
           errorMessage: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)('Post not created. Please try again.', 'autopoly-ai-translation-for-polylang-pro'),
-          errorHtml: '<div class="atfpp-error-html">' + data.data + '</div>'
+          errorHtml: '<div class="automl-wpml-error-html">' + data.data + '</div>'
         };
       } else if (!data.data.post_id) {
         updateData = {
           status: 'error',
           messageClass: 'error',
           errorMessage: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)('Post not created. Please try again.', 'autopoly-ai-translation-for-polylang-pro'),
-          errorHtml: '<div class="atfpp-error-html">' + data.data + '</div>'
+          errorHtml: '<div class="automl-wpml-error-html">' + data.data + '</div>'
         };
       } else if (typeof data === 'string') {
         updateData = {
           status: 'error',
           messageClass: 'error',
           errorMessage: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)('Post not created. Please try again.', 'autopoly-ai-translation-for-polylang-pro'),
-          errorHtml: '<div class="atfpp-error-html">' + data + '</div>'
+          errorHtml: '<div class="automl-wpml-error-html">' + data + '</div>'
         };
       }
     }
@@ -549,7 +549,7 @@ const updateContent = async ({
         status: 'error',
         messageClass: 'error',
         errorMessage: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)('Post not created. Please try again.', 'autopoly-ai-translation-for-polylang-pro'),
-        errorHtml: '<div class="atfpp-error-html">' + errorHtml + '</div>'
+        errorHtml: '<div class="automl-wpml-error-html">' + errorHtml + '</div>'
       }
     }));
   });
@@ -559,19 +559,19 @@ const bulkTranslateEntries = async ({
   langs,
   storeDispatch
 }) => {
-  const bulkTranslateRouteUrl = atfpp_bulk_translate_object.bulkTranslateRouteUrl;
-  const bulkTranslatePrivateKey = atfpp_bulk_translate_object.bulkTranslatePrivateKey;
-  const nonce = atfpp_bulk_translate_object.nonce;
+  const bulkTranslateRouteUrl = automl_wpml_bulk_translate_object.bulkTranslateRouteUrl;
+  const bulkTranslatePrivateKey = automl_wpml_bulk_translate_object.bulkTranslatePrivateKey;
+  const nonce = automl_wpml_bulk_translate_object.nonce;
   let storeParseBlockRules = false;
   const body = {
     ids: JSON.stringify(ids),
     lang: JSON.stringify(langs),
     privateKey: bulkTranslatePrivateKey
   };
-  let postUrl = 'atfpp/bulk-translate-entries';
-  if (atfpp_bulk_translate_object.taxonomy_page && '' !== atfpp_bulk_translate_object.taxonomy_page) {
-    body.taxonomy = atfpp_bulk_translate_object.taxonomy_page;
-    postUrl = 'atfpp/bulk-translate-taxonomy-entries';
+  let postUrl = 'automl_wpml_/bulk-translate-entries';
+  if (automl_wpml_bulk_translate_object.taxonomy_page && '' !== automl_wpml_bulk_translate_object.taxonomy_page) {
+    body.taxonomy = automl_wpml_bulk_translate_object.taxonomy_page;
+    postUrl = 'automl_wpml_/bulk-translate-taxonomy-entries';
   }
   const untranslatedPosts = await fetch(bulkTranslateRouteUrl + '/' + postUrl, {
     method: 'POST',
@@ -661,8 +661,8 @@ const bulkTranslateEntries = async ({
             postIdExist.push(postId);
             firstPostLanguage = true;
           }
-          const flagUrl = atfpp_bulk_translate_object.languageObject[language].flag;
-          const languageName = atfpp_bulk_translate_object.languageObject[language].name;
+          const flagUrl = automl_wpml_bulk_translate_object.languageObject[language].flag;
+          const languageName = automl_wpml_bulk_translate_object.languageObject[language].name;
           storeDispatch((0,_redux_store_features_actions__WEBPACK_IMPORTED_MODULE_3__.updatePendingPosts)([postId + '_' + language]));
           storeDispatch((0,_redux_store_features_actions__WEBPACK_IMPORTED_MODULE_3__.updateTranslatePostInfo)({
             [postId + '_' + language]: {
@@ -705,7 +705,7 @@ const bulkTranslateEntries = async ({
           title: title,
           editorType: editor_type,
           sourceLanguage,
-          errorMessage: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.sprintf)((0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)('Set source language for this %s %s before translating.', 'autopoly-ai-translation-for-polylang-pro'), titleLink ? '<a href="' + titleLink + '" target="_blank" rel="noopener noreferrer">' + postTitle + '</a>' : postTitle, window?.atfpp_bulk_translate_object?.taxonomy_page || window?.atfpp_bulk_translate_object?.post_label)
+          errorMessage: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.sprintf)((0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)('Set source language for this %s %s before translating.', 'autopoly-ai-translation-for-polylang-pro'), titleLink ? '<a href="' + titleLink + '" target="_blank" rel="noopener noreferrer">' + postTitle + '</a>' : postTitle, window?.automl_wpml_bulk_translate_object?.taxonomy_page || window?.automl_wpml_bulk_translate_object?.post_label)
         };
         if (posts[postId]?.post_link) {
           errorInfo.postLink = postLink;
@@ -850,8 +850,8 @@ const bulkTranslateStrings = async ({
   storeDispatch,
   stringFilters
 }) => {
-  const ajaxUrl = atfpp_bulk_translate_object.ajax;
-  const nonce = atfpp_bulk_translate_object.nonce;
+  const ajaxUrl = automl_wpml_bulk_translate_object.ajax;
+  const nonce = automl_wpml_bulk_translate_object.nonce;
   const PAGE_SIZE = 500;
   const stringsByLanguage = {};
   const totalPerLanguage = {};
@@ -899,8 +899,8 @@ const bulkTranslateStrings = async ({
     totalPerLanguage[lang] = total;
     stringsByLanguage[lang] = strings; // first page only
 
-    const flagUrl = atfpp_bulk_translate_object.languageObject[lang]?.flag || '';
-    const languageName = atfpp_bulk_translate_object.languageObject[lang]?.name || lang;
+    const flagUrl = automl_wpml_bulk_translate_object.languageObject[lang]?.flag || '';
+    const languageName = automl_wpml_bulk_translate_object.languageObject[lang]?.name || lang;
 
     // One Redux entry per language (not 10k entries)
     const key = `strings_${lang}`;
@@ -946,7 +946,7 @@ const bulkTranslateStrings = async ({
  * Returns Promise<string[]> with same order as input, or rejects on error.
  */
 const translateStringsWithChromeAI = (strings, sourceLang, targetLang) => {
-  const languageObject = atfpp_bulk_translate_object?.languageObject || {};
+  const languageObject = automl_wpml_bulk_translate_object?.languageObject || {};
   const textContentObject = strings.reduce((acc, text, i) => {
     acc[i] = text || '';
     return acc;
@@ -988,7 +988,7 @@ const initBulkTranslateStrings = async (stringKeys = [], stringsByLanguage = {},
   updateDestoryHandler(() => {
     modalClosed = true;
   });
-  const sourceLang = atfpp_bulk_translate_object.default_language_slug || 'en';
+  const sourceLang = automl_wpml_bulk_translate_object.default_language_slug || 'en';
   const BATCH_SIZE = 500;
   const translateStringsForLanguage = async (lang, initialStrings) => {
     if (!initialStrings?.length || modalClosed) return;
@@ -1028,7 +1028,21 @@ const initBulkTranslateStrings = async (stringKeys = [], stringsByLanguage = {},
           });
         }
         if (translationResponse?.success && translationResponse.data) {
-          const translations = Array.isArray(translationResponse.data) ? translationResponse.data : translationResponse.data.translations || [];
+          let translations = [];
+          const data = translationResponse.data;
+
+          // 1) AI SDK route: { translate_data: { "0": "…", "1": "…" } }
+          if (data.translate_data && typeof data.translate_data === 'object') {
+            translations = Object.keys(data.translate_data).sort((a, b) => Number(a) - Number(b)).map(key => data.translate_data[key] || '');
+          }
+          // 2) Old shape: raw array
+          else if (Array.isArray(data)) {
+            translations = data;
+          }
+          // 3) Old shape: { translations: [...] }
+          else if (Array.isArray(data.translations)) {
+            translations = data.translations;
+          }
           const batchToSave = [];
           batch.forEach((str, index) => {
             const sourceText = str.text || str.html || '';
@@ -1112,7 +1126,7 @@ const initBulkTranslateStrings = async (stringKeys = [], stringsByLanguage = {},
  * Save translated strings via AJAX.
  */
 const saveStringTranslations = async (targetLang, translatedStrings, nonce) => {
-  const ajaxUrl = atfpp_bulk_translate_object.ajax;
+  const ajaxUrl = automl_wpml_bulk_translate_object.ajax;
   try {
     const response = await fetch(ajaxUrl + '?action=cp_wpml_google_auto_translate_save_string_translations', {
       method: 'POST',
@@ -1434,7 +1448,7 @@ const FilterGutenbergContent = async ({
       let string = content ? content.trim() : '';
       string = string.replace(/\s/g, '');
       if (string && '' !== string) {
-        const uniqueKey = [...keys, index].join('_atfpp_');
+        const uniqueKey = [...keys, index].join('_automl_wpml_');
         const stringContent = await getStringContent(innerContent[index], uniqueKey, ['script', 'style']);
         if (stringContent && '' !== stringContent) {
           storeSourceString(uniqueKey, innerContent[index], stringContent);
@@ -1454,7 +1468,7 @@ const FilterGutenbergContent = async ({
       const blockRuleKeys = Object.keys(blockRule);
       const runLoopAsyncInner = async (key, index) => {
         if (typeof blockRule[key] === 'boolean' && true === blockRule[key] && currentBlock && currentBlock[key]) {
-          const uniqueKey = [...keys, key].join('_atfpp_');
+          const uniqueKey = [...keys, key].join('_automl_wpml_');
           const stringContent = await getStringContent(currentBlock[key], uniqueKey);
           if (stringContent && '' !== stringContent) {
             translatedKeys.push(stringContent);
@@ -1468,7 +1482,7 @@ const FilterGutenbergContent = async ({
     } else if (Object.getPrototypeOf(blockRule) === Array.prototype) {
       const runLoopAsyncInner = async (item, index) => {
         if (typeof blockRule[0] === 'boolean' && true === blockRule[0]) {
-          const uniqueKey = [...keys, index].join('_atfpp_');
+          const uniqueKey = [...keys, index].join('_automl_wpml_');
           const stringContent = await getStringContent(item, uniqueKey);
           if (stringContent && '' !== stringContent) {
             translatedKeys.push(stringContent);
@@ -1498,7 +1512,7 @@ const FilterGutenbergContent = async ({
       const currentKey = JSON.parse(JSON.stringify(keys));
       if (true === activeBlockRule) {
         currentKey.push(key);
-        const uniqueKey = currentKey.join('_atfpp_');
+        const uniqueKey = currentKey.join('_automl_wpml_');
         if (currentBlock[key] && '' !== currentBlock[key]) {
           const stringContent = await getStringContent(currentBlock[key], uniqueKey);
           if (stringContent && '' !== stringContent) {
@@ -1594,12 +1608,12 @@ const updateGutenbergContent = async ({
    * @param {string} key
    */
   const updateInnerHtmlContent = key => {
-    const staticKey = key.replace(/(_atfpp_\d+)$/, '');
+    const staticKey = key.replace(/(_automl_wpml_\d+)$/, '');
     const duplicateKey = Object.keys(translatedContent).filter(item => item.includes(staticKey));
     completedInnerContentKeys.push(...duplicateKey);
     const values = [];
     duplicateKey.forEach(key => {
-      let keyArray = key.split('_atfpp_');
+      let keyArray = key.split('_automl_wpml_');
       let currentBlock = source.content;
       const translateValue = getTransaltedValue(key);
       let parentBlock = null;
@@ -1620,7 +1634,7 @@ const updateGutenbergContent = async ({
     let parentBlock = null;
     let parentKey = null;
     let currentBlock = source.content;
-    staticKey.split('_atfpp_').slice(1).forEach(key => {
+    staticKey.split('_automl_wpml_').slice(1).forEach(key => {
       parentBlock = currentBlock;
       parentKey = key;
       currentBlock = currentBlock[key];
@@ -1671,7 +1685,7 @@ const updateGutenbergContent = async ({
   const updateContent = (source, translation) => {
     const customInnerBlockKeys = [];
     Object.keys(translation).forEach(key => {
-      const keys = key.split('_atfpp_');
+      const keys = key.split('_automl_wpml_');
       if (keys[0] === 'title' && source.title) {
         updateTitle(source, translation[keys[0]]);
       } else if (keys[0] === 'post_name' && source.post_name) {
@@ -1690,7 +1704,7 @@ const updateGutenbergContent = async ({
           const blockKey = keyArray.slice(0, indexOfAttrs);
           let innerContentKey = null;
           let innerContentCurrentBlock = source.content;
-          const joinBlockKey = blockKey.join('_atfpp_');
+          const joinBlockKey = blockKey.join('_automl_wpml_');
           if (!customInnerBlockKeys.includes(joinBlockKey)) {
             blockKey.forEach(key => {
               innerContentKey = key;
@@ -1724,9 +1738,9 @@ const updateGutenbergContent = async ({
     });
   };
   const updateCustomBlockInnerHtml = key => {
-    const existingKeys = Object.keys(sourceEntries).filter(item => item.startsWith('content_atfpp_' + key + '_atfpp_innerContent'));
+    const existingKeys = Object.keys(sourceEntries).filter(item => item.startsWith('content_automl_wpml_' + key + '_automl_wpml_innerContent'));
     if (existingKeys.length > 0) return;
-    let currentBlockKeys = Object.keys(sourceEntries).filter(item => item.startsWith('content_atfpp_' + key + '_atfpp_' + 'attrs'));
+    let currentBlockKeys = Object.keys(sourceEntries).filter(item => item.startsWith('content_automl_wpml_' + key + '_automl_wpml_' + 'attrs'));
     let translatedStrings = {};
     currentBlockKeys.forEach(item => {
       const sourceString = (0,_redux_store_features_selectors__WEBPACK_IMPORTED_MODULE_0__.selectSourceContent)(_redux_store_store__WEBPACK_IMPORTED_MODULE_1__.store.getState(), postId, item);
@@ -1741,7 +1755,7 @@ const updateGutenbergContent = async ({
       acc[k] = v;
       return acc;
     }, {});
-    let blockKey = key.split('_atfpp_');
+    let blockKey = key.split('_automl_wpml_');
     let currentBlock = source.content;
     let parentBlock = null;
     let parentKey = null;
@@ -1906,18 +1920,18 @@ const FilterTargetContent = (props, storeUpdateContent) => {
     saveFilteredString
   } = props;
   const skipTags = props.skipTags || [];
-  const OpenSpanPlaceholder = '#atfp_open_translate_span#';
-  const CloseSpanPlaceholder = '#atfp_close_translate_span#';
-  const OpenTempTagPlaceholder = '#atfp_temp_tag_open#';
-  const CloseTempTagPlaceholder = '#atfp_temp_tag_close#';
-  const LessThanSymbol = '#atfp_less_then_symbol#';
-  const GreaterThanSymbol = '#atfp_greater_then_symbol#';
-  const entityOpenPlaceholder = '#atfp_entity_open_translate_span#';
-  const entityClosePlaceholder = '#atfp_entity_close_translate_span#';
-  const lineBreakNOpenPlaceholder = '#atfp_line_break_n_open#';
-  const lineBreakNClosePlaceholder = '#atfp_line_break_n_close#';
-  const lineBreakROpenPlaceholder = '#atfp_line_break_r_open#';
-  const lineBreakRClosePlaceholder = '#atfp_line_break_r_close#';
+  const OpenSpanPlaceholder = '#automl_wpml_open_translate_span#';
+  const CloseSpanPlaceholder = '#automl_wpml_close_translate_span#';
+  const OpenTempTagPlaceholder = '#automl_wpml_temp_tag_open#';
+  const CloseTempTagPlaceholder = '#automl_wpml_temp_tag_close#';
+  const LessThanSymbol = '#automl_wpml_less_then_symbol#';
+  const GreaterThanSymbol = '#automl_wpml_greater_then_symbol#';
+  const entityOpenPlaceholder = '#automl_wpml_entity_open_translate_span#';
+  const entityClosePlaceholder = '#automl_wpml_entity_close_translate_span#';
+  const lineBreakNOpenPlaceholder = '#automl_wpml_line_break_n_open#';
+  const lineBreakNClosePlaceholder = '#automl_wpml_line_break_n_close#';
+  const lineBreakROpenPlaceholder = '#automl_wpml_line_break_r_open#';
+  const lineBreakRClosePlaceholder = '#automl_wpml_line_break_r_close#';
   const removeInnerSpanPlaceholder = content => {
     return content.replace(new RegExp(OpenSpanPlaceholder, 'g'), '').replace(new RegExp(CloseSpanPlaceholder, 'g'), '');
   };
@@ -2269,7 +2283,7 @@ const FilterTargetContent = (props, storeUpdateContent) => {
           pTemp.innerText = filterContent(data);
           const output = pTemp.innerHTML;
           pTemp = null;
-          return `<span class="notranslate atfp-notraslate-tag" translate="no">${output}</span>`;
+          return `<span class="notranslate automl-wpml-notraslate-tag" translate="no">${output}</span>`;
         } else {
           return data;
         }
@@ -2289,7 +2303,7 @@ const FilterTargetContent = (props, storeUpdateContent) => {
       const notTranslate = notTranslatePattern.test(data);
       if (notTranslate) {
         return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", {
-          className: "notranslate atfp-notraslate-tag",
+          className: "notranslate automl-wpml-notraslate-tag",
           translate: "no",
           children: filterContent(data)
         }, index);
@@ -2474,8 +2488,8 @@ class AIService {
     updateDestoryHandler = () => {},
     previousCompletedStrings = 0
   }) {
-    this.CONCURRENCY_LIMIT = window?.atfpp_bulk_translate_object?.AIRequestBatchSize || 5;
-    this.MAX_TOKENS = window?.atfpp_bulk_translate_object?.AIRequestMaxTokens || 500;
+    this.CONCURRENCY_LIMIT = window?.automl_wpml_bulk_translate_object?.AIRequestBatchSize || 5;
+    this.MAX_TOKENS = window?.automl_wpml_bulk_translate_object?.AIRequestMaxTokens || 500;
     this.activePostId = postId;
     this.activeTargetLangs = '';
     this.sourceLang = sourceLang;
@@ -2993,8 +3007,8 @@ __webpack_require__.r(__webpack_exports__);
     openErrorModalHandler = () => {},
     prefix = ''
   } = props;
-  const adminUrl = window.atfpp_bulk_translate_object.admin_url;
-  const assetsUrl = window.atfpp_bulk_translate_object.atfpp_url + 'assets/images/';
+  const adminUrl = window.automl_wpml_bulk_translate_object.admin_url;
+  const assetsUrl = window.automl_wpml_bulk_translate_object.automl_wpml_url + 'assets/images/';
   const errorIcon = assetsUrl + 'error-icon.svg';
   const Services = {
     localAiTranslator: {
@@ -3003,7 +3017,7 @@ __webpack_require__.r(__webpack_exports__);
       SettingBtnText: "Translate",
       serviceLabel: "Chrome AI Translator",
       heading: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.sprintf)((0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Translate Using %s", "autopoly-ai-translation-for-polylang-pro"), "Chrome built-in API"),
-      Docs: "https://docs.coolplugins.net/doc/chrome-ai-translation-polylang/?utm_source=atfp_plugin&utm_medium=inside&utm_campaign=docs&utm_content=bulk_translate_chrome",
+      Docs: "https://docs.coolplugins.net/doc/chrome-ai-translation-polylang/?utm_source=automl_wpml_plugin&utm_medium=inside&utm_campaign=docs&utm_content=bulk_translate_chrome",
       BetaEnabled: true,
       ButtonDisabled: props.localAiTranslatorButtonDisabled,
       ErrorMessage: props.localAiTranslatorButtonDisabled ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
@@ -3023,12 +3037,12 @@ __webpack_require__.r(__webpack_exports__);
       SettingBtnText: "Translate",
       serviceLabel: "OpenAI",
       heading: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.sprintf)((0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Translate Using %s Model", "autopoly-ai-translation-for-polylang-pro"), "OpenAI"),
-      Docs: "https://docs.coolplugins.net/doc/translate-via-open-ai-polylang/?utm_source=atfp_plugin&utm_medium=inside&utm_campaign=docs&utm_content=bulk_translate_openai",
+      Docs: "https://docs.coolplugins.net/doc/translate-via-open-ai-polylang/?utm_source=automl_wpml_plugin&utm_medium=inside&utm_campaign=docs&utm_content=bulk_translate_openai",
       BetaEnabled: true,
       ButtonDisabled: props.openai_aiButtonDisabled,
       ErrorMessage: props.openai_aiButtonDisabled ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("a", {
         className: `${prefix}-provider-error button button-primary`,
-        href: adminUrl + 'admin.php?page=polylang-atfpp-dashboard&tab=settings',
+        href: adminUrl + 'admin.php?page=polylang-automl-wpml-dashboard&tab=settings',
         target: "_blank",
         children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("img", {
           src: errorIcon,
@@ -3044,12 +3058,12 @@ __webpack_require__.r(__webpack_exports__);
       SettingBtnText: "Translate",
       serviceLabel: "Gemini",
       heading: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.sprintf)((0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Translate Using %s Model", "autopoly-ai-translation-for-polylang-pro"), "Gemini"),
-      Docs: "https://docs.coolplugins.net/doc/translate-via-gemini-ai-polylang/?utm_source=atfp_plugin&utm_medium=inside&utm_campaign=docs&utm_content=bulk_translate_gemini",
+      Docs: "https://docs.coolplugins.net/doc/translate-via-gemini-ai-polylang/?utm_source=automl_wpml_plugin&utm_medium=inside&utm_campaign=docs&utm_content=bulk_translate_gemini",
       BetaEnabled: true,
       ButtonDisabled: props.google_aiButtonDisabled,
       ErrorMessage: props.google_aiButtonDisabled ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("a", {
         className: `${prefix}-provider-error button button-primary`,
-        href: adminUrl + 'admin.php?page=polylang-atfpp-dashboard&tab=settings',
+        href: adminUrl + 'admin.php?page=polylang-automl-wpml-dashboard&tab=settings',
         target: "_blank",
         children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("img", {
           src: errorIcon,
@@ -3141,7 +3155,7 @@ class LocalAiTranslate {
     this.completedTranslateIndex = 0;
     this.localAiTranslator = null;
     if (this.stopTranslation) return;
-    const languageObject = atfpp_bulk_translate_object.languageObject;
+    const languageObject = automl_wpml_bulk_translate_object.languageObject;
     this.completedPostStatus = (0,_redux_store_features_selectors__WEBPACK_IMPORTED_MODULE_2__.selectProgressStatus)(_redux_store_store__WEBPACK_IMPORTED_MODULE_3__.store.getState());
     this.activeTargetLangs = targetLang;
     this.localAiTranslator = await _local_ai_translate__WEBPACK_IMPORTED_MODULE_0__["default"].Object({
@@ -3488,7 +3502,7 @@ class ChromeAiTranslator {
                     </li>
                 </ol>
                 <div style="text-align: right;">
-                    <button onclick="location.reload()" class="atfpp-error-reload-btn">Reload Page</button>
+                    <button onclick="location.reload()" class="automl-wpml-error-reload-btn">Reload Page</button>
                 </div>
             </span>`);
       return {
@@ -3877,14 +3891,14 @@ const updateTranslateData = ({
     sourceLang,
     targetLang,
     timeTaken,
-    action: atfpp_bulk_translate_object.update_translate_data,
-    atfp_nonce: updateTranslateDataNonce,
+    action: automl_wpml_bulk_translate_object.update_translate_data,
+    automl_wpml_nonce: updateTranslateDataNonce,
     post_id: currentPostId,
-    ajax_url: atfpp_bulk_translate_object.ajax_url,
+    ajax_url: automl_wpml_bulk_translate_object.ajax_url,
     extraData: JSON.stringify(extraData),
     bulk_translate: true
   };
-  fetch(atfpp_bulk_translate_object.ajax_url, {
+  fetch(automl_wpml_bulk_translate_object.ajax_url, {
     method: 'POST',
     headers: {
       'content-type': 'application/x-www-form-urlencoded; charset=UTF-8',
@@ -3903,19 +3917,19 @@ const AITranslationRequest = async ({
   target_language
 }) => {
   const data = {
-    atfp_nonce: atfpp_bulk_translate_object.ai_translate_nonce,
-    action: 'atfp_ai_translation',
+    automl_wpml_nonce: automl_wpml_bulk_translate_object.ai_translate_nonce,
+    action: 'automl_wpml_ai_translation',
     strings: JSON.stringify(Strings),
     source_language: source_language,
     target_language: target_language,
     service_slug: slug
   };
-  const response = await fetch(`${atfpp_bulk_translate_object.ai_translate_route_url}/${slug}/translate-text`, {
+  const response = await fetch(`${automl_wpml_bulk_translate_object.ai_translate_route_url}/${slug}/translate-text`, {
     method: 'POST',
     headers: {
       'content-type': 'application/x-www-form-urlencoded; charset=UTF-8',
       'Accept': 'application/json',
-      'X-WP-Nonce': atfpp_bulk_translate_object.ai_translate_route_nonce
+      'X-WP-Nonce': automl_wpml_bulk_translate_object.ai_translate_route_nonce
     },
     signal: controller.signal,
     body: new URLSearchParams(data)
@@ -3982,7 +3996,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _reduxjs_toolkit__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @reduxjs/toolkit */ "./node_modules/@reduxjs/toolkit/dist/redux-toolkit.modern.mjs");
 
 const bulkTranslateStore = (0,_reduxjs_toolkit__WEBPACK_IMPORTED_MODULE_0__.createSlice)({
-  name: 'atfp-bulk-translate',
+  name: 'automl-wpml-bulk-translate',
   initialState: {
     completedPosts: [],
     pendingPosts: [],
@@ -4291,10 +4305,10 @@ const SettingModalBody = props => {
     localAiModalError
   } = props;
   const ServiceProviders = (0,_components_translate_provider__WEBPACK_IMPORTED_MODULE_1__["default"])();
-  const openai_aiDisabled = !atfpp_bulk_translate_object?.AIServices?.includes('openai');
-  const google_aiDisabled = !atfpp_bulk_translate_object?.AIServices?.includes('google');
-  const deepl_aiDisabled = !atfpp_bulk_translate_object?.AIServices?.includes('deepl');
-  const openrouter_aiDisabled = !atfpp_bulk_translate_object?.AIServices?.includes('openrouter');
+  const openai_aiDisabled = !automl_wpml_bulk_translate_object?.AIServices?.includes('openai');
+  const google_aiDisabled = !automl_wpml_bulk_translate_object?.AIServices?.includes('google');
+  const deepl_aiDisabled = !automl_wpml_bulk_translate_object?.AIServices?.includes('deepl');
+  const openrouter_aiDisabled = !automl_wpml_bulk_translate_object?.AIServices?.includes('openrouter');
   return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("div", {
     className: `${prefix}-setting-modal-body`,
     children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsxs)("table", {
@@ -4426,8 +4440,8 @@ __webpack_require__.r(__webpack_exports__);
 
 
 const SettingModal = props => {
-  const prefix = props.prefix || 'atfpp-bulk-translate';
-  const imgFolder = atfpp_bulk_translate_object.atfpp_url + 'assets/images/';
+  const prefix = props.prefix || 'automl-wpml-bulk-translate';
+  const imgFolder = automl_wpml_bulk_translate_object.automl_wpml_url + 'assets/images/';
   const [errorModal, setErrorModal] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(false);
 
   /**
@@ -4603,7 +4617,7 @@ const StatusModal = ({
   const [charactersCountVisibility, setCharactersCountVisibility] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(false);
   const [bulkStatus, setBulkStatus] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)('status');
   const countInfo = (0,react_redux__WEBPACK_IMPORTED_MODULE_2__.useSelector)(_redux_store_features_selectors__WEBPACK_IMPORTED_MODULE_3__.selectCountInfo);
-  let [emptyPostMessage, setEmptyPostMessage] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)((0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.sprintf)((0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('Translations already exist for all selected %s in the chosen languages. There are no new %s to translate.', 'autopoly-ai-translation-for-polylang-pro'), atfpp_bulk_translate_object.post_label, atfpp_bulk_translate_object.post_label));
+  let [emptyPostMessage, setEmptyPostMessage] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)((0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.sprintf)((0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('Translations already exist for all selected %s in the chosen languages. There are no new %s to translate.', 'autopoly-ai-translation-for-polylang-pro'), automl_wpml_bulk_translate_object.post_label, automl_wpml_bulk_translate_object.post_label));
   let progressStatus = (0,react_redux__WEBPACK_IMPORTED_MODULE_2__.useSelector)(_redux_store_features_selectors__WEBPACK_IMPORTED_MODULE_3__.selectProgressStatus);
   progressStatus = progressStatus.toFixed(1);
   progressStatus = Math.min(progressStatus, 100);
@@ -5067,12 +5081,12 @@ const StatusModal = ({
                           target: "_blank",
                           rel: "noopener noreferrer",
                           className: "button button-primary",
-                          title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.sprintf)((0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('Open the translated %s for review', 'autopoly-ai-translation-for-polylang-pro'), atfpp_bulk_translate_object.post_label),
+                          title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.sprintf)((0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('Open the translated %s for review', 'autopoly-ai-translation-for-polylang-pro'), automl_wpml_bulk_translate_object.post_label),
                           children: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('Review', 'autopoly-ai-translation-for-polylang-pro')
                         }) : /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("button", {
                           className: "button disabled",
                           disabled: true,
-                          title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.sprintf)((0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('Please wait until all translations for this %s are complete before reviewing.', 'autopoly-ai-translation-for-polylang-pro'), atfpp_bulk_translate_object.post_label),
+                          title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.sprintf)((0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('Please wait until all translations for this %s are complete before reviewing.', 'autopoly-ai-translation-for-polylang-pro'), automl_wpml_bulk_translate_object.post_label),
                           children: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('Review', 'autopoly-ai-translation-for-polylang-pro')
                         })
                       }) : info.status === 'in-progress' ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsxs)("div", {
@@ -5094,7 +5108,7 @@ const StatusModal = ({
         children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("a", {
           className: `${prefix}-progress-button button button-primary`,
           href: getTranslatedPostLink(),
-          children: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.sprintf)((0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('Check Translated %s', 'autopoly-ai-translation-for-polylang-pro'), atfpp_bulk_translate_object.post_label)
+          children: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.sprintf)((0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('Check Translated %s', 'autopoly-ai-translation-for-polylang-pro'), automl_wpml_bulk_translate_object.post_label)
         })
       })]
     })]
@@ -13128,24 +13142,24 @@ __webpack_require__.r(__webpack_exports__);
 
     // 1️⃣ Clear old cached data on page load
     const clearOldTranslatorCacheOnLoad = () => {
-      const loadKey = 'ATFPP_LOCAL_AI_PAGE_LOADED';
+      const loadKey = 'automl_wpml_LOCAL_AI_PAGE_LOADED';
       if (sessionStorage.getItem(loadKey)) {
         return;
       }
-      localStorage.removeItem('ATFPP_AVAILABLE_LOCAL_AI_TRANSLATOR_LANGUAGES');
+      localStorage.removeItem('automl_wpml_AVAILABLE_LOCAL_AI_TRANSLATOR_LANGUAGES');
       sessionStorage.setItem(loadKey, '1');
     };
 
     // 2️⃣ Language pack availability check (gesture-based)
     const checkLanguagePackAvailability = async () => {
       const languagesObj = {
-        ...atfpp_bulk_translate_object.languageObject
+        ...automl_wpml_bulk_translate_object.languageObject
       };
       const supportedLanguages = _components_translate_provider_local_ai_local_ai_translate__WEBPACK_IMPORTED_MODULE_8__["default"].supportedLanguages || [];
       delete languagesObj.en;
       let savedLanguages = [];
       try {
-        savedLanguages = JSON.parse(localStorage.getItem('ATFPP_AVAILABLE_LOCAL_AI_TRANSLATOR_LANGUAGES')) || [];
+        savedLanguages = JSON.parse(localStorage.getItem('automl_wpml_AVAILABLE_LOCAL_AI_TRANSLATOR_LANGUAGES')) || [];
       } catch {
         savedLanguages = [];
       }
@@ -13161,7 +13175,7 @@ __webpack_require__.r(__webpack_exports__);
             if (['available', 'readily'].includes(status)) {
               delete languagesObj[targetLang];
               savedLanguages.push(targetLang);
-              localStorage.setItem('ATFPP_AVAILABLE_LOCAL_AI_TRANSLATOR_LANGUAGES', JSON.stringify(savedLanguages));
+              localStorage.setItem('automl_wpml_AVAILABLE_LOCAL_AI_TRANSLATOR_LANGUAGES', JSON.stringify(savedLanguages));
             }
           } catch (err) {
             console.error('Language availability check failed:', targetLang, err);
@@ -13191,7 +13205,7 @@ __webpack_require__.r(__webpack_exports__);
 
     //     let checkboxClass = 'table.widefat input[name="post[]"]:checked';
 
-    //     if (atfpp_bulk_translate_object.taxonomy_page && '' !== atfpp_bulk_translate_object.taxonomy_page) {
+    //     if (automl_wpml_bulk_translate_object.taxonomy_page && '' !== automl_wpml_bulk_translate_object.taxonomy_page) {
     //         checkboxClass = 'table.widefat input[name="delete_tags[]"]:checked';
     //     }
 
@@ -13250,7 +13264,7 @@ __webpack_require__.r(__webpack_exports__);
         postIds = [];
       } else {
         // Normal post/taxonomy flow
-        if (atfpp_bulk_translate_object.taxonomy_page && '' !== atfpp_bulk_translate_object.taxonomy_page) {
+        if (automl_wpml_bulk_translate_object.taxonomy_page && '' !== automl_wpml_bulk_translate_object.taxonomy_page) {
           checkboxClass = 'table.widefat input[name="delete_tags[]"]:checked';
         }
         const selectedPostIds = document.querySelectorAll(checkboxClass);
@@ -13299,7 +13313,7 @@ __webpack_require__.r(__webpack_exports__);
     }) : null;
   };
   window.addEventListener('load', async () => {
-    const prefix = 'atfpp-bulk-translate';
+    const prefix = 'automl-wpml-bulk-translate';
     await new Promise(resolve => setTimeout(resolve, 500));
 
     // Move bulk translate button to correct position on string translation page

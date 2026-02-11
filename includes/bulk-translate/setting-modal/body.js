@@ -4,10 +4,10 @@ import TranslateService from "../components/translate-provider";
 const SettingModalBody = (props) => {
     const { prefix, localAiModalError } = props;
     const ServiceProviders = TranslateService();
-    const openai_aiDisabled = !atfpp_bulk_translate_object?.AIServices?.includes('openai');
-    const google_aiDisabled = !atfpp_bulk_translate_object?.AIServices?.includes('google');
-    const deepl_aiDisabled = !atfpp_bulk_translate_object?.AIServices?.includes('deepl');
-    const openrouter_aiDisabled = !atfpp_bulk_translate_object?.AIServices?.includes('openrouter');
+    const openai_aiDisabled = !automl_wpml_bulk_translate_object?.AIServices?.includes('openai');
+    const google_aiDisabled = !automl_wpml_bulk_translate_object?.AIServices?.includes('google');
+    const deepl_aiDisabled = !automl_wpml_bulk_translate_object?.AIServices?.includes('deepl');
+    const openrouter_aiDisabled = !automl_wpml_bulk_translate_object?.AIServices?.includes('openrouter');
     return (
         <div className={`${prefix}-setting-modal-body`}>
             <table>

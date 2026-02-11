@@ -89,8 +89,8 @@ export const updateContent = async ({ source, postId, sourceLang, lang, editorTy
 
     const updateContent = await updateFilterContent({ source: deepCloneSource, postId, lang, editorType, service });
 
-    const bulkTranslateRouteUrl = atfpp_bulk_translate_object.bulkTranslateRouteUrl;
-    const nonce = atfpp_bulk_translate_object.nonce;
+    const bulkTranslateRouteUrl = automl_wpml_bulk_translate_object.bulkTranslateRouteUrl;
+    const nonce = automl_wpml_bulk_translate_object.nonce;
 
     storeDispatch(updateTranslatePostInfo({ [postId + '_' + lang]: { status: 'in-progress', messageClass: 'in-progress' } }));
 
@@ -108,7 +108,7 @@ export const updateContent = async ({ source, postId, sourceLang, lang, editorTy
         body.term_id = postId;
         body.taxonomy_name = updateContent.title || '';
         body.taxonomy_description = updateContent.content || '';
-        body.taxonomy = atfpp_bulk_translate_object.taxonomy_page;
+        body.taxonomy = automl_wpml_bulk_translate_object.taxonomy_page;
 
         if (updateContent.post_name && updateContent.post_name.trim() !== '') {
             body.taxonomy_slug = updateContent.post_name;
@@ -139,7 +139,7 @@ export const updateContent = async ({ source, postId, sourceLang, lang, editorTy
             const extraData = {};
 
             if (editorType === 'taxonomy') {
-                extraData.taxonomy = atfpp_bulk_translate_object.taxonomy_page;
+                extraData.taxonomy = automl_wpml_bulk_translate_object.taxonomy_page;
             }
 
             updateTranslateData({ provider: service, sourceLang, targetLang: lang, currentPostId: data.data.post_id, parentPostId: postId, editorType, updateTranslateDataNonce: data?.data?.update_translate_data_nonce, extraData });
@@ -159,15 +159,15 @@ export const updateContent = async ({ source, postId, sourceLang, lang, editorTy
                     errorHtml += '<br>Error Message:' + JSON.stringify(data.data.error);
                 }
 
-                updateData = { status: 'error', messageClass: 'error', errorMessage: __('Post not created. Please try again.', 'autopoly-ai-translation-for-polylang-pro'), errorHtml: '<div class="atfpp-error-html">' + errorHtml + '</div>' };
+                updateData = { status: 'error', messageClass: 'error', errorMessage: __('Post not created. Please try again.', 'autopoly-ai-translation-for-polylang-pro'), errorHtml: '<div class="automl-wpml-error-html">' + errorHtml + '</div>' };
             } else if (data.code && data.message) {
-                updateData = { status: 'error', messageClass: 'error', errorMessage: __('Post not created. Please try again.', 'autopoly-ai-translation-for-polylang-pro'), errorHtml: '<div class="atfpp-error-html">' + data.message + '</div>' };
+                updateData = { status: 'error', messageClass: 'error', errorMessage: __('Post not created. Please try again.', 'autopoly-ai-translation-for-polylang-pro'), errorHtml: '<div class="automl-wpml-error-html">' + data.message + '</div>' };
             } else if (!data.success || data.data) {
-                updateData = { status: 'error', messageClass: 'error', errorMessage: __('Post not created. Please try again.', 'autopoly-ai-translation-for-polylang-pro'), errorHtml: '<div class="atfpp-error-html">' + data.data + '</div>' };
+                updateData = { status: 'error', messageClass: 'error', errorMessage: __('Post not created. Please try again.', 'autopoly-ai-translation-for-polylang-pro'), errorHtml: '<div class="automl-wpml-error-html">' + data.data + '</div>' };
             } else if (!data.data.post_id) {
-                updateData = { status: 'error', messageClass: 'error', errorMessage: __('Post not created. Please try again.', 'autopoly-ai-translation-for-polylang-pro'), errorHtml: '<div class="atfpp-error-html">' + data.data + '</div>' };
+                updateData = { status: 'error', messageClass: 'error', errorMessage: __('Post not created. Please try again.', 'autopoly-ai-translation-for-polylang-pro'), errorHtml: '<div class="automl-wpml-error-html">' + data.data + '</div>' };
             } else if (typeof data === 'string') {
-                updateData = { status: 'error', messageClass: 'error', errorMessage: __('Post not created. Please try again.', 'autopoly-ai-translation-for-polylang-pro'), errorHtml: '<div class="atfpp-error-html">' + data + '</div>' };
+                updateData = { status: 'error', messageClass: 'error', errorMessage: __('Post not created. Please try again.', 'autopoly-ai-translation-for-polylang-pro'), errorHtml: '<div class="automl-wpml-error-html">' + data + '</div>' };
             }
         }
 
@@ -197,15 +197,15 @@ export const updateContent = async ({ source, postId, sourceLang, lang, editorTy
             }
         }
 
-        storeDispatch(updateTranslatePostInfo({ [postId + '_' + lang]: { status: 'error', messageClass: 'error', errorMessage: __('Post not created. Please try again.', 'autopoly-ai-translation-for-polylang-pro'), errorHtml: '<div class="atfpp-error-html">' + errorHtml + '</div>' } }));
+        storeDispatch(updateTranslatePostInfo({ [postId + '_' + lang]: { status: 'error', messageClass: 'error', errorMessage: __('Post not created. Please try again.', 'autopoly-ai-translation-for-polylang-pro'), errorHtml: '<div class="automl-wpml-error-html">' + errorHtml + '</div>' } }));
     })
 }
 
 const bulkTranslateEntries = async ({ ids, langs, storeDispatch }) => {
 
-    const bulkTranslateRouteUrl = atfpp_bulk_translate_object.bulkTranslateRouteUrl;
-    const bulkTranslatePrivateKey = atfpp_bulk_translate_object.bulkTranslatePrivateKey;
-    const nonce = atfpp_bulk_translate_object.nonce;
+    const bulkTranslateRouteUrl = automl_wpml_bulk_translate_object.bulkTranslateRouteUrl;
+    const bulkTranslatePrivateKey = automl_wpml_bulk_translate_object.bulkTranslatePrivateKey;
+    const nonce = automl_wpml_bulk_translate_object.nonce;
     let storeParseBlockRules = false;
 
     const body = {
@@ -214,11 +214,11 @@ const bulkTranslateEntries = async ({ ids, langs, storeDispatch }) => {
         privateKey: bulkTranslatePrivateKey,
     }
 
-    let postUrl = 'atfpp/bulk-translate-entries';
+    let postUrl = 'automl_wpml_/bulk-translate-entries';
 
-    if (atfpp_bulk_translate_object.taxonomy_page && '' !== atfpp_bulk_translate_object.taxonomy_page) {
-        body.taxonomy = atfpp_bulk_translate_object.taxonomy_page;
-        postUrl = 'atfpp/bulk-translate-taxonomy-entries';
+    if (automl_wpml_bulk_translate_object.taxonomy_page && '' !== automl_wpml_bulk_translate_object.taxonomy_page) {
+        body.taxonomy = automl_wpml_bulk_translate_object.taxonomy_page;
+        postUrl = 'automl_wpml_/bulk-translate-taxonomy-entries';
     }
 
     const untranslatedPosts = await fetch(bulkTranslateRouteUrl + '/' + postUrl, {
@@ -299,8 +299,8 @@ const bulkTranslateEntries = async ({ ids, langs, storeDispatch }) => {
                         firstPostLanguage = true;
                     }
 
-                    const flagUrl = atfpp_bulk_translate_object.languageObject[language].flag;
-                    const languageName = atfpp_bulk_translate_object.languageObject[language].name;
+                    const flagUrl = automl_wpml_bulk_translate_object.languageObject[language].flag;
+                    const languageName = automl_wpml_bulk_translate_object.languageObject[language].name;
                     storeDispatch(updatePendingPosts([postId + '_' + language]));
                     storeDispatch(updateTranslatePostInfo({ [postId + '_' + language]: { parentPostId: postId, targetPostId: null, targetLanguage: language, postLink: null, status: 'pending', parentPostTitle, firstPostLanguage, flagUrl, languageName, messageClass: 'warning' } }));
                 });
@@ -331,7 +331,7 @@ const bulkTranslateEntries = async ({ ids, langs, storeDispatch }) => {
                     errorMessage: sprintf(
                         __('Set source language for this %s %s before translating.', 'autopoly-ai-translation-for-polylang-pro'),
                         titleLink ? '<a href="' + titleLink + '" target="_blank" rel="noopener noreferrer">' + postTitle + '</a>' : postTitle,
-                        window?.atfpp_bulk_translate_object?.taxonomy_page || window?.atfpp_bulk_translate_object?.post_label
+                        window?.automl_wpml_bulk_translate_object?.taxonomy_page || window?.automl_wpml_bulk_translate_object?.post_label
                     )
                 }
 
@@ -451,8 +451,8 @@ const bulkTranslateEntries = async ({ ids, langs, storeDispatch }) => {
  * Fetches first page only; initBulkTranslateStrings will fetch further pages in a pipeline (no 10k in memory).
  */
 const bulkTranslateStrings = async ({ langs, storeDispatch, stringFilters }) => {
-    const ajaxUrl = atfpp_bulk_translate_object.ajax;
-    const nonce = atfpp_bulk_translate_object.nonce;
+    const ajaxUrl = automl_wpml_bulk_translate_object.ajax;
+    const nonce = automl_wpml_bulk_translate_object.nonce;
 
     const PAGE_SIZE = 500;
     const stringsByLanguage = {};
@@ -491,8 +491,8 @@ const bulkTranslateStrings = async ({ langs, storeDispatch, stringFilters }) => 
         totalPerLanguage[lang] = total;
         stringsByLanguage[lang] = strings; // first page only
 
-        const flagUrl = atfpp_bulk_translate_object.languageObject[lang]?.flag || '';
-        const languageName = atfpp_bulk_translate_object.languageObject[lang]?.name || lang;
+        const flagUrl = automl_wpml_bulk_translate_object.languageObject[lang]?.flag || '';
+        const languageName = automl_wpml_bulk_translate_object.languageObject[lang]?.name || lang;
 
         // One Redux entry per language (not 10k entries)
         const key = `strings_${lang}`;
@@ -536,7 +536,7 @@ const bulkTranslateStrings = async ({ langs, storeDispatch, stringFilters }) => 
  * Returns Promise<string[]> with same order as input, or rejects on error.
  */
 const translateStringsWithChromeAI = (strings, sourceLang, targetLang) => {
-    const languageObject = atfpp_bulk_translate_object?.languageObject || {};
+    const languageObject = automl_wpml_bulk_translate_object?.languageObject || {};
     const textContentObject = strings.reduce((acc, text, i) => {
         acc[i] = text || '';
         return acc;
@@ -590,7 +590,7 @@ const initBulkTranslateStrings = async (
     let modalClosed = false;
     updateDestoryHandler(() => { modalClosed = true; });
 
-    const sourceLang = atfpp_bulk_translate_object.default_language_slug || 'en';
+    const sourceLang = automl_wpml_bulk_translate_object.default_language_slug || 'en';
     const BATCH_SIZE = 500;
 
     const translateStringsForLanguage = async (lang, initialStrings) => {
@@ -637,10 +637,25 @@ const initBulkTranslateStrings = async (
                 }
 
                 if (translationResponse?.success && translationResponse.data) {
-                    const translations = Array.isArray(translationResponse.data)
-                        ? translationResponse.data
-                        : (translationResponse.data.translations || []);
-
+                    let translations = [];
+                
+                    const data = translationResponse.data;
+                
+                    // 1) AI SDK route: { translate_data: { "0": "…", "1": "…" } }
+                    if (data.translate_data && typeof data.translate_data === 'object') {
+                        translations = Object.keys(data.translate_data)
+                            .sort((a, b) => Number(a) - Number(b))
+                            .map((key) => data.translate_data[key] || '');
+                    }
+                    // 2) Old shape: raw array
+                    else if (Array.isArray(data)) {
+                        translations = data;
+                    }
+                    // 3) Old shape: { translations: [...] }
+                    else if (Array.isArray(data.translations)) {
+                        translations = data.translations;
+                    }
+                
                     const batchToSave = [];
                     batch.forEach((str, index) => {
                         const sourceText = str.text || str.html || '';
@@ -649,7 +664,7 @@ const initBulkTranslateStrings = async (
                         batchStringsTranslated += 1;
                         batchCharsTranslated += sourceText.length;
                     });
-
+                
                     if (batchToSave.length > 0) {
                         await saveStringTranslations(lang, batchToSave, nonce);
                     }
@@ -722,7 +737,7 @@ const initBulkTranslateStrings = async (
  * Save translated strings via AJAX.
  */
 const saveStringTranslations = async (targetLang, translatedStrings, nonce) => {
-    const ajaxUrl = atfpp_bulk_translate_object.ajax;
+    const ajaxUrl = automl_wpml_bulk_translate_object.ajax;
 
     try {
         const response = await fetch(ajaxUrl + '?action=cp_wpml_google_auto_translate_save_string_translations', {
