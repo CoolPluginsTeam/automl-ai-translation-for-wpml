@@ -111,17 +111,13 @@ class Get_Package_Content {
 
 			$strings = $package->get_package_strings();
 
-			if($string && is_array($strings) && !empty($strings) && !isset($translation_package['contents'])) {
+			if($strings && is_array($strings) && !empty($strings) && !isset($translation_package['contents'])) {
 				$translation_package['contents']=array();
 			}
 
 			foreach($strings as $string){
 				if ( 'LINK' !== $string->type ) {
 					$string_value = $string->value;
-
-					if ( isset( $string_translations[ $string->name ][ $job_lang_from ]['value'] ) ) {
-						$string_value = $string_translations[ $string->name ][ $job_lang_from ]['value'];
-					}
 
 					$translation_package['contents'][ $string->name ] = [
 						'translate' => 1,
@@ -240,7 +236,8 @@ class Get_Package_Content {
 								$text,
 								$element['html'],
 								$element['type'],
-								isset($content['format']) ? $content['format'] : 'text'
+								isset($content['format']) ? $content['format'] : 'text',
+								isset($content['translate']) ? $content['translate'] : 0
 							);
 						}
 					}
@@ -261,7 +258,8 @@ class Get_Package_Content {
 						$text,
 						$data,
 						'content',
-						isset($content['format']) ? $content['format'] : 'text'
+						isset($content['format']) ? $content['format'] : 'text',
+						isset($content['translate']) ? $content['translate'] : 0
 					);
 				}
 			} else {
@@ -284,7 +282,8 @@ class Get_Package_Content {
 					$text,
 					$data,
 					'content',
-					isset($content['format']) ? $content['format'] : 'text'
+					isset($content['format']) ? $content['format'] : 'text',
+					isset($content['translate']) ? $content['translate'] : 0
 				);
 			}
 		}
@@ -292,16 +291,20 @@ class Get_Package_Content {
 		return $strings;
 	}
 
-	private function set_content_strings(&$append_data, $field_key, $field_name, $text, $html, $type, $format, ) {
-		$this->set_content_data($append_data, 'html', $html);
+	private function set_content_strings(&$append_data, $field_key, $field_name, $text, $html, $type, $format,$translate=0 ) {
 		if($this->is_bulk_translation()) {
+			if($translate == 1) {
+				$this->set_content_data($append_data, 'html', $html);
+			}
 			return;
 		}else{
+			$this->set_content_data($append_data, 'html', $html);
 			$this->set_content_data($append_data, 'field_key', $field_key);
 			$this->set_content_data($append_data, 'field_name', $field_name);
 			$this->set_content_data($append_data, 'text', $text);
 			$this->set_content_data($append_data, 'type', $type);
 			$this->set_content_data($append_data, 'format', $format);
+			$this->set_content_data($append_data, 'translate', $translate);
 		}
 	}
 
