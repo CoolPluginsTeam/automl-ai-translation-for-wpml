@@ -35,4 +35,8 @@ class Helper {
         return true;
     }
 
+    public static function supported_editors(): array{
+        return array("Gutenberg", "Elementor");
+    }
+
 }
