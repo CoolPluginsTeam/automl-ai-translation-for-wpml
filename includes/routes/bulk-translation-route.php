@@ -8,7 +8,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 use WPML_AT_Helper;
 use AUTOML_WPML\Includes\Wpml\Get_Package_Content;
-use AUTOML_WPML\Includes\Wpml\Create_Post\Create_Translated_Post;
+use AUTOML_WPML\Includes\Wpml\Create_Translated_Post;
 
 if ( ! class_exists( 'Bulk_Translation_Route' ) ) :
 	/**
@@ -387,9 +387,12 @@ if ( ! class_exists( 'Bulk_Translation_Route' ) ) :
 			$editor_type     = sanitize_text_field( $params['editor_type'] );
 			$source_language = sanitize_text_field( $params['source_language'] );
 			$post_title      = isset( $params['post_title'] ) ? sanitize_text_field( $params['post_title'] ) : '';
+			$post_excerpt    = isset( $params['post_excerpt'] ) ? wp_kses_post( $params['post_excerpt'] ) : '';
 			$post_content    = isset( $params['post_content'] ) ? json_decode( wp_unslash( $params['post_content'] ), true ) : '';
 
-			$create_translated_post = new Create_Translated_Post( $post_id, $post_content, $post_title, $source_language, $target_language, $editor_type );
+			$editor_type = isset( $editor_type ) && 'block' === $editor_type ? 'Gutenberg' : $editor_type;
+
+			$create_translated_post = new Create_Translated_Post( $post_id, $post_content, $post_title, $post_excerpt, $source_language, $target_language, $editor_type );
 
 			$translated_post_id = $create_translated_post->create_post();
 
@@ -400,7 +403,7 @@ if ( ! class_exists( 'Bulk_Translation_Route' ) ) :
 			$post_link      = html_entity_decode( get_the_permalink( $translated_post_id ) );
 			$post_title     = html_entity_decode( get_the_title( $translated_post_id ) );
 			$post_edit_link = html_entity_decode( get_edit_post_link( $translated_post_id ) );
-
+				
 			wp_send_json_success(
 				array(
 					'post_id'                     => $translated_post_id,

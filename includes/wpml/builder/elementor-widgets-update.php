@@ -1,12 +1,11 @@
 <?php
 
-namespace AUTOML_WPML\Includes\Wpml\Create_Post;
+namespace AUTOML_WPML\Includes\Wpml\Builder;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-use AUTOML_WPML\Includes\Wpml\Get_Package_Content;
 use WPML_Elementor_Translatable_Nodes;
 use WPML_Elementor_DB_Factory;
 use WPML_Elementor_Data_Settings;
@@ -16,54 +15,36 @@ use WPML_Elementor_Update_Translation;
 use WPML_Page_Builders_Integration;
 
 /**
- * Elementor_Content_Update
+ * Elementor_Widgets_Update
  *
  * @package AUTOML_WPML\Includes\Wpml
  */
-class Elementor_Content_Update {
-    /**
-     * @var int
-     */
-    private $post_id;
-    /**
-     * @var array
-     */
-    private $translate_strings;
-    /**
-     * @var int
-     */
-    private $translated_post_id;
-    /**
-     * @var string
-     */
-    private $target_language;
+class Elementor_Widgets_Update extends Content_Update_Base {
     /**
      * @var WPML_Page_Builders_Integration
      */
     private $elementor_builder_factory;
 
+    /**
+     * Editor Type
+     */
+    protected $editor_type = 'Elementor';
+
     public function __construct(int $post_id, int $translated_post_id, array $translate_strings, string $target_language, string $nonce) {
-        if ( ! $this->is_elementor_content_update($nonce) ) {
-            return wp_send_json_error( 'You are not authorized to perform this action.' );
-        }
-
-        $this->post_id = $post_id;
-        $this->translated_post_id = $translated_post_id;
-        $this->translate_strings = $translate_strings;
-        $this->target_language = $target_language;
-
-        $this->cretae_elementor_builder_integration();
+        parent::__construct($post_id, $translated_post_id, $translate_strings, $target_language, $nonce);
     }
 
-    private function is_elementor_content_update(string $nonce) {
-        if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $nonce ) ), 'automl_wpml_elementor_content_update_nonce' ) ) {
-            return false;
-        }
-
+    protected function is_content_update() {
         return ( defined( 'DOING_AUTOML_WPML_ELEMENTOR_CONTENT_UPDATE' ) && true === constant( 'DOING_AUTOML_WPML_ELEMENTOR_CONTENT_UPDATE' ) );
     }
 
-    private function cretae_elementor_builder_integration(): void {
+    protected function cretae_builder_integration(): void {
+
+        if(!$this->content_update_allowed){
+            wp_send_json_error( 'You are not authorized to perform this action two.' );
+            exit;
+        }
+
         $nodes                = new WPML_Elementor_Translatable_Nodes();
         $elementor_db_factory = new WPML_Elementor_DB_Factory();
         $data_settings        = new WPML_Elementor_Data_Settings( $elementor_db_factory->create() );
@@ -77,13 +58,15 @@ class Elementor_Content_Update {
         $this->elementor_builder_factory = new WPML_Page_Builders_Integration( $register_strings, $update_translation, $data_settings );
     }
 
-    public function update_elementor_content(): void {
-        $this->update_module_translation();
-    }
+    protected function update_builder_translation(): void {
 
-    private function update_module_translation(): void {
+        if(!$this->elementor_builder_factory instanceof WPML_Page_Builders_Integration){
+            wp_send_json_error( 'Elementor builder factory not found.' );
+            exit;
+        }
+        
         $source_post=get_post($this->post_id);
-        $this->elementor_builder_factory->update_translated_post( 'Elementor', $this->translated_post_id, $source_post, $this->translate_strings, $this->target_language );
+        $this->elementor_builder_factory->update_translated_post( $this->editor_type, $this->translated_post_id, $source_post, $this->translate_strings, $this->target_language );
 
         if ( class_exists( '\Elementor\Plugin' ) ) {
             \Elementor\Plugin::$instance->files_manager->clear_cache();
