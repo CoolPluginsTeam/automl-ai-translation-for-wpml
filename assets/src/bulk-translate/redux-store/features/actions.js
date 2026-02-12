@@ -18,7 +18,6 @@ const bulkTranslateStore = createSlice({
     },
     translatedContent: {},
     serviceProvider: '',
-    blockParseRules: {},
     errorPostsInfo: {},
   },
   reducers: {
@@ -95,10 +94,6 @@ const bulkTranslateStore = createSlice({
       }
     },
 
-    updateBlockParseRules: (state, action) => {
-      state.blockParseRules = action.payload;
-    },
-
     updateErrorPostsInfo: (state, action) => {
       state.errorPostsInfo = {...state.errorPostsInfo, ...{[action.payload.postId]: action.payload.data}};
     },
@@ -119,13 +114,12 @@ const bulkTranslateStore = createSlice({
         errorPosts: 0,
       };
       state.translatedContent = {};
-      state.blockParseRules = {};
       state.errorPostsInfo = {};
     }
   },
 });
 
-export const { updateTranslationsLanguages, updateCompletedPosts, updatePendingPosts, unsetPendingPost, updateTranslatePostInfo, updateProgressStatus, updateCountInfo, updateSourceContent, updateTranslatedContent, resetStore, updateTargetContent, updateParentPostsInfo, updateServiceProvider, updateTargetLanguages, updateBlockParseRules, updateErrorPostsInfo } = bulkTranslateStore.actions;
+export const { updateTranslationsLanguages, updateCompletedPosts, updatePendingPosts, unsetPendingPost, updateTranslatePostInfo, updateProgressStatus, updateCountInfo, updateSourceContent, updateTranslatedContent, resetStore, updateTargetContent, updateParentPostsInfo, updateServiceProvider, updateTargetLanguages, updateErrorPostsInfo } = bulkTranslateStore.actions;
 
 // Export reducer
 export default bulkTranslateStore.reducer;

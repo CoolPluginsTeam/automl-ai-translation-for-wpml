@@ -1,5 +1,5 @@
 import { filterContent, updateFilterContent } from './components/filter-content';
-import { updatePendingPosts, unsetPendingPost, updateCompletedPosts, updateTranslatePostInfo, updateCountInfo, updateSourceContent, updateParentPostsInfo, updateTargetContent, updateTargetLanguages, updateBlockParseRules, updateProgressStatus, updateErrorPostsInfo } from './redux-store/features/actions';
+import { updatePendingPosts, unsetPendingPost, updateCompletedPosts, updateTranslatePostInfo, updateCountInfo, updateSourceContent, updateParentPostsInfo, updateTargetContent, updateTargetLanguages, updateProgressStatus, updateErrorPostsInfo } from './redux-store/features/actions';
 import { store } from './redux-store/store';
 import { __, sprintf } from '@wordpress/i18n';
 import Provider from './components/translate-provider';
@@ -204,7 +204,6 @@ const bulkTranslateEntries = async ({ ids, langs, storeDispatch }) => {
     const bulkTranslateRouteUrl = automl_wpml_bulk_translate_object.bulkTranslateRouteUrl;
     const bulkTranslatePrivateKey = automl_wpml_bulk_translate_object.bulkTranslatePrivateKey;
     const nonce = automl_wpml_bulk_translate_object.nonce;
-    let storeParseBlockRules = false;
 
     const body = {
         ids: JSON.stringify(ids),
@@ -360,15 +359,6 @@ const bulkTranslateEntries = async ({ ids, langs, storeDispatch }) => {
                 storeDispatch(updateTargetLanguages({ lang: targetLang }));
 
                 const data = { content, editorType: editor_type, service: activeProvider, postId, storeDispatch, sourceLanguage };
-
-                if (editor_type === 'block') {
-                    data.blockParseRules = JSON.parse(untranslatedPostsData?.data?.blockParseRules);
-                    
-                    if (!storeParseBlockRules) {
-                        storeDispatch(updateBlockParseRules(JSON.parse(untranslatedPostsData?.data?.blockParseRules)));
-                        storeParseBlockRules = true;
-                    }
-                }
                 
                 if (content && content !== '') {
                     await filterContent(data);

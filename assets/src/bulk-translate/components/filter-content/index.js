@@ -12,10 +12,9 @@ import {store} from '../../redux-store/store';
  * @param {string} service The service provider
  * @param {string} postId The post ID
  * @param {Object} storeDispatch The store dispatch
- * @param {Object} blockParseRules The block parse rules
  * @returns {Object} The filtered content
  */
-const filterContent =async ({content, editorType, service, postId, storeDispatch, blockParseRules=null, sourceLanguage=null}) => {
+const filterContent =async ({content, editorType, service, postId, storeDispatch, sourceLanguage=null}) => {
     const data={content, service, postId, storeDispatch, sourceLanguage};
     data.filterHtmlContent=Provider({Service: service}).filterHtmlContent;
 
