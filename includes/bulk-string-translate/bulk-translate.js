@@ -814,10 +814,11 @@ const bulkTranslateEntries = async ({ ids, langs, storeDispatch }) => {
  * Fetches first page only; initBulkTranslateStrings will fetch further pages in a pipeline (no 10k in memory).
  */
 const bulkTranslateStrings = async ({
-  langs,
-  storeDispatch,
-  stringFilters,
-}) => {
+    langs,
+    storeDispatch,
+    stringFilters,
+    selectedStrings = {},
+  }) => {
   const ajaxUrl = automl_wpml_bulk_translate_object.ajax;
   const nonce = automl_wpml_bulk_translate_object.nonce;
 
@@ -870,18 +871,47 @@ const bulkTranslateStrings = async ({
   };
 
   for (const lang of langs) {
-    const { strings, total } = await fetchPage(lang, 0);
+    let strings = [];
+    let total = 0;
+  
+    const hasLocalSelected =
+      selectedStrings &&
+      Object.keys(selectedStrings).length > 0 &&
+      Array.isArray(stringFilters?.selected_string_ids) &&
+      stringFilters.selected_string_ids.length > 0;
+  
+    if (hasLocalSelected) {
+      // Build strings array directly from the DOM-provided JSON (no SQL)
+      const rows = stringFilters.selected_string_ids
+        .map((id) => selectedStrings[String(id)])
+        .filter(Boolean);
+  
+      strings = rows.map((row) => ({
+        text: row.value || "",
+        html: row.value || "",
+        field_key: String(row.string_id),
+        field_name: row.name || String(row.string_id),
+        format: "html",
+      }));
+      total = strings.length;
+    } else {
+      // Fallback to existing server-side fetch (uses filters, pagination, etc.)
+      const result = await fetchPage(lang, 0);
+      strings = result.strings || [];
+      total = result.total || 0;
+    }
+  
     if (total === 0 || !strings.length) continue;
-
+  
     totalPerLanguage[lang] = total;
-    stringsByLanguage[lang] = strings; // first page only
-
+    stringsByLanguage[lang] = strings;
+  
     const flagUrl =
       automl_wpml_bulk_translate_object.languageObject[lang]?.flag || "";
     const languageName =
       automl_wpml_bulk_translate_object.languageObject[lang]?.name || lang;
-
-    // One Redux entry per language (not 10k entries)
+  
+    // One Redux entry per language
     const key = `strings_${lang}`;
     stringKeys.push(key);
     storeDispatch(updatePendingPosts([key]));

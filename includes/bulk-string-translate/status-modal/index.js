@@ -56,6 +56,7 @@ const StatusModal = ({ postIds, selectedLanguages, prefix, onDestory }) => {
       const isStringTranslationPage =
         window.wpmlIsStringTranslationPage || false;
       const stringFilters = window.wpmlStringFilters || {};
+      const selectedStrings = window.wpmlSelectedStrings || {};
       if (isStringTranslationPage) {
         // String translation flow
         const { bulkTranslateStrings } = await import("../bulk-translate");
@@ -63,6 +64,7 @@ const StatusModal = ({ postIds, selectedLanguages, prefix, onDestory }) => {
           langs: selectedLanguages,
           storeDispatch,
           stringFilters: stringFilters,
+          selectedStrings: selectedStrings,
         });
         setIsLoading(false);
         if (!response.success) {

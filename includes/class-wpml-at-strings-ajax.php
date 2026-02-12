@@ -54,22 +54,7 @@ class WPML_AT_Strings_Ajax
     if (empty($target_lang)) {
         wp_send_json_error(array('msg' => esc_html__('Target language is required.', 'automl-ai-translation-for-wpml')));
     }
-	global $wpdb;
 
-// Optional: only translate strings that are checked in the table
-$selected_string_ids = array();
-if (! empty($_POST['selected_string_ids'])) {
-    $decoded = isset($_POST['selected_string_ids']) 
-    ? json_decode(
-        sanitize_text_field(wp_unslash($_POST['selected_string_ids'])), 
-        true
-    ) 
-    : array();
-    if (is_array($decoded)) {
-        $selected_string_ids = array_unique(array_map('absint', $decoded));
-        $selected_string_ids = array_filter($selected_string_ids);
-    }
-}
 
     // Get context from POST if provided
     if (isset($_POST['context']) && ! empty($_POST['context'])) {
@@ -89,41 +74,6 @@ if (! empty($_POST['selected_string_ids'])) {
 $_GET['show_results'] = 'all';
 
 $rows = array();
-
-if (! empty($selected_string_ids)) {
-    // Fetch only selected strings from DB (no full icl_get_string_translations load)
-    $strings_table = $wpdb->prefix . 'icl_strings';
-    $trans_table   = $wpdb->prefix . 'icl_string_translations';
-
-    // Create placeholders for the IN clause
-    $placeholders = implode(',', array_fill(0, count($selected_string_ids), '%d'));
-    
-    // Build query - escape table names inline, don't use sprintf
-    $query = "SELECT s.id, s.value, s.context, s.name 
-        FROM " . esc_sql($strings_table) . " s 
-        LEFT JOIN " . esc_sql($trans_table) . " t ON t.string_id = s.id AND t.language = %s 
-        WHERE s.id IN ($placeholders) 
-        AND (t.string_id IS NULL OR t.value = '') 
-        AND TRIM(COALESCE(s.value, '')) != ''";
-
-    // Prepare the query with values (language first, then IDs)
-    $prepared_query = $wpdb->prepare(
-        $query, // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-        array_merge(array($target_lang), $selected_string_ids)
-    );
-    
-    $results = $wpdb->get_results($prepared_query, ARRAY_A); // phpcs:ignore
-
-    foreach ($results as $row) {
-        $rows[] = array(
-            'field_key' => (string) $row['id'],
-            'original'  => isset($row['value']) ? $row['value'] : '',
-            'translate' => 1,
-            'context'   => isset($row['context']) ? $row['context'] : '',
-            'name'      => isset($row['name']) ? $row['name'] : '',
-        );
-    }
-} else {
     // No selection: use WPML API (all strings, respecting GET filters)
     $all_strings = icl_get_string_translations();
     if (! is_array($all_strings)) {
@@ -146,7 +96,7 @@ if (! empty($selected_string_ids)) {
             'name'      => isset($item['name']) ? $item['name'] : '',
         );
     }
-}
+
 
     // Format for same table structure as post translation (strings array).
     $strings = array();
