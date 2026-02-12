@@ -1,8 +1,8 @@
-import FilterGutenbergContent from './gutenberg';
-import updateGutenbergContent from './gutenberg/update-content';
 import Provider from '../translate-provider';
-
+import storeFilteredContent from './store-filtered-content';
+import updateFilteredContent from './update-filtered-content';
 import {selectSourceEntries, selectServiceProvider} from '../../redux-store/features/selectors';
+
 
 import {store} from '../../redux-store/store';
 
@@ -16,35 +16,23 @@ import {store} from '../../redux-store/store';
  * @returns {Object} The filtered content
  */
 const filterContent =async ({content, editorType, service, postId, storeDispatch, blockParseRules=null, sourceLanguage=null}) => {
-
-    const filters={
-        'block':FilterGutenbergContent,
-    }
-
     const data={content, service, postId, storeDispatch, sourceLanguage};
     data.filterHtmlContent=Provider({Service: service}).filterHtmlContent;
 
-    if(blockParseRules){
-        data.blockParseRules=blockParseRules;
-    }
-
-    if(filters[editorType] && data.content && data.content !== ''){
-        return await filters[editorType](data);
+    if(data.content && data.content !== ''){
+        return await storeFilteredContent(data);
     }
 
     return content;
 }
 
 const updateFilterContent=async ({source, postId, lang, editorType})=>{
-    const updateContens={
-        'block':updateGutenbergContent,
-    }
 
     const serviceProvider=selectServiceProvider(store.getState());
 
     const translatedContent=selectSourceEntries(store.getState(), postId);
 
-    return await updateContens[editorType]({source, lang, translatedContent, serviceProvider, postId});
+    return await updateFilteredContent({source, lang, translatedContent, serviceProvider, postId});
 }
 
 export {filterContent, updateFilterContent};

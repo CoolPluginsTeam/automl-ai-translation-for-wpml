@@ -48,7 +48,7 @@ export const AITranslationRequest = async ({ controller, Strings, slug, source_l
         service_slug: slug
     }
 
-    const response = await fetch(`${automl_wpml_bulk_translate_object.ai_translate_route_url}/${slug}/translate-text`, {
+    const response = await fetch(`${automl_wpml_bulk_translate_object.bulkTranslateRouteUrl}/${slug}/translate-text`, {
         method: 'POST',
         headers: {
             'content-type': 'application/x-www-form-urlencoded; charset=UTF-8',

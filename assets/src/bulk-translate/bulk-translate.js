@@ -363,13 +363,13 @@ const bulkTranslateEntries = async ({ ids, langs, storeDispatch }) => {
 
                 if (editor_type === 'block') {
                     data.blockParseRules = JSON.parse(untranslatedPostsData?.data?.blockParseRules);
-
+                    
                     if (!storeParseBlockRules) {
                         storeDispatch(updateBlockParseRules(JSON.parse(untranslatedPostsData?.data?.blockParseRules)));
                         storeParseBlockRules = true;
                     }
                 }
-
+                
                 if (content && content !== '') {
                     await filterContent(data);
                 }

@@ -5,7 +5,6 @@ import './index.css';
 import { store } from './redux-store/store';
 import { Provider } from 'react-redux';
 import { __ } from '@wordpress/i18n';
-import LoopCallback from './components/loop-callback';
 import LocalAITranslate from './components/translate-provider/local-ai/local-ai-translate';
 
 (() => {

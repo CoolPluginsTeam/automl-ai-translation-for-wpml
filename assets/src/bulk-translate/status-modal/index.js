@@ -7,6 +7,7 @@ import ErrorModalBox from '../components/error-modal-box';
 import AIService from '../components/translate-provider/ai-services';
 import { store } from '../redux-store/store';
 import DOMPurify from 'dompurify';
+import LoopCallback from '../components/loop-callback';
 
 const StatusModal = ({ postIds, selectedLanguages, prefix, onDestory }) => {
 
@@ -29,16 +30,32 @@ const StatusModal = ({ postIds, selectedLanguages, prefix, onDestory }) => {
     progressStatus = Math.min(progressStatus, 100);
 
     useEffect(() => {
-        const translatePosts = async () => {
-            const response = await bulkTranslateEntries({ ids: postIds, langs: selectedLanguages, storeDispatch });
-            setIsLoading(false);
+        let postFound=false;
 
-            if (!response.success && false === response.success && response.message) {
-                setEmptyPostMessage(response.message);
-                return;
+        const translatePosts = async () => {
+            const batchSize = 3;
+
+            const sendRequest = async (ids) => {
+                const response = await bulkTranslateEntries({ ids, langs: selectedLanguages, storeDispatch });
+                setIsLoading(false);
+    
+                if (!response.success && false === response.success && response.message && !postFound) {
+                    setEmptyPostMessage(response.message);
+                    return;
+                }
+                
+                postFound = true;
+                initBulkTranslate(response.postKeys, response.nonce, storeDispatch, prefix, updateDestoryHandler);
             }
 
-            initBulkTranslate(response.postKeys, response.nonce, storeDispatch, prefix, updateDestoryHandler);
+            const splitedPostIds = postIds.reduce((acc, curr, index) => {
+                const batchIndex = Math.floor(index / batchSize);
+                acc[batchIndex] = [...(acc[batchIndex] || []), curr];
+                return acc;
+            }, []);
+
+
+            LoopCallback({ callback: sendRequest, loop: splitedPostIds, index: 0 });
         }
         translatePosts();
     }, []);
