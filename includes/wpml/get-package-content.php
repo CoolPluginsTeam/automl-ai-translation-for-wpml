@@ -24,6 +24,10 @@ class Get_Package_Content {
 	private $translation_package;
 
 	public function __construct($post_id, $source_lang = null) {
+		if(!$this->is_bulk_translation() && !$this->is_create_post()) {
+			return array();
+		}
+
 		$this->post_id = $post_id;
 		$this->source_lang = $source_lang;
 
@@ -34,6 +38,14 @@ class Get_Package_Content {
 		}
 
 		$this->create_package();
+	}
+
+	private function is_bulk_translation() {
+		return (defined('DOING_AUTOML_WPML_BULK_POST_TRANSLATION') && true === constant('DOING_AUTOML_WPML_BULK_POST_TRANSLATION'));
+	}
+
+	private function is_create_post() {
+		return (defined('DOING_AUTOML_WPML_CREATE_TRANSLATED_POST') && true === constant('DOING_AUTOML_WPML_CREATE_TRANSLATED_POST'));
 	}
 
 	private function include_required_files() {
@@ -218,14 +230,17 @@ class Get_Package_Content {
 							if ($element['type'] === 'heading') {
 								$element_field_name = $field_name . ' - ' . strtoupper($element['tag']) . ' ' . ($index + 1);
 							}
-							
-							$strings[] = array(
-								'field_name' => $element_field_name,
-								'field_key' => $key . '_element_' . $index,
-								'type' => $element['type'],
-								'text' => $text,
-								'html' => $element['html'],
-								'format' => isset($content['format']) ? $content['format'] : 'text'
+
+							$strings[$element_field_name] = array();
+
+							$this->set_content_strings(
+								$strings[$element_field_name],
+								$key . '_element_' . $index,
+								$element_field_name,
+								$text,
+								$element['html'],
+								$element['type'],
+								isset($content['format']) ? $content['format'] : 'text'
 							);
 						}
 					}
@@ -234,15 +249,20 @@ class Get_Package_Content {
 					$text = wp_strip_all_tags($data);
 					$text = trim($text);
 					if (!empty($text)) {
-						$strings[] = array(
-							'field_name' => $field_name,
-							'field_key' => $key,
-							'type' => 'content',
-							'text' => $text,
-							'html' => $data,
-							'format' => isset($content['format']) ? $content['format'] : 'text'
-						);
+						continue;
 					}
+
+					$strings[$field_name] = array();
+
+					$this->set_content_strings(
+						$strings[$field_name],
+						$field_name,
+						'body',
+						$text,
+						$data,
+						'content',
+						isset($content['format']) ? $content['format'] : 'text'
+					);
 				}
 			} else {
 				// For non-body fields, use the original logic
@@ -254,19 +274,41 @@ class Get_Package_Content {
 				if (empty($text)) {
 					continue;
 				}
-				
-				$strings[] = array(
-					// 'field_name' => $field_name,
-					'field_key' => $key,
-					'type' => 'content',
-					// 'text' => $text,
-					'html' => $data,
-					// 'format' => isset($content['format']) ? $content['format'] : 'text'
+
+				$strings[$key] = array();
+
+				$this->set_content_strings(
+					$strings[$key],
+					$key,
+					null,
+					$text,
+					$data,
+					'content',
+					isset($content['format']) ? $content['format'] : 'text'
 				);
 			}
 		}
 		
 		return $strings;
+	}
+
+	private function set_content_strings(&$append_data, $field_key, $field_name, $text, $html, $type, $format, ) {
+		$this->set_content_data($append_data, 'html', $html);
+		if($this->is_bulk_translation()) {
+			return;
+		}else{
+			$this->set_content_data($append_data, 'field_key', $field_key);
+			$this->set_content_data($append_data, 'field_name', $field_name);
+			$this->set_content_data($append_data, 'text', $text);
+			$this->set_content_data($append_data, 'type', $type);
+			$this->set_content_data($append_data, 'format', $format);
+		}
+	}
+
+	private function set_content_data(&$append_data, $key, $value){
+		if(isset($value) && !empty($value)) {
+			$append_data[$key] = $value;
+		}
 	}
 
 	/**
