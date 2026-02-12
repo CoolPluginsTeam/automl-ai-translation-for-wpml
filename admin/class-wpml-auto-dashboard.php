@@ -95,7 +95,6 @@ if ( ! class_exists( 'WPML_Auto_Dashboard' ) ) {
 				'settings'        => __( 'Settings', 'automl-ai-translation-for-wpml' ),
 				'license'         => __( 'License', 'automl-ai-translation-for-wpml' ),
 				'free-vs-pro'     => __( 'Free vs Pro', 'automl-ai-translation-for-wpml' ),
-				'support-blocks'  => __( 'Supported Blocks', 'automl-ai-translation-for-wpml' ),
 			);
 
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
