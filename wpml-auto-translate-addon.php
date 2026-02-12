@@ -64,10 +64,9 @@ final class WPML_Auto_Translate_Addon {
 	private function load_dependencies() {
 		require_once WPML_AT_PLUGIN_DIR . 'helper/helper.php';
 
-		if(class_exists(Helper::class)){
-			new Helper();
-		}
-
+		require_once WPML_AT_PLUGIN_DIR . 'includes/wpml/get-package-content.php';
+		require_once WPML_AT_PLUGIN_DIR . 'includes/wpml/create-translated-post.php';
+		
 		require_once WPML_AT_PLUGIN_DIR . 'includes/bulk-translation/bulk-translation.php';
 		require_once WPML_AT_PLUGIN_DIR . 'includes/bulk-translation/register-assets.php';
 		
