@@ -191,6 +191,7 @@ if (! empty($selected_string_ids)) {
 			}
 			$target_lang = isset($json_data['target_lang']) ? sanitize_text_field($json_data['target_lang']) : '';
 			$translated_strings = isset($json_data['translated_strings']) && is_array($json_data['translated_strings']) ? $json_data['translated_strings'] : array();
+			$dashboard_stats = isset($json_data['dashboard_stats']) && is_array($json_data['dashboard_stats']) ? $json_data['dashboard_stats'] : array();
 		} else {
 			// Fallback to POST (backward compatibility)
 			if (! check_ajax_referer(CP_WPML_Google_Auto_Translate_Ajax::NONCE, 'nonce', false)) {
@@ -200,6 +201,7 @@ if (! empty($selected_string_ids)) {
 			$target_lang = isset($_POST['target_lang']) ? sanitize_text_field(wp_unslash($_POST['target_lang'])) : '';
 			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitized per item
 			$translated_strings = isset($_POST['translated_strings']) ? (array) $_POST['translated_strings'] : array();
+			$dashboard_stats = isset($_POST['dashboard_stats']) ? (array) $_POST['dashboard_stats'] : array();
 		}
 
 		if (! current_user_can('manage_options')) {
@@ -285,7 +287,37 @@ if (! empty($selected_string_ids)) {
 			icl_update_string_translation_cache($string_ids, $target_lang);
 		}
 
-		wp_send_json_success(array(
+				// Record stats for dashboard sidebar (Auto Translation Status)
+				if ( ! empty( $dashboard_stats ) ) {
+					$source_lang   = isset( $dashboard_stats['source_lang'] ) ? sanitize_text_field( $dashboard_stats['source_lang'] ) : '';
+					$service       = isset( $dashboard_stats['service_provider'] ) ? sanitize_text_field( $dashboard_stats['service_provider'] ) : 'ai';
+					$string_count  = isset( $dashboard_stats['string_count'] ) ? absint( $dashboard_stats['string_count'] ) : $saved;
+					$char_count    = isset( $dashboard_stats['character_count'] ) ? absint( $dashboard_stats['character_count'] ) : 0;
+					$time_taken    = isset( $dashboard_stats['time_taken'] ) ? absint( $dashboard_stats['time_taken'] ) : 0;
+					$job_id        = 'strings_' . time() . '_' . wp_rand( 100, 999 );
+					$data          = array(
+						'job_id'           => $job_id,
+						'post_id'          => 'strings',
+						'service_provider' => $service,
+						'source_language'  => $source_lang,
+						'target_language'  => $target_lang,
+						'string_count'     => (string) $string_count,
+						'character_count'  => (string) $char_count,
+						'time_taken'       => (string) $time_taken,
+						'date_time'        => current_time( 'Y-m-d H:i:s' ),
+					);
+					$all_data = get_option( 'wpml_auto_dashboard_data', array() );
+					if ( ! is_array( $all_data ) ) {
+						$all_data = array();
+					}
+					if ( ! isset( $all_data['wpml_auto'] ) ) {
+						$all_data['wpml_auto'] = array();
+					}
+					$all_data['wpml_auto'][] = array_map( 'sanitize_text_field', $data );
+					update_option( 'wpml_auto_dashboard_data', $all_data );
+				}
+			
+			wp_send_json_success(array(
 			'msg'   => sprintf(
 				/* translators: %d: number of strings */
 				esc_html__('%d string(s) translated and saved.', 'wpml-auto-translate-addon'),

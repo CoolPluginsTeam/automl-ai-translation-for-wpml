@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: WPML Google Auto Translate Addon (Google Translate + Preview)
+ * Plugin Name: AutoML - AI Translation for WPML
  * Description: Adds "Translate with Google" bulk and per-row actions to WPML Translation Dashboard, using Google Translate for saving translations and Google website widget for preview.
  * Version: 1.0.0
  * Author: Cool Plugins
@@ -119,8 +119,8 @@ final class WPML_Auto_Translate_Addon {
 		add_submenu_page(
 			$parent_slug, // parent (WPML) menu slug
 			__( 'WPML Auto Translate', 'wpml-auto-translate-addon' ), // page title
-			__( 'WpML Auto Translate', 'wpml-auto-translate-addon' ),      // menu title
-			'manage_options',                                         // capability
+			__( 'WPML Auto Translate', 'wpml-auto-translate-addon' ),      // menu title
+			'manage_options',       	                                  // capability
 			'wpml-auto-dashboard',                                    // menu slug
 			array( \WPML_Auto_Dashboard::get_instance(), 'wpml_auto_render_dashboard_page' ) // callback
 		);
@@ -152,6 +152,7 @@ final class WPML_Auto_Translate_Addon {
 			'includes/class-cp-wpml-google-auto-translate-ajax.php',
 			'includes/routes/bulk-translation-route.php',
 			'admin/class-wpml-auto-dashboard.php',
+			'admin/cpt_dashboard/cpt_dashboard.php',
 		);
 
 		foreach ( $files as $file ) {
@@ -185,6 +186,7 @@ final class WPML_Auto_Translate_Addon {
         if ( class_exists( '\AUTOML_WPML\Includes\Routes\Bulk_Translation_Route' ) ) {
 			new \AUTOML_WPML\Includes\Routes\Bulk_Translation_Route( 'automl-wpml-translate' );
 		}
+		
 		// Initialize admin classes.
 		if ( is_admin() ) {
 			if ( class_exists( 'WPML_AT_Admin' ) ) {
@@ -198,6 +200,9 @@ final class WPML_Auto_Translate_Addon {
 			}
 			if ( class_exists( 'WPML_AT_Custom_Block_Post' ) ) {
 				WPML_AT_Custom_Block_Post::get_instance();
+			}
+			if ( class_exists( 'WPML_Auto_Dashboard' ) ) {
+				WPML_Auto_Dashboard::get_instance();
 			}
 		}
 	}

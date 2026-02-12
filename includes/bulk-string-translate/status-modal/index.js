@@ -23,6 +23,7 @@ const StatusModal = ({ postIds, selectedLanguages, prefix, onDestory }) => {
     const [charactersCountVisibility, setCharactersCountVisibility] = useState(false);
     const [bulkStatus, setBulkStatus] = useState('status');
     const countInfo = useSelector(selectCountInfo);
+    console.log('countInfo', countInfo);
     let [emptyPostMessage, setEmptyPostMessage] = useState(sprintf(__('Translations already exist for all selected %s in the chosen languages. There are no new %s to translate.', 'autopoly-ai-translation-for-polylang-pro'), automl_wpml_bulk_translate_object.post_label, automl_wpml_bulk_translate_object.post_label));
     let progressStatus = useSelector(selectProgressStatus);
     progressStatus = progressStatus.toFixed(1);
@@ -47,7 +48,7 @@ const StatusModal = ({ postIds, selectedLanguages, prefix, onDestory }) => {
                     setEmptyPostMessage(response.message || __('No strings found to translate.', 'wpml-auto-translate-addon'));
                     return;
                 }
-                console.log('response.stringKeys', response.stringKeys);
+                console.log('coi');
                 // Initialize string translation flow
                 initBulkTranslateStrings(
                     response.stringKeys,
@@ -249,7 +250,6 @@ const StatusModal = ({ postIds, selectedLanguages, prefix, onDestory }) => {
 
         return allPostStatus;
     };
-
     return (
         errorModal ? <ErrorModalBox message={errorModalData.errorHtml} onClose={closeErrorModal} Title={__('Bulk Translation Error', 'autopoly-ai-translation-for-polylang-pro')} prefix={prefix} >
             {errorModalData.aiError && <div className={`${prefix}-ai-error-buttons`}>
@@ -287,6 +287,10 @@ const StatusModal = ({ postIds, selectedLanguages, prefix, onDestory }) => {
                                     <div className={`${prefix}-char-count`}>
                                         <span className={`${prefix}-count-text-heading`}>{__('Characters:', 'autopoly-ai-translation-for-polylang-pro')} </span>
                                         <span className={`${prefix}-char-number`}>{countInfo.charactersTranslated}</span>
+                                    </div>
+                                    <div className={`${prefix}-time-taken`}>
+                                        <span className={`${prefix}-count-text-heading`}>{__('Time Taken:', 'autopoly-ai-translation-for-polylang-pro')} </span>
+                                        <span className={`${prefix}-time-taken-number`}>{countInfo.timeTaken ?? 0} {__('seconds', 'autopoly-ai-translation-for-polylang-pro')}</span>
                                     </div>
                                 </div>
                             )

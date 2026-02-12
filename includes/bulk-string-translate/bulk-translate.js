@@ -520,7 +520,7 @@ const bulkTranslateStrings = async ({ langs, storeDispatch, stringFilters }) => 
     }
 
     const totalStrings = Object.values(totalPerLanguage).reduce((a, b) => a + b, 0);
-    storeDispatch(updateCountInfo({ totalPosts: totalStrings }));
+    storeDispatch(updateCountInfo({totalStrings }));
 
     return {
         success: true,
@@ -611,6 +611,7 @@ const initBulkTranslateStrings = async (
 
         while (strings.length > 0 && !modalClosed) {
             const batch = strings.slice(0, BATCH_SIZE);
+            const batchStartTime = Date.now();
 
             try {
                 const stringsToTranslate = batch.map(str => ({
@@ -664,9 +665,16 @@ const initBulkTranslateStrings = async (
                         batchStringsTranslated += 1;
                         batchCharsTranslated += sourceText.length;
                     });
-                
+                      let timeTakenSec = 0;
                     if (batchToSave.length > 0) {
-                        await saveStringTranslations(lang, batchToSave, nonce);
+                         timeTakenSec = Math.round((Date.now() - batchStartTime) / 1000);
+                        await saveStringTranslations(lang, batchToSave, nonce, {
+                            source_lang: sourceLang,
+                            service_provider: serviceSlug || activeProvider,
+                            string_count: batchToSave.length,
+                            character_count: batchCharsTranslated,
+                            time_taken: timeTakenSec,
+                        });
                     }
 
                     offset += batch.length;
@@ -688,6 +696,9 @@ const initBulkTranslateStrings = async (
                     storeDispatch(updateCountInfo({
                         stringsTranslated: (count.stringsTranslated || 0) + batchStringsTranslated,
                         charactersTranslated: (count.charactersTranslated || 0) + batchCharsTranslated,
+                        timeTaken: (count.timeTaken || 0) + timeTakenSec,
+                        sourceLanguage: sourceLang,
+                        serviceProvider: serviceSlug || activeProvider,
                     }));
                     batchStringsTranslated = 0;
                     batchCharsTranslated = 0;
@@ -733,11 +744,26 @@ const initBulkTranslateStrings = async (
     }
 };
 
+
 /**
  * Save translated strings via AJAX.
+ * @param {string} targetLang - Target language code.
+ * @param {Array} translatedStrings - Array of { field_key, translated }.
+ * @param {string} nonce - Security nonce.
+ * @param {Object} [stats] - Optional dashboard stats: source_lang, service_provider, string_count, character_count, time_taken.
  */
-const saveStringTranslations = async (targetLang, translatedStrings, nonce) => {
+const saveStringTranslations = async (targetLang, translatedStrings, nonce, stats = null) => {
     const ajaxUrl = automl_wpml_bulk_translate_object.ajax;
+
+    const body = {
+        action: 'cp_wpml_google_auto_translate_save_string_translations',
+        nonce: nonce,
+        target_lang: targetLang,
+        translated_strings: translatedStrings,
+    };
+    if (stats && typeof stats === 'object') {
+        body.dashboard_stats = stats;
+    }
 
     try {
         const response = await fetch(ajaxUrl + '?action=cp_wpml_google_auto_translate_save_string_translations', {
@@ -746,12 +772,7 @@ const saveStringTranslations = async (targetLang, translatedStrings, nonce) => {
                 'Content-Type': 'application/json; charset=utf-8',
                 'Accept': 'application/json',
             },
-            body: JSON.stringify({
-                action: 'cp_wpml_google_auto_translate_save_string_translations',
-                nonce: nonce,
-                target_lang: targetLang,
-                translated_strings: translatedStrings
-            })
+            body: JSON.stringify(body),
         });
 
         const data = await response.json();

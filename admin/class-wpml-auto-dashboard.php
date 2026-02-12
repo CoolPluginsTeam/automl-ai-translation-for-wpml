@@ -113,7 +113,7 @@ if ( ! class_exists( 'WPML_Auto_Dashboard' ) ) {
 						</div>
 					</div>
 					<div class="wpml-auto-dashboard-header-right">
-						<span><?php echo esc_html__( 'WPML Auto – Google Translate Addon', 'wpml-auto-translate-addon' ); ?></span>
+						<span><?php echo esc_html__( 'AutoML - AI Translation for WPML', 'wpml-auto-translate-addon' ); ?></span>
 					</div>
 				</div>
 

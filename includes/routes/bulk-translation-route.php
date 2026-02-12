@@ -269,8 +269,6 @@ if ( ! class_exists( 'Bulk_Translation_Route' ) ) :
                     ->generate_text();
             } catch ( \Throwable $e ) {
                 wp_send_json_error( 'Error during text generation: ' . $e->getMessage() );
-            } catch ( \Throwable $e ) {
-                wp_send_json_error( 'Error during text generation: ' . $e->getMessage() );
             }
            	// Clean the text
 						$cleanText = preg_replace( '/(^```json\n|```$)/', '', $raw );
