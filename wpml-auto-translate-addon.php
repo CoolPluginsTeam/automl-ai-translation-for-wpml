@@ -4,7 +4,7 @@
  * Description: Adds "Translate with Google" bulk and per-row actions to WPML Translation Dashboard, using Google Translate for saving translations and Google website widget for preview.
  * Version: 1.0.0
  * Author: Cool Plugins
- * Text Domain: wpml-auto-translate-addon
+ * Text Domain: automl-ai-translation-for-wpml
  * Domain Path: /languages
  * Requires at least: 5.0
  * Requires PHP: 7.2
@@ -118,8 +118,8 @@ final class WPML_Auto_Translate_Addon {
 	
 		add_submenu_page(
 			$parent_slug, // parent (WPML) menu slug
-			__( 'WPML Auto Translate', 'wpml-auto-translate-addon' ), // page title
-			__( 'WPML Auto Translate', 'wpml-auto-translate-addon' ),      // menu title
+			__( 'WPML Auto Translate', 'automl-ai-translation-for-wpml' ), // page title
+			__( 'WPML Auto Translate', 'automl-ai-translation-for-wpml' ),      // menu title
 			'manage_options',       	                                  // capability
 			'wpml-auto-dashboard',                                    // menu slug
 			array( \WPML_Auto_Dashboard::get_instance(), 'wpml_auto_render_dashboard_page' ) // callback
@@ -228,8 +228,8 @@ final class WPML_Auto_Translate_Addon {
 		?>
 		<div class="notice notice-error">
 			<p>
-				<strong><?php esc_html_e( 'WPML Auto Translate Addon:', 'wpml-auto-translate-addon' ); ?></strong>
-				<?php esc_html_e( 'This plugin requires WPML to be installed and activated.', 'wpml-auto-translate-addon' ); ?>
+				<strong><?php esc_html_e( 'WPML Auto Translate Addon:', 'automl-ai-translation-for-wpml' ); ?></strong>
+				<?php esc_html_e( 'This plugin requires WPML to be installed and activated.', 'automl-ai-translation-for-wpml' ); ?>
 			</p>
 		</div>
 		<?php

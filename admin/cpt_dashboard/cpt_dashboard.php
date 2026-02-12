@@ -311,7 +311,7 @@ if(!class_exists('wpml_auto_Dashboard')){
 
         public function wpml_auto_hide_review_notice(){
             if(!current_user_can('manage_options')){
-                wp_send_json_error( __( 'Unauthorized', 'wpml-auto-translate-addon' ), 403 );
+                wp_send_json_error( __( 'Unauthorized', 'automl-ai-translation-for-wpml' ), 403 );
                 wp_die( '0', 403 );
             }
 
@@ -322,7 +322,7 @@ if(!class_exists('wpml_auto_Dashboard')){
                 update_option('cpt_review_notice_dismissed', $review_notice_dismissed);
                 wp_send_json_success();
                 }else{
-                    wp_send_json_error( __( 'Invalid nonce', 'wpml-auto-translate-addon' ), 400 );
+                    wp_send_json_error( __( 'Invalid nonce', 'automl-ai-translation-for-wpml' ), 400 );
                 wp_die( '0', 400 );
             }
         }

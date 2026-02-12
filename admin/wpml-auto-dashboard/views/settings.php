@@ -4,20 +4,20 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 if ( ! current_user_can( 'manage_options' ) ) {
-	wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'wpml-auto-translate-addon' ) );
+	wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'automl-ai-translation-for-wpml' ) );
 }
 ?>
 <div class="wpml-auto-dashboard-settings">
 	<div class="wpml-auto-dashboard-settings-container">
 		<div class="header">
-			<h1><?php echo esc_html__( 'WPML Auto Translate Settings', 'wpml-auto-translate-addon' ); ?></h1>
+			<h1><?php echo esc_html__( 'WPML Auto Translate Settings', 'automl-ai-translation-for-wpml' ); ?></h1>
 		</div>
 
 		<p class="description">
 			<?php
 			echo esc_html__(
 				'Configure your AI providers and translation models here. Keys are stored via the WP AI Client option and models via the WPML addon model option.',
-				'wpml-auto-translate-addon'
+				'automl-ai-translation-for-wpml'
 			);
 			?>
 		</p>
@@ -111,7 +111,7 @@ if ( ! current_user_can( 'manage_options' ) ) {
 								<?php
 								// translators: %s: API name.
 								printf(
-									esc_html__( 'Add %s API key', 'wpml-auto-translate-addon' ),
+									esc_html__( 'Add %s API key', 'automl-ai-translation-for-wpml' ),
 									esc_html( $settings['name'] )
 								);
 								?>
@@ -134,14 +134,14 @@ if ( ! current_user_can( 'manage_options' ) ) {
 							if ( 'openai' === $api_key && $has_key && ! empty( $openai_models ) ) : ?>
 								<div class="wpml-auto-dashboard-api-settings-openai-model">
 									<label for="wpml_selected_openai_model" class="api-settings-label">
-										<?php esc_html_e( 'Select OpenAI Model', 'wpml-auto-translate-addon' ); ?>
+										<?php esc_html_e( 'Select OpenAI Model', 'automl-ai-translation-for-wpml' ); ?>
 									</label>
 									<select
 										id="wpml_selected_openai_model"
 										name="wpml_at_ai_translation_models[openai]"
 										class="wpml-openai-model-select"
 									>
-										<option value=""><?php esc_html_e( 'Select model...', 'wpml-auto-translate-addon' ); ?></option>
+										<option value=""><?php esc_html_e( 'Select model...', 'automl-ai-translation-for-wpml' ); ?></option>
 										<?php foreach ( $openai_models as $model_id ) : ?>
 											<option value="<?php echo esc_attr( $model_id ); ?>" <?php selected( $current_openai_model, $model_id ); ?>>
 												<?php echo esc_html( $model_id ); ?>
@@ -156,14 +156,14 @@ if ( ! current_user_can( 'manage_options' ) ) {
 							if ( 'google' === $api_key && $has_key && ! empty( $google_models ) ) : ?>
 								<div class="wpml-auto-dashboard-api-settings-google-model">
 									<label for="wpml_selected_google_model" class="api-settings-label">
-										<?php esc_html_e( 'Select Gemini Model', 'wpml-auto-translate-addon' ); ?>
+										<?php esc_html_e( 'Select Gemini Model', 'automl-ai-translation-for-wpml' ); ?>
 									</label>
 									<select
 										id="wpml_selected_google_model"
 										name="wpml_at_ai_translation_models[google]"
 										class="wpml-google-model-select"
 									>
-										<option value=""><?php esc_html_e( 'Select model...', 'wpml-auto-translate-addon' ); ?></option>
+										<option value=""><?php esc_html_e( 'Select model...', 'automl-ai-translation-for-wpml' ); ?></option>
 										<?php foreach ( $google_models as $model_id ) : ?>
 											<option value="<?php echo esc_attr( $model_id ); ?>" <?php selected( $current_google_model, $model_id ); ?>>
 												<?php echo esc_html( $model_id ); ?>
@@ -176,8 +176,8 @@ if ( ! current_user_can( 'manage_options' ) ) {
 
 							printf(
 								// translators: 1: Click here link, 2: API name.
-								esc_html__( '%1$s to see how to configure %2$s in the AI SDK.', 'wpml-auto-translate-addon' ),
-								'<a href="' . esc_url( $settings['doc_url'] ) . '" target="_blank">' . esc_html__( 'Click here', 'wpml-auto-translate-addon' ) . '</a>',
+								esc_html__( '%1$s to see how to configure %2$s in the AI SDK.', 'automl-ai-translation-for-wpml' ),
+								'<a href="' . esc_url( $settings['doc_url'] ) . '" target="_blank">' . esc_html__( 'Click here', 'automl-ai-translation-for-wpml' ) . '</a>',
 								esc_html( $settings['name'] )
 							);
 							echo '<br/><br/>';
@@ -187,7 +187,7 @@ if ( ! current_user_can( 'manage_options' ) ) {
 						<hr style="margin: 2rem 0px;">
 
 						<div class="wpml-auto-dashboard-save-btn-container">
-							<?php submit_button( __( 'Save (via WP AI Client & WPML Addon)', 'wpml-auto-translate-addon' ) ); ?>
+							<?php submit_button( __( 'Save (via WP AI Client & WPML Addon)', 'automl-ai-translation-for-wpml' ) ); ?>
 						</div>
 					</div><!-- .wpml-auto-dashboard-api-settings-form -->
 				</form>

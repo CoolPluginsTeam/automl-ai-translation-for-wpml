@@ -10,8 +10,6 @@ import {translateFieldNameSort} from "../../../helper/index";
 class LocalAiTranslate {
     constructor({ sourceLang = 'en', targetLangs = false, updateContent, totalPosts, storeDispatch, postId, prefix, updateDestoryHandler }) {
         this.textContentObject = selectTargetContent(store.getState(), postId);
-  console.log("sourceLang", sourceLang);
-  console.log("targetLangs", targetLangs);
         this.totalTranslatedLength = Object.keys(this.textContentObject).length;
         this.sourceLang = sourceLang;
         this.targetLangs = targetLangs;
@@ -153,7 +151,7 @@ class LocalAiTranslate {
             this.targetLangs.forEach(lang => {
                 this.storeDispatch(unsetPendingPost(this.postId + '_' + lang));
                 this.storeDispatch(updateProgressStatus(100 / this.totalPosts));
-                this.storeDispatch(updateTranslatePostInfo({ [this.postId + '_' + lang]: { status: 'error', messageClass: 'error', errorMessage: __('No content to translate', 'autopoly-ai-translation-for-polylang-pro'), errorHtml: false } }));
+                this.storeDispatch(updateTranslatePostInfo({ [this.postId + '_' + lang]: { status: 'error', messageClass: 'error', errorMessage: __('No content to translate', 'automl-ai-translation-for-wpml'), errorHtml: false } }));
             });
         }
     }

@@ -38,28 +38,33 @@ class WPML_AT_Strings_Ajax
 	public static function get_strings()
 {
     if (! check_ajax_referer(CP_WPML_Google_Auto_Translate_Ajax::NONCE, 'nonce', false)) {
-        wp_send_json_error(array('msg' => __('Security check failed. Please refresh the page and try again.', 'wpml-auto-translate-addon')));
+        wp_send_json_error(array('msg' => __('Security check failed. Please refresh the page and try again.', 'automl-ai-translation-for-wpml')));
         return;
     }
 
     if (! current_user_can('manage_options')) {
-        wp_send_json_error(array('msg' => esc_html__('Insufficient permissions.', 'wpml-auto-translate-addon')));
+        wp_send_json_error(array('msg' => esc_html__('Insufficient permissions.', 'automl-ai-translation-for-wpml')));
     }
 
     if (! function_exists('icl_get_string_translations')) {
-        wp_send_json_error(array('msg' => esc_html__('WPML String Translation is not active.', 'wpml-auto-translate-addon')));
+        wp_send_json_error(array('msg' => esc_html__('WPML String Translation is not active.', 'automl-ai-translation-for-wpml')));
     }
 
     $target_lang = isset($_POST['target_lang']) ? sanitize_text_field(wp_unslash($_POST['target_lang'])) : '';
     if (empty($target_lang)) {
-        wp_send_json_error(array('msg' => esc_html__('Target language is required.', 'wpml-auto-translate-addon')));
+        wp_send_json_error(array('msg' => esc_html__('Target language is required.', 'automl-ai-translation-for-wpml')));
     }
 	global $wpdb;
 
 // Optional: only translate strings that are checked in the table
 $selected_string_ids = array();
 if (! empty($_POST['selected_string_ids'])) {
-    $decoded = json_decode(stripslashes((string) $_POST['selected_string_ids']), true);
+    $decoded = isset($_POST['selected_string_ids']) 
+    ? json_decode(
+        sanitize_text_field(wp_unslash($_POST['selected_string_ids'])), 
+        true
+    ) 
+    : array();
     if (is_array($decoded)) {
         $selected_string_ids = array_unique(array_map('absint', $decoded));
         $selected_string_ids = array_filter($selected_string_ids);
@@ -90,16 +95,24 @@ if (! empty($selected_string_ids)) {
     $strings_table = $wpdb->prefix . 'icl_strings';
     $trans_table   = $wpdb->prefix . 'icl_string_translations';
 
+    // Create placeholders for the IN clause
     $placeholders = implode(',', array_fill(0, count($selected_string_ids), '%d'));
-    $query = $wpdb->prepare(
-        "SELECT s.id, s.value, s.context, s.name " .
-        "FROM {$strings_table} s " .
-        "LEFT JOIN {$trans_table} t ON t.string_id = s.id AND t.language = %s " .
-        "WHERE s.id IN ($placeholders) AND (t.string_id IS NULL OR t.value = '') AND TRIM(COALESCE(s.value, '')) != ''",
+    
+    // Build query - escape table names inline, don't use sprintf
+    $query = "SELECT s.id, s.value, s.context, s.name 
+        FROM " . esc_sql($strings_table) . " s 
+        LEFT JOIN " . esc_sql($trans_table) . " t ON t.string_id = s.id AND t.language = %s 
+        WHERE s.id IN ($placeholders) 
+        AND (t.string_id IS NULL OR t.value = '') 
+        AND TRIM(COALESCE(s.value, '')) != ''";
+
+    // Prepare the query with values (language first, then IDs)
+    $prepared_query = $wpdb->prepare(
+        $query, // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
         array_merge(array($target_lang), $selected_string_ids)
     );
-
-    $results = $wpdb->get_results($query, ARRAY_A);
+    
+    $results = $wpdb->get_results($prepared_query, ARRAY_A); // phpcs:ignore
 
     foreach ($results as $row) {
         $rows[] = array(
@@ -186,7 +199,7 @@ if (! empty($selected_string_ids)) {
 			// Extract nonce from JSON for verification
 			$nonce = isset($json_data['nonce']) ? sanitize_text_field($json_data['nonce']) : '';
 			if (! wp_verify_nonce($nonce, CP_WPML_Google_Auto_Translate_Ajax::NONCE)) {
-				wp_send_json_error(array('msg' => esc_html__('Security check failed. Please refresh the page and try again.', 'wpml-auto-translate-addon')));
+				wp_send_json_error(array('msg' => esc_html__('Security check failed. Please refresh the page and try again.', 'automl-ai-translation-for-wpml')));
 				return;
 			}
 			$target_lang = isset($json_data['target_lang']) ? sanitize_text_field($json_data['target_lang']) : '';
@@ -195,25 +208,25 @@ if (! empty($selected_string_ids)) {
 		} else {
 			// Fallback to POST (backward compatibility)
 			if (! check_ajax_referer(CP_WPML_Google_Auto_Translate_Ajax::NONCE, 'nonce', false)) {
-				wp_send_json_error(array('msg' => esc_html__('Security check failed. Please refresh the page and try again.', 'wpml-auto-translate-addon')));
+				wp_send_json_error(array('msg' => esc_html__('Security check failed. Please refresh the page and try again.', 'automl-ai-translation-for-wpml')));
 				return;
 			}
 			$target_lang = isset($_POST['target_lang']) ? sanitize_text_field(wp_unslash($_POST['target_lang'])) : '';
 			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitized per item
-			$translated_strings = isset($_POST['translated_strings']) ? (array) $_POST['translated_strings'] : array();
-			$dashboard_stats = isset($_POST['dashboard_stats']) ? (array) $_POST['dashboard_stats'] : array();
+			$translated_strings = isset($_POST['translated_strings']) ? json_decode(sanitize_text_field(wp_unslash($_POST['translated_strings'])), true) : array();
+			$dashboard_stats = isset($_POST['dashboard_stats']) ? json_decode(sanitize_text_field(wp_unslash($_POST['dashboard_stats'])), true) : array();
 		}
 
 		if (! current_user_can('manage_options')) {
-			wp_send_json_error(array('msg' => esc_html__('Insufficient permissions.', 'wpml-auto-translate-addon')));
+			wp_send_json_error(array('msg' => esc_html__('Insufficient permissions.', 'automl-ai-translation-for-wpml')));
 		}
 
 		if (! function_exists('icl_add_string_translation')) {
-			wp_send_json_error(array('msg' => esc_html__('WPML String Translation is not active.', 'wpml-auto-translate-addon')));
+			wp_send_json_error(array('msg' => esc_html__('WPML String Translation is not active.', 'automl-ai-translation-for-wpml')));
 		}
 
 		if (empty($target_lang) || empty($translated_strings)) {
-			wp_send_json_error(array('msg' => esc_html__('Missing target language or translated strings.', 'wpml-auto-translate-addon')));
+			wp_send_json_error(array('msg' => esc_html__('Missing target language or translated strings.', 'automl-ai-translation-for-wpml')));
 		}
 
 		$status = defined('ICL_TM_COMPLETE') ? ICL_TM_COMPLETE : 10;
@@ -250,36 +263,35 @@ if (! empty($selected_string_ids)) {
 		}
 
 		if (empty($rows_data)) {
-			wp_send_json_error(array('msg' => esc_html__('No valid strings to save.', 'wpml-auto-translate-addon')));
+			wp_send_json_error(array('msg' => esc_html__('No valid strings to save.', 'automl-ai-translation-for-wpml')));
 			return;
 		}
 
 		// Build the bulk INSERT query with ON DUPLICATE KEY UPDATE
-		// This handles both new inserts and updates to existing translations
-		$values_sql = array();
-		foreach ($rows_data as $row_data) {
-			$values_sql[] = $wpdb->prepare(
-				'(%d, %s, %s, %d, %d, %s)',
-				$row_data['string_id'],
-				$row_data['language'],
-				$row_data['value'],
-				$row_data['status'],
-				$row_data['translator_id'],
-				$row_data['translation_date']
-			);
-		}
+// This handles both new inserts and updates to existing translations
+$values_sql = array();
+foreach ($rows_data as $row_data) {
+    $values_sql[] = $wpdb->prepare(
+        '(%d, %s, %s, %d, %d, %s)',
+        $row_data['string_id'],
+        $row_data['language'],
+        $row_data['value'],
+        $row_data['status'],
+        $row_data['translator_id'],
+        $row_data['translation_date']
+    );
+}
 
-		$query = "INSERT INTO {$table_name} (string_id, language, value, status, translator_id, translation_date) VALUES ";
-		$query .= implode(', ', $values_sql);
-		$query .= " ON DUPLICATE KEY UPDATE 
-			value = VALUES(value),
-			status = VALUES(status),
-			translator_id = VALUES(translator_id),
-			translation_date = VALUES(translation_date)";
+// Build complete query in one statement with escaped table name
+$query = sprintf(
+    "INSERT INTO %s (string_id, language, value, status, translator_id, translation_date) VALUES %s ON DUPLICATE KEY UPDATE value = VALUES(value), status = VALUES(status), translator_id = VALUES(translator_id), translation_date = VALUES(translation_date)",
+    esc_sql($table_name),
+    implode(', ', $values_sql)
+);
 
-		// Execute the bulk insert/update
-		$result = $wpdb->query($query);
+// Execute the bulk insert/update
 
+$result = $wpdb->query($query); // phpcs:ignore
 		$saved = count($string_ids);
 
 		// Clear WPML cache to ensure translations are immediately available
@@ -320,7 +332,7 @@ if (! empty($selected_string_ids)) {
 			wp_send_json_success(array(
 			'msg'   => sprintf(
 				/* translators: %d: number of strings */
-				esc_html__('%d string(s) translated and saved.', 'wpml-auto-translate-addon'),
+				esc_html__('%d string(s) translated and saved.', 'automl-ai-translation-for-wpml'),
 				$saved
 			),
 			'saved' => $saved,

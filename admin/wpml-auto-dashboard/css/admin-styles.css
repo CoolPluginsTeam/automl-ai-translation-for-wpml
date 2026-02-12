@@ -95,7 +95,7 @@ WPML Auto Dashboard - Admin Panel Styles
     width: calc(100% + 20px);
     margin: 0 0 0 -20px;
     box-shadow: var(--shadow);
-    height: 48px;
+    height: 70px;
 }
 
 .wpml-auto-dashboard-social-icons a:focus {
@@ -448,7 +448,11 @@ ul.wpml-auto-dashboard-sts-btm li span:first-child {
 ================================================ */
 .wpml-auto-dashboard-wrapper .tab-content {
     display: flex;
-    gap: 25px;
+    gap: 25px !important;
+}
+
+.nav-tab-wrapper{
+    margin-top: 70px !important;
 }
 
 .wpml-auto-dashboard-free-vs-pro .header,

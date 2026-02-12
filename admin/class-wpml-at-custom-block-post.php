@@ -129,19 +129,19 @@ class WPML_AT_Custom_Block_Post {
 	 */
 	public function register_custom_post_type() {
 		$labels = array(
-			'name'               => _x( 'WPML Auto Translate Blocks', 'post type general name', 'wpml-auto-translate-addon' ),
-			'singular_name'      => _x( 'WPML Auto Translate Block', 'post type singular name', 'wpml-auto-translate-addon' ),
-			'menu_name'          => _x( 'Auto Translate Blocks', 'admin menu', 'wpml-auto-translate-addon' ),
-			'name_admin_bar'     => _x( 'Auto Translate Block', 'add new on admin bar', 'wpml-auto-translate-addon' ),
-			'add_new'            => _x( 'Add New', 'Auto Translate Block', 'wpml-auto-translate-addon' ),
-			'add_new_item'       => __( 'Add New Auto Translate Block', 'wpml-auto-translate-addon' ),
-			'new_item'           => __( 'New Auto Translate Block', 'wpml-auto-translate-addon' ),
-			'edit_item'          => __( 'Edit Auto Translate Block', 'wpml-auto-translate-addon' ),
-			'view_item'          => __( 'View Auto Translate Block', 'wpml-auto-translate-addon' ),
-			'all_items'          => __( 'All Auto Translate Blocks', 'wpml-auto-translate-addon' ),
-			'search_items'       => __( 'Search Auto Translate Blocks', 'wpml-auto-translate-addon' ),
-			'not_found'          => __( 'No Auto Translate Blocks found.', 'wpml-auto-translate-addon' ),
-			'not_found_in_trash' => __( 'No Auto Translate Blocks found in Trash.', 'wpml-auto-translate-addon' ),
+			'name'               => _x( 'WPML Auto Translate Blocks', 'post type general name', 'automl-ai-translation-for-wpml' ),
+			'singular_name'      => _x( 'WPML Auto Translate Block', 'post type singular name', 'automl-ai-translation-for-wpml' ),
+			'menu_name'          => _x( 'Auto Translate Blocks', 'admin menu', 'automl-ai-translation-for-wpml' ),
+			'name_admin_bar'     => _x( 'Auto Translate Block', 'add new on admin bar', 'automl-ai-translation-for-wpml' ),
+			'add_new'            => _x( 'Add New', 'Auto Translate Block', 'automl-ai-translation-for-wpml' ),
+			'add_new_item'       => __( 'Add New Auto Translate Block', 'automl-ai-translation-for-wpml' ),
+			'new_item'           => __( 'New Auto Translate Block', 'automl-ai-translation-for-wpml' ),
+			'edit_item'          => __( 'Edit Auto Translate Block', 'automl-ai-translation-for-wpml' ),
+			'view_item'          => __( 'View Auto Translate Block', 'automl-ai-translation-for-wpml' ),
+			'all_items'          => __( 'All Auto Translate Blocks', 'automl-ai-translation-for-wpml' ),
+			'search_items'       => __( 'Search Auto Translate Blocks', 'automl-ai-translation-for-wpml' ),
+			'not_found'          => __( 'No Auto Translate Blocks found.', 'automl-ai-translation-for-wpml' ),
+			'not_found_in_trash' => __( 'No Auto Translate Blocks found in Trash.', 'automl-ai-translation-for-wpml' ),
 		);
 
 		$args = array(
@@ -192,7 +192,7 @@ class WPML_AT_Custom_Block_Post {
 		$existing_post = $query->posts ? $query->posts[0] : null;
 
 		if ( ! $existing_post ) {
-			$post_title = esc_html__( 'Add More Gutenberg Blocks', 'wpml-auto-translate-addon' );
+			$post_title = esc_html__( 'Add More Gutenberg Blocks', 'automl-ai-translation-for-wpml' );
 			$post_id = wp_insert_post(
 				array(
 					'post_title'   => $post_title,
@@ -212,12 +212,12 @@ class WPML_AT_Custom_Block_Post {
 	 */
 	public function ajax_get_custom_blocks_content() {
 		if ( ! check_ajax_referer( 'wpml_at_block_update_nonce', 'wpml_at_nonce', false ) ) {
-			wp_send_json_error( __( 'Invalid security token sent.', 'wpml-auto-translate-addon' ) );
+			wp_send_json_error( __( 'Invalid security token sent.', 'automl-ai-translation-for-wpml' ) );
 			wp_die( '0', 400 );
 		}
 
 		if ( ! current_user_can( 'edit_posts' ) ) {
-			wp_send_json_error( __( 'Unauthorized', 'wpml-auto-translate-addon' ), 403 );
+			wp_send_json_error( __( 'Unauthorized', 'automl-ai-translation-for-wpml' ), 403 );
 			wp_die( '0', 403 );
 		}
 
@@ -226,7 +226,7 @@ class WPML_AT_Custom_Block_Post {
 		if ( $custom_content && is_string( $custom_content ) && ! empty( trim( $custom_content ) ) ) {
 			return wp_send_json_success( array( 'block_data' => $custom_content ) );
 		} else {
-			return wp_send_json_success( array( 'message' => __( 'No custom blocks found.', 'wpml-auto-translate-addon' ) ) );
+			return wp_send_json_success( array( 'message' => __( 'No custom blocks found.', 'automl-ai-translation-for-wpml' ) ) );
 		}
 		exit();
 	}
@@ -236,12 +236,12 @@ class WPML_AT_Custom_Block_Post {
 	 */
 	public function ajax_update_custom_blocks_content() {
 		if ( ! check_ajax_referer( 'wpml_at_block_update_nonce', 'wpml_at_nonce', false ) ) {
-			wp_send_json_error( __( 'Invalid security token sent.', 'wpml-auto-translate-addon' ) );
+			wp_send_json_error( __( 'Invalid security token sent.', 'automl-ai-translation-for-wpml' ) );
 			wp_die( '0', 400 );
 		}
 
 		if ( ! current_user_can( 'edit_posts' ) ) {
-			wp_send_json_error( __( 'Unauthorized', 'wpml-auto-translate-addon' ), 403 );
+			wp_send_json_error( __( 'Unauthorized', 'automl-ai-translation-for-wpml' ), 403 );
 			wp_die( '0', 403 );
 		}
 
@@ -249,14 +249,14 @@ class WPML_AT_Custom_Block_Post {
 		$json = isset( $_POST['save_block_data'] ) ? sanitize_textarea_field( wp_unslash( $_POST['save_block_data'] ) ) : false;
 		
 		if ( false === $json || empty( $json ) ) {
-			wp_send_json_error( __( 'No block data provided.', 'wpml-auto-translate-addon' ) );
+			wp_send_json_error( __( 'No block data provided.', 'automl-ai-translation-for-wpml' ) );
 			wp_die( '0', 400 );
 		}
 		
 		$updated_blocks_data = json_decode( $json, true );
 		
 		if ( json_last_error() !== JSON_ERROR_NONE ) {
-			wp_send_json_error( __( 'Invalid JSON', 'wpml-auto-translate-addon' ) );
+			wp_send_json_error( __( 'Invalid JSON', 'automl-ai-translation-for-wpml' ) );
 			wp_die( '0', 400 );
 		}
 
@@ -285,7 +285,7 @@ class WPML_AT_Custom_Block_Post {
 			delete_option( 'wpml_at_custom_block_data' );
 		}
 
-		return wp_send_json_success( array( 'message' => __( 'WPML Auto Translate: Custom Blocks data updated successfully', 'wpml-auto-translate-addon' ) ) );
+		return wp_send_json_success( array( 'message' => __( 'WPML Auto Translate: Custom Blocks data updated successfully', 'automl-ai-translation-for-wpml' ) ) );
 	}
 
 	/**

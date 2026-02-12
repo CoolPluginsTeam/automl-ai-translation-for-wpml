@@ -90,12 +90,12 @@ if ( ! class_exists( 'WPML_Auto_Dashboard' ) ) {
 			$file_prefix = 'admin/wpml-auto-dashboard/views/';
 
 			$valid_tabs = array(
-				'dashboard'       => __( 'Dashboard', 'wpml-auto-translate-addon' ),
-				'ai-translations' => __( 'AI Translations', 'wpml-auto-translate-addon' ),
-				'settings'        => __( 'Settings', 'wpml-auto-translate-addon' ),
-				'license'         => __( 'License', 'wpml-auto-translate-addon' ),
-				'free-vs-pro'     => __( 'Free vs Pro', 'wpml-auto-translate-addon' ),
-				'support-blocks'  => __( 'Supported Blocks', 'wpml-auto-translate-addon' ),
+				'dashboard'       => __( 'Dashboard', 'automl-ai-translation-for-wpml' ),
+				'ai-translations' => __( 'AI Translations', 'automl-ai-translation-for-wpml' ),
+				'settings'        => __( 'Settings', 'automl-ai-translation-for-wpml' ),
+				'license'         => __( 'License', 'automl-ai-translation-for-wpml' ),
+				'free-vs-pro'     => __( 'Free vs Pro', 'automl-ai-translation-for-wpml' ),
+				'support-blocks'  => __( 'Supported Blocks', 'automl-ai-translation-for-wpml' ),
 			);
 
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -106,18 +106,18 @@ if ( ! class_exists( 'WPML_Auto_Dashboard' ) ) {
 				<div class="wpml-auto-dashboard-header">
 					<div class="wpml-auto-dashboard-header-left">
 						<a href="<?php echo esc_url( admin_url( 'admin.php?page=wpml-auto-dashboard&tab=dashboard' ) ); ?>" class="wpml-auto-dashboard-logo-link">
-							<img src="<?php echo esc_url( WPML_AT_PLUGIN_URL . 'admin/wpml-auto-dashboard/images/polylang-addon-logo.svg' ); ?>" alt="<?php esc_attr_e( 'WPML Auto Logo', 'wpml-auto-translate-addon' ); ?>">
+							<img src="<?php echo esc_url( WPML_AT_PLUGIN_URL . 'admin/wpml-auto-dashboard/images/polylang-addon-logo.svg' ); ?>" alt="<?php esc_attr_e( 'WPML Auto Logo', 'automl-ai-translation-for-wpml' ); ?>">
 						</a>
 						<div class="wpml-auto-dashboard-tab-title">
 							<span>↳</span> <?php echo esc_html( $valid_tabs[ $current_tab ] ); ?>
 						</div>
 					</div>
 					<div class="wpml-auto-dashboard-header-right">
-						<span><?php echo esc_html__( 'AutoML - AI Translation for WPML', 'wpml-auto-translate-addon' ); ?></span>
+						<span><?php echo esc_html__( 'AutoML - AI Translation for WPML', 'automl-ai-translation-for-wpml' ); ?></span>
 					</div>
 				</div>
 
-				<nav class="nav-tab-wrapper" aria-label="<?php esc_attr_e( 'Dashboard navigation', 'wpml-auto-translate-addon' ); ?>">
+				<nav class="nav-tab-wrapper" aria-label="<?php esc_attr_e( 'Dashboard navigation', 'automl-ai-translation-for-wpml' ); ?>">
 					<?php foreach ( $valid_tabs as $tab_key => $tab_title ) : ?>
 						<a href="<?php echo esc_url( admin_url( 'admin.php?page=wpml-auto-dashboard&tab=' . $tab_key ) ); ?>"
 							class="nav-tab <?php echo esc_attr( $tab === $tab_key ? 'nav-tab-active' : '' ); ?>">
@@ -133,7 +133,7 @@ if ( ! class_exists( 'WPML_Auto_Dashboard' ) ) {
 					if ( file_exists( $view_file ) ) {
 						require $view_file;
 					} else {
-						echo '<p>' . esc_html__( 'View file not found.', 'wpml-auto-translate-addon' ) . '</p>';
+						echo '<p>' . esc_html__( 'View file not found.', 'automl-ai-translation-for-wpml' ) . '</p>';
 					}
 
 					// Sidebar (everything except support-blocks).

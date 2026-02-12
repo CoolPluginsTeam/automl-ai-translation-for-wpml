@@ -48,11 +48,11 @@ const App = ({
   const {
     languageObject = {}
   } = automl_wpml_bulk_translate_object || {};
-  const emptyPostIdsErrorMessage = (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.sprintf)((0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('Please select at least one %s for translation.', 'autopoly-ai-translation-for-polylang-pro'), automl_wpml_bulk_translate_object.post_label);
+  const emptyPostIdsErrorMessage = (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.sprintf)((0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Please select at least one %s for translation.", "automl-ai-translation-for-wpml"), automl_wpml_bulk_translate_object.post_label);
   const [selectedLanguages, setSelectedLanguages] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)([]);
   // Don't show error for string translation page even if postIds is empty
   const isStringTranslationPage = window.wpmlIsStringTranslationPage || false;
-  const [errorMessage, setErrorMessage] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(postIds.length === 0 && !isStringTranslationPage ? emptyPostIdsErrorMessage : '');
+  const [errorMessage, setErrorMessage] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(postIds.length === 0 && !isStringTranslationPage ? emptyPostIdsErrorMessage : "");
   const [settingModalVisibility, setSettingModalVisibility] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(false);
   const [statusModalVisibility, setStatusModalVisibility] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(false);
   const translatePostsCount = (0,react_redux__WEBPACK_IMPORTED_MODULE_3__.useSelector)(_redux_store_features_selectors__WEBPACK_IMPORTED_MODULE_5__.selectCountInfo).totalPosts;
@@ -66,9 +66,9 @@ const App = ({
   };
   (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
     const checkStatus = async () => {
-      const status = await _components_translate_provider_local_ai_local_ai_translate__WEBPACK_IMPORTED_MODULE_6__["default"].languageSupportedStatus('en', 'hi', 'English', 'Hindi');
-      if (status.type === 'browser-not-supported' || status.type === 'translation-api-not-available' || status.type === 'browser-not-supported') {
-        setLocalAiModalError((0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)(status.html[0].outerHTML, 'autopoly-ai-translation-for-polylang-pro'));
+      const status = await _components_translate_provider_local_ai_local_ai_translate__WEBPACK_IMPORTED_MODULE_6__["default"].languageSupportedStatus("en", "hi", "English", "Hindi");
+      if (status.type === "browser-not-supported" || status.type === "translation-api-not-available" || status.type === "browser-not-supported") {
+        setLocalAiModalError((0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)(status.html[0].outerHTML, "automl-ai-translation-for-wpml"));
       }
       setIsLoading(false);
     };
@@ -81,7 +81,7 @@ const App = ({
   }, [statusModalVisibility, settingModalVisibility, dispatch]);
   const settingModalVisibilityHandler = async () => {
     if (selectedLanguages.length === 0 && !settingModalVisibility) {
-      setErrorMessage((0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('Please select at least one language', 'autopoly-ai-translation-for-polylang-pro'));
+      setErrorMessage((0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Please select at least one language", "automl-ai-translation-for-wpml"));
       setErrorModal(true);
       return;
     }
@@ -91,7 +91,6 @@ const App = ({
     const {
       value
     } = e.target;
-    console.log('value', value);
     const checked = e.target.checked;
     if (checked) {
       setSelectedLanguages([...selectedLanguages, value]);
@@ -127,7 +126,7 @@ const App = ({
     if (!translatePostsCount && !settingModalVisibility && statusModalVisibility) {
       cls.push(`${prefix}-empty-posts`);
     }
-    return cls.join(' ');
+    return cls.join(" ");
   };
   const SelectLanguageNotice = () => {
     const notices = [];
@@ -162,14 +161,14 @@ const App = ({
       children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_11__.jsxs)("div", {
         className: `${prefix}-header`,
         children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_11__.jsx)("h2", {
-          children: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('Step 1: Select Languages', 'autopoly-ai-translation-for-polylang-pro')
+          children: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Step 1: Select Languages", "automl-ai-translation-for-wpml")
         }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_11__.jsx)("span", {
           className: "close",
           onClick: destroyApp,
-          title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('Close', 'autopoly-ai-translation-for-polylang-pro'),
+          title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Close", "automl-ai-translation-for-wpml"),
           children: "\xD7"
         })]
-      }), errorMessage && errorMessage !== '' ? errorModal ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_11__.jsx)(_components_error_modal_box__WEBPACK_IMPORTED_MODULE_7__["default"], {
+      }), errorMessage && errorMessage !== "" ? errorModal ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_11__.jsx)(_components_error_modal_box__WEBPACK_IMPORTED_MODULE_7__["default"], {
         message: errorMessage,
         onClose: closeErrorModal
       }) : /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_11__.jsx)("div", {
@@ -217,7 +216,7 @@ const App = ({
               checked: selectedLanguages.length === Object.keys(languageObject).length
             }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_11__.jsx)("label", {
               htmlFor: "select-all-languages",
-              children: selectedLanguages.length === Object.keys(languageObject).length ? (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('Unselect All', 'autopoly-ai-translation-for-polylang-pro') : (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('Select All', 'autopoly-ai-translation-for-polylang-pro')
+              children: selectedLanguages.length === Object.keys(languageObject).length ? (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Unselect All", "automl-ai-translation-for-wpml") : (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Select All", "automl-ai-translation-for-wpml")
             })]
           })]
         }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_11__.jsxs)("div", {
@@ -225,14 +224,14 @@ const App = ({
           children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_11__.jsx)("button", {
             className: `${prefix}-footer-button button button-primary`,
             onClick: destroyApp,
-            title: !postIds.length && !isStringTranslationPage ? emptyPostIdsErrorMessage : '',
-            children: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('Close', 'autopoly-ai-translation-for-polylang-pro')
+            title: !postIds.length && !isStringTranslationPage ? emptyPostIdsErrorMessage : "",
+            children: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Close", "automl-ai-translation-for-wpml")
           }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_11__.jsx)("button", {
             className: `${prefix}-footer-button button button-primary`,
             onClick: settingModalVisibilityHandler,
             disabled: !postIds.length && !isStringTranslationPage || !selectedLanguages.length,
-            title: !postIds.length && !isStringTranslationPage ? emptyPostIdsErrorMessage : !selectedLanguages.length ? (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('Please select at least one language', 'autopoly-ai-translation-for-polylang-pro') : '',
-            children: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('Translate', 'autopoly-ai-translation-for-polylang-pro')
+            title: !postIds.length && !isStringTranslationPage ? emptyPostIdsErrorMessage : !selectedLanguages.length ? (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Please select at least one language", "automl-ai-translation-for-wpml") : "",
+            children: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Translate", "automl-ai-translation-for-wpml")
           })]
         })]
       })]
@@ -309,13 +308,13 @@ const initBulkTranslate = async (postKeys = [], nonce, storeDispatch, prefix, up
         return;
       }
       for (const lang of languages) {
-        storeDispatch((0,_redux_store_features_actions__WEBPACK_IMPORTED_MODULE_3__.unsetPendingPost)(postId + '_' + lang));
+        storeDispatch((0,_redux_store_features_actions__WEBPACK_IMPORTED_MODULE_3__.unsetPendingPost)(postId + "_" + lang));
         storeDispatch((0,_redux_store_features_actions__WEBPACK_IMPORTED_MODULE_3__.updateProgressStatus)(100 / pendingPosts.length));
         storeDispatch((0,_redux_store_features_actions__WEBPACK_IMPORTED_MODULE_3__.updateTranslatePostInfo)({
-          [postId + '_' + lang]: {
-            status: 'error',
-            messageClass: 'error',
-            errorMessage: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)('This post editor type is not supported for translation', 'autopoly-ai-translation-for-polylang-pro')
+          [postId + "_" + lang]: {
+            status: "error",
+            messageClass: "error",
+            errorMessage: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)("This post editor type is not supported for translation", "automl-ai-translation-for-wpml")
           }
         }));
       }
@@ -410,48 +409,48 @@ const updateContent = async ({
   const bulkTranslateRouteUrl = automl_wpml_bulk_translate_object.bulkTranslateRouteUrl;
   const nonce = automl_wpml_bulk_translate_object.nonce;
   storeDispatch((0,_redux_store_features_actions__WEBPACK_IMPORTED_MODULE_3__.updateTranslatePostInfo)({
-    [postId + '_' + lang]: {
-      status: 'in-progress',
-      messageClass: 'in-progress'
+    [postId + "_" + lang]: {
+      status: "in-progress",
+      messageClass: "in-progress"
     }
   }));
-  let endPoint = 'create-translate-post';
+  let endPoint = "create-translate-post";
   let body = {
     target_language: lang,
     editor_type: editorType,
     privateKey: createTranslatePostNonce,
     source_language: sourceLang
   };
-  if (editorType === 'taxonomy') {
-    endPoint = 'create-translate-taxonomy';
+  if (editorType === "taxonomy") {
+    endPoint = "create-translate-taxonomy";
     body.term_id = postId;
-    body.taxonomy_name = updateContent.title || '';
-    body.taxonomy_description = updateContent.content || '';
+    body.taxonomy_name = updateContent.title || "";
+    body.taxonomy_description = updateContent.content || "";
     body.taxonomy = automl_wpml_bulk_translate_object.taxonomy_page;
-    if (updateContent.post_name && updateContent.post_name.trim() !== '') {
+    if (updateContent.post_name && updateContent.post_name.trim() !== "") {
       body.taxonomy_slug = updateContent.post_name;
     }
   } else {
     body.post_id = postId;
-    body.post_title = updateContent.title || '';
-    body.post_name = updateContent.post_name || '';
-    body.post_content = updateContent.content ? JSON.stringify(updateContent.content) : '';
-    body.post_excerpt = updateContent.excerpt || '';
+    body.post_title = updateContent.title || "";
+    body.post_name = updateContent.post_name || "";
+    body.post_content = updateContent.content ? JSON.stringify(updateContent.content) : "";
+    body.post_excerpt = updateContent.excerpt || "";
   }
   await fetch(bulkTranslateRouteUrl + `/${postId}/${endPoint}`, {
-    method: 'POST',
+    method: "POST",
     body: new URLSearchParams(body),
     headers: {
-      'X-WP-Nonce': nonce,
-      'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-      'Accept': 'application/json'
+      "X-WP-Nonce": nonce,
+      "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+      Accept: "application/json"
     }
   }).then(async response => {
     const data = await response.json();
     let updateData = {};
     if (data.success && data.data.post_id) {
       const extraData = {};
-      if (editorType === 'taxonomy') {
+      if (editorType === "taxonomy") {
         extraData.taxonomy = automl_wpml_bulk_translate_object.taxonomy_page;
       }
       (0,_helper__WEBPACK_IMPORTED_MODULE_1__.updateTranslateData)({
@@ -464,92 +463,92 @@ const updateContent = async ({
         updateTranslateDataNonce: data?.data?.update_translate_data_nonce,
         extraData
       });
-      data.data.post_title = '' === data.data.post_title ? (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)('N/A', 'autopoly-ai-translation-for-polylang-pro') : data.data.post_title;
+      data.data.post_title = "" === data.data.post_title ? (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)("N/A", "automl-ai-translation-for-wpml") : data.data.post_title;
       updateData = {
         targetPostId: data.data.post_id,
         targetPostTitle: data.data.post_title,
         targetLanguage: lang,
         postLink: data.data.post_link,
         postEditLink: data.data.post_edit_link,
-        status: 'completed',
-        messageClass: 'success'
+        status: "completed",
+        messageClass: "success"
       };
       storeDispatch((0,_redux_store_features_actions__WEBPACK_IMPORTED_MODULE_3__.updateCountInfo)({
         postsTranslated: _redux_store_store__WEBPACK_IMPORTED_MODULE_4__.store.getState().countInfo.postsTranslated + 1
       }));
     } else {
       if (data.data && data.data.error) {
-        let errorHtml = 'Error Code:' + data.data.status;
-        if (typeof data.data.error === 'string') {
-          errorHtml += '<br>Error Message:' + data.data.error + '(' + data.data.error + ')';
+        let errorHtml = "Error Code:" + data.data.status;
+        if (typeof data.data.error === "string") {
+          errorHtml += "<br>Error Message:" + data.data.error + "(" + data.data.error + ")";
         }
-        if (typeof data.data.error === 'object') {
-          errorHtml += '<br>Error Message:' + JSON.stringify(data.data.error);
+        if (typeof data.data.error === "object") {
+          errorHtml += "<br>Error Message:" + JSON.stringify(data.data.error);
         }
         updateData = {
-          status: 'error',
-          messageClass: 'error',
-          errorMessage: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)('Post not created. Please try again.', 'autopoly-ai-translation-for-polylang-pro'),
-          errorHtml: '<div class="automl-wpml-error-html">' + errorHtml + '</div>'
+          status: "error",
+          messageClass: "error",
+          errorMessage: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)("Post not created. Please try again.", "automl-ai-translation-for-wpml"),
+          errorHtml: '<div class="automl-wpml-error-html">' + errorHtml + "</div>"
         };
       } else if (data.code && data.message) {
         updateData = {
-          status: 'error',
-          messageClass: 'error',
-          errorMessage: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)('Post not created. Please try again.', 'autopoly-ai-translation-for-polylang-pro'),
-          errorHtml: '<div class="automl-wpml-error-html">' + data.message + '</div>'
+          status: "error",
+          messageClass: "error",
+          errorMessage: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)("Post not created. Please try again.", "automl-ai-translation-for-wpml"),
+          errorHtml: '<div class="automl-wpml-error-html">' + data.message + "</div>"
         };
       } else if (!data.success || data.data) {
         updateData = {
-          status: 'error',
-          messageClass: 'error',
-          errorMessage: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)('Post not created. Please try again.', 'autopoly-ai-translation-for-polylang-pro'),
-          errorHtml: '<div class="automl-wpml-error-html">' + data.data + '</div>'
+          status: "error",
+          messageClass: "error",
+          errorMessage: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)("Post not created. Please try again.", "automl-ai-translation-for-wpml"),
+          errorHtml: '<div class="automl-wpml-error-html">' + data.data + "</div>"
         };
       } else if (!data.data.post_id) {
         updateData = {
-          status: 'error',
-          messageClass: 'error',
-          errorMessage: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)('Post not created. Please try again.', 'autopoly-ai-translation-for-polylang-pro'),
-          errorHtml: '<div class="automl-wpml-error-html">' + data.data + '</div>'
+          status: "error",
+          messageClass: "error",
+          errorMessage: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)("Post not created. Please try again.", "automl-ai-translation-for-wpml"),
+          errorHtml: '<div class="automl-wpml-error-html">' + data.data + "</div>"
         };
-      } else if (typeof data === 'string') {
+      } else if (typeof data === "string") {
         updateData = {
-          status: 'error',
-          messageClass: 'error',
-          errorMessage: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)('Post not created. Please try again.', 'autopoly-ai-translation-for-polylang-pro'),
-          errorHtml: '<div class="automl-wpml-error-html">' + data + '</div>'
+          status: "error",
+          messageClass: "error",
+          errorMessage: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)("Post not created. Please try again.", "automl-ai-translation-for-wpml"),
+          errorHtml: '<div class="automl-wpml-error-html">' + data + "</div>"
         };
       }
     }
-    storeDispatch((0,_redux_store_features_actions__WEBPACK_IMPORTED_MODULE_3__.unsetPendingPost)(postId + '_' + lang));
-    storeDispatch((0,_redux_store_features_actions__WEBPACK_IMPORTED_MODULE_3__.updateCompletedPosts)([postId + '_' + lang]));
+    storeDispatch((0,_redux_store_features_actions__WEBPACK_IMPORTED_MODULE_3__.unsetPendingPost)(postId + "_" + lang));
+    storeDispatch((0,_redux_store_features_actions__WEBPACK_IMPORTED_MODULE_3__.updateCompletedPosts)([postId + "_" + lang]));
     storeDispatch((0,_redux_store_features_actions__WEBPACK_IMPORTED_MODULE_3__.updateTranslatePostInfo)({
-      [postId + '_' + lang]: updateData
+      [postId + "_" + lang]: updateData
     }));
   }).catch(error => {
     console.log(error);
-    storeDispatch((0,_redux_store_features_actions__WEBPACK_IMPORTED_MODULE_3__.unsetPendingPost)(postId + '_' + lang));
-    storeDispatch((0,_redux_store_features_actions__WEBPACK_IMPORTED_MODULE_3__.updateCompletedPosts)([postId + '_' + lang]));
+    storeDispatch((0,_redux_store_features_actions__WEBPACK_IMPORTED_MODULE_3__.unsetPendingPost)(postId + "_" + lang));
+    storeDispatch((0,_redux_store_features_actions__WEBPACK_IMPORTED_MODULE_3__.updateCompletedPosts)([postId + "_" + lang]));
     let errorHtml = error;
     if (error.message) {
       errorHtml = error.message;
     }
     if (error.data && error.data.status) {
-      errorHtml = 'Error Code:' + error.data.status;
-      if (typeof error.data.error === 'string') {
-        errorHtml += '<br>Error Message:' + error.data.error;
+      errorHtml = "Error Code:" + error.data.status;
+      if (typeof error.data.error === "string") {
+        errorHtml += "<br>Error Message:" + error.data.error;
       }
-      if (typeof error.data.error === 'object') {
-        errorHtml += '<br>Error Message:' + JSON.stringify(error.data.error);
+      if (typeof error.data.error === "object") {
+        errorHtml += "<br>Error Message:" + JSON.stringify(error.data.error);
       }
     }
     storeDispatch((0,_redux_store_features_actions__WEBPACK_IMPORTED_MODULE_3__.updateTranslatePostInfo)({
-      [postId + '_' + lang]: {
-        status: 'error',
-        messageClass: 'error',
-        errorMessage: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)('Post not created. Please try again.', 'autopoly-ai-translation-for-polylang-pro'),
-        errorHtml: '<div class="automl-wpml-error-html">' + errorHtml + '</div>'
+      [postId + "_" + lang]: {
+        status: "error",
+        messageClass: "error",
+        errorMessage: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)("Post not created. Please try again.", "automl-ai-translation-for-wpml"),
+        errorHtml: '<div class="automl-wpml-error-html">' + errorHtml + "</div>"
       }
     }));
   });
@@ -568,18 +567,18 @@ const bulkTranslateEntries = async ({
     lang: JSON.stringify(langs),
     privateKey: bulkTranslatePrivateKey
   };
-  let postUrl = 'automl_wpml_/bulk-translate-entries';
-  if (automl_wpml_bulk_translate_object.taxonomy_page && '' !== automl_wpml_bulk_translate_object.taxonomy_page) {
+  let postUrl = "automl_wpml_/bulk-translate-entries";
+  if (automl_wpml_bulk_translate_object.taxonomy_page && "" !== automl_wpml_bulk_translate_object.taxonomy_page) {
     body.taxonomy = automl_wpml_bulk_translate_object.taxonomy_page;
-    postUrl = 'automl_wpml_/bulk-translate-taxonomy-entries';
+    postUrl = "automl_wpml_/bulk-translate-taxonomy-entries";
   }
-  const untranslatedPosts = await fetch(bulkTranslateRouteUrl + '/' + postUrl, {
-    method: 'POST',
+  const untranslatedPosts = await fetch(bulkTranslateRouteUrl + "/" + postUrl, {
+    method: "POST",
     body: new URLSearchParams(body),
     headers: {
-      'X-WP-Nonce': nonce,
-      'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-      'Accept': 'application/json'
+      "X-WP-Nonce": nonce,
+      "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+      Accept: "application/json"
     }
   });
   const untranslatedPostsData = await untranslatedPosts.json();
@@ -611,7 +610,7 @@ const bulkTranslateEntries = async ({
   if (!untranslatedPostsData) {
     return {
       success: false,
-      message: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)('No posts to translate data undefined', 'autopoly-ai-translation-for-polylang-pro')
+      message: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)("No posts to translate data undefined", "automl-ai-translation-for-wpml")
     };
   }
   if (!untranslatedPostsData.success) {
@@ -623,19 +622,19 @@ const bulkTranslateEntries = async ({
   if (!untranslatedPostsData.data) {
     return {
       success: false,
-      message: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)('No posts to translate untranslated data not found', 'autopoly-ai-translation-for-polylang-pro')
+      message: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)("No posts to translate untranslated data not found", "automl-ai-translation-for-wpml")
     };
   }
   if (!untranslatedPostsData.data.posts) {
     return {
       success: false,
-      message: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)('No posts to translate untranslated posts data not found', 'autopoly-ai-translation-for-polylang-pro')
+      message: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)("No posts to translate untranslated posts data not found", "automl-ai-translation-for-wpml")
     };
   }
   if (!untranslatedPostsData.data.CreateTranslatePostNonce) {
     return {
       success: false,
-      message: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)('No create translate post nonce', 'autopoly-ai-translation-for-polylang-pro')
+      message: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)("No create translate post nonce", "automl-ai-translation-for-wpml")
     };
   }
   const posts = untranslatedPostsData.data.posts;
@@ -653,29 +652,29 @@ const bulkTranslateEntries = async ({
       };
       if (languages && languages.length > 0) {
         languages.forEach(language => {
-          if (existsPostInPendingPosts.includes(postId + '_' + language)) {
+          if (existsPostInPendingPosts.includes(postId + "_" + language)) {
             return;
           }
           let firstPostLanguage = false;
-          if (!postIdExist.includes(postId) && !existsPostInPendingPosts.includes(postId + '_' + language)) {
+          if (!postIdExist.includes(postId) && !existsPostInPendingPosts.includes(postId + "_" + language)) {
             postIdExist.push(postId);
             firstPostLanguage = true;
           }
           const flagUrl = automl_wpml_bulk_translate_object.languageObject[language].flag;
           const languageName = automl_wpml_bulk_translate_object.languageObject[language].name;
-          storeDispatch((0,_redux_store_features_actions__WEBPACK_IMPORTED_MODULE_3__.updatePendingPosts)([postId + '_' + language]));
+          storeDispatch((0,_redux_store_features_actions__WEBPACK_IMPORTED_MODULE_3__.updatePendingPosts)([postId + "_" + language]));
           storeDispatch((0,_redux_store_features_actions__WEBPACK_IMPORTED_MODULE_3__.updateTranslatePostInfo)({
-            [postId + '_' + language]: {
+            [postId + "_" + language]: {
               parentPostId: postId,
               targetPostId: null,
               targetLanguage: language,
               postLink: null,
-              status: 'pending',
+              status: "pending",
               parentPostTitle,
               firstPostLanguage,
               flagUrl,
               languageName,
-              messageClass: 'warning'
+              messageClass: "warning"
             }
           }));
         });
@@ -694,7 +693,7 @@ const bulkTranslateEntries = async ({
       } = posts[postId];
       let content = posts[postId] && posts[postId].content ? posts[postId].content : {};
       if (!sourceLanguage) {
-        const postTitle = title || 'N/A';
+        const postTitle = title || "N/A";
         let titleLink = false;
         let postLink = false;
         if (posts[postId]?.post_link) {
@@ -705,7 +704,7 @@ const bulkTranslateEntries = async ({
           title: title,
           editorType: editor_type,
           sourceLanguage,
-          errorMessage: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.sprintf)((0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)('Set source language for this %s %s before translating.', 'autopoly-ai-translation-for-polylang-pro'), titleLink ? '<a href="' + titleLink + '" target="_blank" rel="noopener noreferrer">' + postTitle + '</a>' : postTitle, window?.automl_wpml_bulk_translate_object?.taxonomy_page || window?.automl_wpml_bulk_translate_object?.post_label)
+          errorMessage: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.sprintf)((0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)("Set source language for this %s %s before translating.", "automl-ai-translation-for-wpml"), titleLink ? '<a href="' + titleLink + '" target="_blank" rel="noopener noreferrer">' + postTitle + "</a>" : postTitle, window?.automl_wpml_bulk_translate_object?.taxonomy_page || window?.automl_wpml_bulk_translate_object?.post_label)
         };
         if (posts[postId]?.post_link) {
           errorInfo.postLink = postLink;
@@ -737,52 +736,52 @@ const bulkTranslateEntries = async ({
           storeDispatch,
           sourceLanguage
         };
-        if (editor_type === 'block') {
+        if (editor_type === "block") {
           data.blockParseRules = JSON.parse(untranslatedPostsData?.data?.blockParseRules);
           if (!storeParseBlockRules) {
             storeDispatch((0,_redux_store_features_actions__WEBPACK_IMPORTED_MODULE_3__.updateBlockParseRules)(JSON.parse(untranslatedPostsData?.data?.blockParseRules)));
             storeParseBlockRules = true;
           }
         }
-        if (content && content !== '') {
+        if (content && content !== "") {
           await (0,_components_filter_content__WEBPACK_IMPORTED_MODULE_0__.filterContent)(data);
         }
-        if (title && title.trim() !== '') {
+        if (title && title.trim() !== "") {
           let filteredTitle = title;
           storeDispatch((0,_redux_store_features_actions__WEBPACK_IMPORTED_MODULE_3__.updateSourceContent)({
             postId,
-            uniqueKey: 'title',
+            uniqueKey: "title",
             value: title
           }));
           storeDispatch((0,_redux_store_features_actions__WEBPACK_IMPORTED_MODULE_3__.updateTargetContent)({
             postId,
-            uniqueKey: 'title',
+            uniqueKey: "title",
             value: filteredTitle
           }));
         }
-        if (post_name && post_name.trim() !== '') {
+        if (post_name && post_name.trim() !== "") {
           let filteredPostName = post_name;
           storeDispatch((0,_redux_store_features_actions__WEBPACK_IMPORTED_MODULE_3__.updateSourceContent)({
             postId,
-            uniqueKey: 'post_name',
+            uniqueKey: "post_name",
             value: post_name
           }));
           storeDispatch((0,_redux_store_features_actions__WEBPACK_IMPORTED_MODULE_3__.updateTargetContent)({
             postId,
-            uniqueKey: 'post_name',
+            uniqueKey: "post_name",
             value: filteredPostName
           }));
         }
-        if (excerpt && excerpt.trim() !== '') {
+        if (excerpt && excerpt.trim() !== "") {
           let filteredExcerpt = excerpt;
           storeDispatch((0,_redux_store_features_actions__WEBPACK_IMPORTED_MODULE_3__.updateSourceContent)({
             postId,
-            uniqueKey: 'excerpt',
+            uniqueKey: "excerpt",
             value: excerpt
           }));
           storeDispatch((0,_redux_store_features_actions__WEBPACK_IMPORTED_MODULE_3__.updateTargetContent)({
             postId,
-            uniqueKey: 'excerpt',
+            uniqueKey: "excerpt",
             value: filteredExcerpt
           }));
         }
@@ -791,7 +790,7 @@ const bulkTranslateEntries = async ({
         let wordsCount = previousParentPostsInfo?.wordsCount || 0;
         let stringsCount = previousParentPostsInfo?.stringsCount || 0;
         const originalContent = {};
-        if (title && title.trim() !== '') {
+        if (title && title.trim() !== "") {
           const titleCounts = (0,_helper__WEBPACK_IMPORTED_MODULE_1__.getContentCount)(title);
           charactersCount += titleCounts.charactersCount;
           wordsCount += titleCounts.wordsCount;
@@ -803,10 +802,10 @@ const bulkTranslateEntries = async ({
         } else {
           originalContent.content = {};
         }
-        if (post_name && post_name.trim() !== '') {
+        if (post_name && post_name.trim() !== "") {
           originalContent.post_name = post_name;
         }
-        if (excerpt && excerpt.trim() !== '') {
+        if (excerpt && excerpt.trim() !== "") {
           originalContent.excerpt = excerpt;
         }
         storeDispatch((0,_redux_store_features_actions__WEBPACK_IMPORTED_MODULE_3__.updateParentPostsInfo)({
@@ -859,24 +858,24 @@ const bulkTranslateStrings = async ({
 
   const fetchPage = async lang => {
     const formData = new URLSearchParams();
-    formData.append('action', 'cp_wpml_google_auto_translate_get_strings');
-    formData.append('nonce', nonce);
-    formData.append('target_lang', lang);
-    formData.append('limit', PAGE_SIZE.toString());
-    formData.append('offset', '0'); // always 0: "give me first 500 untranslated"
+    formData.append("action", "cp_wpml_google_auto_translate_get_strings");
+    formData.append("nonce", nonce);
+    formData.append("target_lang", lang);
+    formData.append("limit", PAGE_SIZE.toString());
+    formData.append("offset", "0"); // always 0: "give me first 500 untranslated"
 
-    if (stringFilters.status) formData.append('status', stringFilters.status);
-    if (stringFilters.context) formData.append('context', stringFilters.context);
-    if (stringFilters['translation-priority']) formData.append('translation-priority', stringFilters['translation-priority']);
-    if (stringFilters.search) formData.append('search', stringFilters.search);
+    if (stringFilters.status) formData.append("status", stringFilters.status);
+    if (stringFilters.context) formData.append("context", stringFilters.context);
+    if (stringFilters["translation-priority"]) formData.append("translation-priority", stringFilters["translation-priority"]);
+    if (stringFilters.search) formData.append("search", stringFilters.search);
     if (stringFilters.selected_string_ids && Array.isArray(stringFilters.selected_string_ids) && stringFilters.selected_string_ids.length > 0) {
-      formData.append('selected_string_ids', JSON.stringify(stringFilters.selected_string_ids));
+      formData.append("selected_string_ids", JSON.stringify(stringFilters.selected_string_ids));
     }
-    const response = await fetch(ajaxUrl + '?action=cp_wpml_google_auto_translate_get_strings', {
-      method: 'POST',
+    const response = await fetch(ajaxUrl + "?action=cp_wpml_google_auto_translate_get_strings", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-        'Accept': 'application/json'
+        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+        Accept: "application/json"
       },
       body: formData
     });
@@ -899,7 +898,7 @@ const bulkTranslateStrings = async ({
     totalPerLanguage[lang] = total;
     stringsByLanguage[lang] = strings; // first page only
 
-    const flagUrl = automl_wpml_bulk_translate_object.languageObject[lang]?.flag || '';
+    const flagUrl = automl_wpml_bulk_translate_object.languageObject[lang]?.flag || "";
     const languageName = automl_wpml_bulk_translate_object.languageObject[lang]?.name || lang;
 
     // One Redux entry per language (not 10k entries)
@@ -910,13 +909,13 @@ const bulkTranslateStrings = async ({
       [key]: {
         parentPostId: `strings_${lang}`,
         targetLanguage: lang,
-        status: 'in-progress',
-        messageClass: 'in-progress',
+        status: "in-progress",
+        messageClass: "in-progress",
         parentPostTitle: languageName,
         firstPostLanguage: true,
         flagUrl,
         languageName,
-        editorType: 'strings',
+        editorType: "strings",
         total,
         completed: 0
       }
@@ -925,12 +924,12 @@ const bulkTranslateStrings = async ({
   if (stringKeys.length === 0) {
     return {
       success: false,
-      message: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)('No strings found to translate.', 'wpml-auto-translate-addon')
+      message: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)("No strings found to translate.", "automl-ai-translation-for-wpml")
     };
   }
   const totalStrings = Object.values(totalPerLanguage).reduce((a, b) => a + b, 0);
   storeDispatch((0,_redux_store_features_actions__WEBPACK_IMPORTED_MODULE_3__.updateCountInfo)({
-    totalStrings
+    totalPosts: totalStrings
   }));
   return {
     success: true,
@@ -948,7 +947,7 @@ const bulkTranslateStrings = async ({
 const translateStringsWithChromeAI = (strings, sourceLang, targetLang) => {
   const languageObject = automl_wpml_bulk_translate_object?.languageObject || {};
   const textContentObject = strings.reduce((acc, text, i) => {
-    acc[i] = text || '';
+    acc[i] = text || "";
     return acc;
   }, {});
   return new Promise((resolve, reject) => {
@@ -961,14 +960,14 @@ const translateStringsWithChromeAI = (strings, sourceLang, targetLang) => {
       onAfterTranslate: (key, translated) => {
         const index = parseInt(key, 10);
         if (!Number.isNaN(index)) {
-          translations[index] = translated || '';
+          translations[index] = translated || "";
         }
       },
       onComplete: () => resolve(translations),
-      onLanguageError: err => reject(err?.message ? new Error(err.message) : new Error('Chrome AI translation failed'))
+      onLanguageError: err => reject(err?.message ? new Error(err.message) : new Error("Chrome AI translation failed"))
     }).then(translatorObj => {
       if (!translatorObj?.init || !translatorObj?.startTranslation) {
-        reject(new Error((0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)('Chrome AI is not available. Use Chrome and enable the Translation API.', 'wpml-auto-translate-addon')));
+        reject(new Error((0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)("Chrome AI is not available. Use Chrome and enable the Translation API.", "automl-ai-translation-for-wpml")));
         return;
       }
       translatorObj.init(textContentObject);
@@ -988,13 +987,13 @@ const initBulkTranslateStrings = async (stringKeys = [], stringsByLanguage = {},
   updateDestoryHandler(() => {
     modalClosed = true;
   });
-  const sourceLang = automl_wpml_bulk_translate_object.default_language_slug || 'en';
+  const sourceLang = automl_wpml_bulk_translate_object.default_language_slug || "en";
   const BATCH_SIZE = 500;
   const translateStringsForLanguage = async (lang, initialStrings) => {
     if (!initialStrings?.length || modalClosed) return;
     const activeProvider = _redux_store_store__WEBPACK_IMPORTED_MODULE_4__.store.getState().serviceProvider;
     let serviceSlug = activeProvider;
-    if (serviceSlug?.endsWith('_ai')) serviceSlug = serviceSlug.replace('_ai', '');
+    if (serviceSlug?.endsWith("_ai")) serviceSlug = serviceSlug.replace("_ai", "");
     const controller = new AbortController();
     const totalForLang = totalPerLanguage[lang] || initialStrings.length;
     const langKey = `strings_${lang}`;
@@ -1007,11 +1006,11 @@ const initBulkTranslateStrings = async (stringKeys = [], stringsByLanguage = {},
       const batchStartTime = Date.now();
       try {
         const stringsToTranslate = batch.map(str => ({
-          text: str.text || str.html || '',
+          text: str.text || str.html || "",
           field_key: str.field_key
         }));
         let translationResponse;
-        if (activeProvider === 'localAiTranslator') {
+        if (activeProvider === "localAiTranslator") {
           const translations = await translateStringsWithChromeAI(stringsToTranslate.map(s => s.text), sourceLang, lang);
           translationResponse = {
             success: true,
@@ -1033,8 +1032,8 @@ const initBulkTranslateStrings = async (stringKeys = [], stringsByLanguage = {},
           const data = translationResponse.data;
 
           // 1) AI SDK route: { translate_data: { "0": "…", "1": "…" } }
-          if (data.translate_data && typeof data.translate_data === 'object') {
-            translations = Object.keys(data.translate_data).sort((a, b) => Number(a) - Number(b)).map(key => data.translate_data[key] || '');
+          if (data.translate_data && typeof data.translate_data === "object") {
+            translations = Object.keys(data.translate_data).sort((a, b) => Number(a) - Number(b)).map(key => data.translate_data[key] || "");
           }
           // 2) Old shape: raw array
           else if (Array.isArray(data)) {
@@ -1046,7 +1045,7 @@ const initBulkTranslateStrings = async (stringKeys = [], stringsByLanguage = {},
           }
           const batchToSave = [];
           batch.forEach((str, index) => {
-            const sourceText = str.text || str.html || '';
+            const sourceText = str.text || str.html || "";
             const translatedText = translations[index] || sourceText;
             batchToSave.push({
               field_key: str.field_key,
@@ -1073,8 +1072,8 @@ const initBulkTranslateStrings = async (stringKeys = [], stringsByLanguage = {},
           storeDispatch((0,_redux_store_features_actions__WEBPACK_IMPORTED_MODULE_3__.updateTranslatePostInfo)({
             [langKey]: {
               ...prev,
-              status: offset >= totalForLang ? 'completed' : 'in-progress',
-              messageClass: offset >= totalForLang ? 'success' : 'in-progress',
+              status: offset >= totalForLang ? "completed" : "in-progress",
+              messageClass: offset >= totalForLang ? "success" : "in-progress",
               completed,
               total: totalForLang
             }
@@ -1097,11 +1096,11 @@ const initBulkTranslateStrings = async (stringKeys = [], stringsByLanguage = {},
             return;
           }
         } else {
-          const errorMsg = translationResponse?.data?.message || (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)('Translation failed', 'wpml-auto-translate-addon');
+          const errorMsg = translationResponse?.data?.message || (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)("Translation failed", "automl-ai-translation-for-wpml");
           storeDispatch((0,_redux_store_features_actions__WEBPACK_IMPORTED_MODULE_3__.updateTranslatePostInfo)({
             [langKey]: {
-              status: 'error',
-              messageClass: 'error',
+              status: "error",
+              messageClass: "error",
               errorMessage: errorMsg
             }
           }));
@@ -1110,11 +1109,11 @@ const initBulkTranslateStrings = async (stringKeys = [], stringsByLanguage = {},
           return;
         }
       } catch (err) {
-        const errorMsg = err?.message || (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)('Translation failed', 'wpml-auto-translate-addon');
+        const errorMsg = err?.message || (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)("Translation failed", "automl-ai-translation-for-wpml");
         storeDispatch((0,_redux_store_features_actions__WEBPACK_IMPORTED_MODULE_3__.updateTranslatePostInfo)({
           [langKey]: {
-            status: 'error',
-            messageClass: 'error',
+            status: "error",
+            messageClass: "error",
             errorMessage: errorMsg
           }
         }));
@@ -1144,27 +1143,27 @@ const initBulkTranslateStrings = async (stringKeys = [], stringsByLanguage = {},
 const saveStringTranslations = async (targetLang, translatedStrings, nonce, stats = null) => {
   const ajaxUrl = automl_wpml_bulk_translate_object.ajax;
   const body = {
-    action: 'cp_wpml_google_auto_translate_save_string_translations',
+    action: "cp_wpml_google_auto_translate_save_string_translations",
     nonce: nonce,
     target_lang: targetLang,
     translated_strings: translatedStrings
   };
-  if (stats && typeof stats === 'object') {
+  if (stats && typeof stats === "object") {
     body.dashboard_stats = stats;
   }
   try {
-    const response = await fetch(ajaxUrl + '?action=cp_wpml_google_auto_translate_save_string_translations', {
-      method: 'POST',
+    const response = await fetch(ajaxUrl + "?action=cp_wpml_google_auto_translate_save_string_translations", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json; charset=utf-8',
-        'Accept': 'application/json'
+        "Content-Type": "application/json; charset=utf-8",
+        Accept: "application/json"
       },
       body: JSON.stringify(body)
     });
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error('Error saving string translations:', error);
+    console.error("Error saving string translations:", error);
     throw error;
   }
 };
@@ -1306,7 +1305,7 @@ const ErrorModalBox = ({
         children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("button", {
           className: `${prefix}-error-modal-box-close button button-primary`,
           onClick: onClose,
-          children: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)('Back', 'autopoly-ai-translation-for-polylang-pro')
+          children: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)('Back', 'automl-ai-translation-for-wpml')
         })
       })]
     })
@@ -2656,7 +2655,7 @@ class AIService {
       this.pendingStrings = true;
       this.processCompleteHandler(timeStart);
       if (error.name === 'AbortError') {
-        const errorMessage = this.errorMessage && this.errorMessage.includes('You exceeded your current quota') ? (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)('You have exceeded you current plan limit. that\'s why the request is aborted.', 'autopoly-ai-translation-for-polylang-pro') : error;
+        const errorMessage = this.errorMessage && this.errorMessage.includes('You exceeded your current quota') ? (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)('You have exceeded you current plan limit. that\'s why the request is aborted.', 'automl-ai-translation-for-wpml') : error;
         console.warn(errorMessage);
       } else {
         console.error('An error occurred during the AJAX processing:', error);
@@ -2840,30 +2839,30 @@ class AIService {
     let translateBtnMessage = '';
     const limitExceeded = this.errorMessage && this.errorMessage.includes('You exceeded your current quota');
     if (limitExceeded) {
-      errorMessage = `<p class="${this.prefix}-ai-pending-request-heading">` + (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)('You’ve exceeded your current plan limit.', 'autopoly-ai-translation-for-polylang-pro') + '</p> ' + (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)('To continue, please check your plan details and update your API key.', 'autopoly-ai-translation-for-polylang-pro');
-      translateBtnMessage = (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)('Click "Translate" after updating your API key to re-translate the remaining strings.', 'autopoly-ai-translation-for-polylang-pro');
+      errorMessage = `<p class="${this.prefix}-ai-pending-request-heading">` + (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)('You’ve exceeded your current plan limit.', 'automl-ai-translation-for-wpml') + '</p> ' + (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)('To continue, please check your plan details and update your API key.', 'automl-ai-translation-for-wpml');
+      translateBtnMessage = (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)('Click "Translate" after updating your API key to re-translate the remaining strings.', 'automl-ai-translation-for-wpml');
     } else {
-      errorMessage = `<p class="${this.prefix}-ai-pending-request-heading">` + (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)('Oops! Something went wrong during translation', 'autopoly-ai-translation-for-polylang-pro') + '</p>';
-      translateBtnMessage = (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)('Click "Translate" to re-translate the remaining strings.', 'autopoly-ai-translation-for-polylang-pro');
+      errorMessage = `<p class="${this.prefix}-ai-pending-request-heading">` + (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)('Oops! Something went wrong during translation', 'automl-ai-translation-for-wpml') + '</p>';
+      translateBtnMessage = (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)('Click "Translate" to re-translate the remaining strings.', 'automl-ai-translation-for-wpml');
     }
     const message = `<div class="${this.prefix}-ai-pending-request">
                     <div>${errorMessage}</div>
-                    <p>${(0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)('To see more details, open your browser’s developer console.', 'autopoly-ai-translation-for-polylang-pro')}</p>
+                    <p>${(0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)('To see more details, open your browser’s developer console.', 'automl-ai-translation-for-wpml')}</p>
 
-                <p>✅ ${(0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.sprintf)((0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)('You’ve translated %s of the strings.', 'autopoly-ai-translation-for-polylang-pro'), completedPercent + '%')}</p>
-                <p>❌ ${(0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.sprintf)((0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)('%s of the strings are still not translated.', 'autopoly-ai-translation-for-polylang-pro'), notCompletedPercent + '%')}</p>
+                <p>✅ ${(0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.sprintf)((0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)('You’ve translated %s of the strings.', 'automl-ai-translation-for-wpml'), completedPercent + '%')}</p>
+                <p>❌ ${(0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.sprintf)((0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)('%s of the strings are still not translated.', 'automl-ai-translation-for-wpml'), notCompletedPercent + '%')}</p>
 
-                <p><strong>${(0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)('Next Steps:', 'autopoly-ai-translation-for-polylang-pro')}</strong></p>
+                <p><strong>${(0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)('Next Steps:', 'automl-ai-translation-for-wpml')}</strong></p>
 
                 <p>${translateBtnMessage}</p>
-                <p><strong>${(0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)('OR', 'autopoly-ai-translation-for-polylang-pro')}</strong></p>
-                <p>${(0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)('Click "Continue" to proceed without translating the rest of the strings.', 'autopoly-ai-translation-for-polylang-pro')}</p>
+                <p><strong>${(0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)('OR', 'automl-ai-translation-for-wpml')}</strong></p>
+                <p>${(0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)('Click "Continue" to proceed without translating the rest of the strings.', 'automl-ai-translation-for-wpml')}</p>
                 </div>`;
     this.storeDispatch((0,_redux_store_features_actions__WEBPACK_IMPORTED_MODULE_3__.updateTranslatePostInfo)({
       [this.activePostId + '_' + this.activeTargetLangs]: {
         status: 'error',
         messageClass: 'error',
-        errorMessage: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)('Translation failed.', 'autopoly-ai-translation-for-polylang-pro'),
+        errorMessage: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)('Translation failed.', 'automl-ai-translation-for-wpml'),
         errorHtml: message,
         aiError: true,
         nonce: this.createTranslatePostNonce,
@@ -3036,7 +3035,7 @@ __webpack_require__.r(__webpack_exports__);
       title: "Chrome Built-in AI",
       SettingBtnText: "Translate",
       serviceLabel: "Chrome AI Translator",
-      heading: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.sprintf)((0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Translate Using %s", "autopoly-ai-translation-for-polylang-pro"), "Chrome built-in API"),
+      heading: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.sprintf)((0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Translate Using %s", "automl-ai-translation-for-wpml"), "Chrome built-in API"),
       Docs: "https://docs.coolplugins.net/doc/chrome-ai-translation-polylang/?utm_source=automl_wpml_plugin&utm_medium=inside&utm_campaign=docs&utm_content=bulk_translate_chrome",
       BetaEnabled: true,
       ButtonDisabled: props.localAiTranslatorButtonDisabled,
@@ -3046,7 +3045,7 @@ __webpack_require__.r(__webpack_exports__);
         children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("img", {
           src: errorIcon,
           alt: "error"
-        }), " ", (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)('View Error', 'autopoly-ai-translation-for-polylang-pro')]
+        }), " ", (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)('View Error', 'automl-ai-translation-for-wpml')]
       }) : /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.Fragment, {}),
       Logo: 'chrome.png',
       filterHtmlContent: true
@@ -3056,7 +3055,7 @@ __webpack_require__.r(__webpack_exports__);
       title: "OpenAI Model",
       SettingBtnText: "Translate",
       serviceLabel: "OpenAI",
-      heading: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.sprintf)((0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Translate Using %s Model", "autopoly-ai-translation-for-polylang-pro"), "OpenAI"),
+      heading: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.sprintf)((0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Translate Using %s Model", "automl-ai-translation-for-wpml"), "OpenAI"),
       Docs: "https://docs.coolplugins.net/doc/translate-via-open-ai-polylang/?utm_source=automl_wpml_plugin&utm_medium=inside&utm_campaign=docs&utm_content=bulk_translate_openai",
       BetaEnabled: true,
       ButtonDisabled: props.openai_aiButtonDisabled,
@@ -3067,7 +3066,7 @@ __webpack_require__.r(__webpack_exports__);
         children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("img", {
           src: errorIcon,
           alt: "error"
-        }), " ", (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)('Add API Key', 'autopoly-ai-translation-for-polylang-pro')]
+        }), " ", (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)('Add API Key', 'automl-ai-translation-for-wpml')]
       }) : /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.Fragment, {}),
       Logo: 'openai.png',
       filterHtmlContent: true
@@ -3077,7 +3076,7 @@ __webpack_require__.r(__webpack_exports__);
       title: "Gemini Model",
       SettingBtnText: "Translate",
       serviceLabel: "Gemini",
-      heading: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.sprintf)((0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Translate Using %s Model", "autopoly-ai-translation-for-polylang-pro"), "Gemini"),
+      heading: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.sprintf)((0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Translate Using %s Model", "automl-ai-translation-for-wpml"), "Gemini"),
       Docs: "https://docs.coolplugins.net/doc/translate-via-gemini-ai-polylang/?utm_source=automl_wpml_plugin&utm_medium=inside&utm_campaign=docs&utm_content=bulk_translate_gemini",
       BetaEnabled: true,
       ButtonDisabled: props.google_aiButtonDisabled,
@@ -3088,7 +3087,7 @@ __webpack_require__.r(__webpack_exports__);
         children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("img", {
           src: errorIcon,
           alt: "error"
-        }), " ", (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)('Add API Key', 'autopoly-ai-translation-for-polylang-pro')]
+        }), " ", (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)('Add API Key', 'automl-ai-translation-for-wpml')]
       }) : /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.Fragment, {}),
       Logo: 'gemini.png',
       filterHtmlContent: true
@@ -3141,8 +3140,6 @@ class LocalAiTranslate {
     updateDestoryHandler
   }) {
     this.textContentObject = (0,_redux_store_features_selectors__WEBPACK_IMPORTED_MODULE_2__.selectTargetContent)(_redux_store_store__WEBPACK_IMPORTED_MODULE_3__.store.getState(), postId);
-    console.log("sourceLang", sourceLang);
-    console.log("targetLangs", targetLangs);
     this.totalTranslatedLength = Object.keys(this.textContentObject).length;
     this.sourceLang = sourceLang;
     this.targetLangs = targetLangs;
@@ -3280,7 +3277,7 @@ class LocalAiTranslate {
           [this.postId + '_' + lang]: {
             status: 'error',
             messageClass: 'error',
-            errorMessage: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)('No content to translate', 'autopoly-ai-translation-for-polylang-pro'),
+            errorMessage: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)('No content to translate', 'automl-ai-translation-for-wpml'),
             errorHtml: false
           }
         }));
@@ -3884,7 +3881,7 @@ const updateTranslateData = ({
 }) => {
   if (!updateTranslateDataNonce || !currentPostId || !parentPostId || !provider || !sourceLang || !targetLang || !editorType) return;
   const parentPostInfo = _redux_store_store__WEBPACK_IMPORTED_MODULE_1__.store.getState().parentPostsInfo[parentPostId];
-  const translateData = _redux_store_store__WEBPACK_IMPORTED_MODULE_1__.store.getState().translatePostInfo[parentPostId + '_' + targetLang];
+  const translateData = _redux_store_store__WEBPACK_IMPORTED_MODULE_1__.store.getState().translatePostInfo[parentPostId + "_" + targetLang];
   let sourceCount = {
     wordsCount: parentPostInfo.wordsCount || 0,
     charactersCount: parentPostInfo.charactersCount || 0,
@@ -3919,10 +3916,10 @@ const updateTranslateData = ({
     bulk_translate: true
   };
   fetch(automl_wpml_bulk_translate_object.ajax_url, {
-    method: 'POST',
+    method: "POST",
     headers: {
-      'content-type': 'application/x-www-form-urlencoded; charset=UTF-8',
-      'Accept': 'application/json'
+      "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+      Accept: "application/json"
     },
     body: new URLSearchParams(data)
   }).then().catch(error => {
@@ -3938,25 +3935,25 @@ const AITranslationRequest = async ({
 }) => {
   const data = {
     automl_wpml_nonce: automl_wpml_bulk_translate_object.ai_translate_nonce,
-    action: 'automl_wpml_ai_translation',
+    action: "automl_wpml_ai_translation",
     strings: JSON.stringify(Strings),
     source_language: source_language,
     target_language: target_language,
     service_slug: slug
   };
   const response = await fetch(`${automl_wpml_bulk_translate_object.ai_translate_route_url}/${slug}/translate-text`, {
-    method: 'POST',
+    method: "POST",
     headers: {
-      'content-type': 'application/x-www-form-urlencoded; charset=UTF-8',
-      'Accept': 'application/json',
-      'X-WP-Nonce': automl_wpml_bulk_translate_object.ai_translate_route_nonce
+      "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+      Accept: "application/json",
+      "X-WP-Nonce": automl_wpml_bulk_translate_object.ai_translate_route_nonce
     },
     signal: controller.signal,
     body: new URLSearchParams(data)
   });
   if (!response.ok) {
     const error = await response.json();
-    console.error('WordPress Error:', error);
+    console.error("WordPress Error:", error);
   }
   const responseData = await response.json();
   return responseData;
@@ -3967,10 +3964,10 @@ const getContentCount = content => {
     wordsCount: 0,
     stringsCount: 0
   };
-  if (content && content.trim() !== '') {
-    data.charactersCount = typeof content === 'string' ? content.length : 0;
-    data.wordsCount = typeof content === 'string' ? content.split(/\s+/).filter(word => /[^\p{L}\p{N}]/.test(word)).length : 0;
-    data.stringsCount = typeof content === 'string' ? content.split(/(?<=[.!?]+)\s+/).length : 0;
+  if (content && content.trim() !== "") {
+    data.charactersCount = typeof content === "string" ? content.length : 0;
+    data.wordsCount = typeof content === "string" ? content.split(/\s+/).filter(word => /[^\p{L}\p{N}]/.test(word)).length : 0;
+    data.stringsCount = typeof content === "string" ? content.split(/(?<=[.!?]+)\s+/).length : 0;
   }
   return data;
 };
@@ -3978,11 +3975,11 @@ const translateFieldNameSort = (fieldNames = []) => {
   if (!fieldNames || fieldNames.length === 0) {
     return [];
   }
-  const sortedFieldNames = ['title', 'excerpt', 'content'];
+  const sortedFieldNames = ["title", "excerpt", "content"];
   return sortedFieldNames.filter(field => fieldNames.includes(field));
 };
 const reTranslationFieldMatch = (old_keys, reTranslationFieldTypes) => {
-  return old_keys.join('_') === reTranslationFieldTypes.join('_');
+  return old_keys.join("_") === reTranslationFieldTypes.join("_");
 };
 
 /***/ },
@@ -4387,7 +4384,7 @@ const SettingModalFooter = ({
     children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("button", {
       className: `${prefix}-setting-close button button-primary`,
       onClick: () => setSettingVisibility(false),
-      children: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)("Back", 'autopoly-ai-translation-for-polylang-pro')
+      children: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)("Back", 'automl-ai-translation-for-wpml')
     })
   });
 };
@@ -4418,7 +4415,7 @@ const SettingModalHeader = ({
   return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsxs)("div", {
     className: `${prefix}-setting-modal-header`,
     children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("h2", {
-      children: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)("Step 2 - Select Translation Provider", 'autopoly-ai-translation-for-polylang-pro')
+      children: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)("Step 2 - Select Translation Provider", 'automl-ai-translation-for-wpml')
     }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("span", {
       className: `${prefix}-setting-modal-close`,
       onClick: e => setSettingVisibility(e),
@@ -4635,10 +4632,9 @@ const StatusModal = ({
   const serviceProvider = (0,react_redux__WEBPACK_IMPORTED_MODULE_2__.useSelector)(_redux_store_features_selectors__WEBPACK_IMPORTED_MODULE_3__.selectServiceProvider);
   const [progressBarVisibility, setProgressBarVisibility] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(true);
   const [charactersCountVisibility, setCharactersCountVisibility] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(false);
-  const [bulkStatus, setBulkStatus] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)('status');
+  const [bulkStatus, setBulkStatus] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)("status");
   const countInfo = (0,react_redux__WEBPACK_IMPORTED_MODULE_2__.useSelector)(_redux_store_features_selectors__WEBPACK_IMPORTED_MODULE_3__.selectCountInfo);
-  console.log('countInfo', countInfo);
-  let [emptyPostMessage, setEmptyPostMessage] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)((0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.sprintf)((0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('Translations already exist for all selected %s in the chosen languages. There are no new %s to translate.', 'autopoly-ai-translation-for-polylang-pro'), automl_wpml_bulk_translate_object.post_label, automl_wpml_bulk_translate_object.post_label));
+  let [emptyPostMessage, setEmptyPostMessage] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)((0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.sprintf)((0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)("Translations already exist for all selected %s in the chosen languages. There are no new %s to translate.", "automl-ai-translation-for-wpml"), automl_wpml_bulk_translate_object.post_label, automl_wpml_bulk_translate_object.post_label));
   let progressStatus = (0,react_redux__WEBPACK_IMPORTED_MODULE_2__.useSelector)(_redux_store_features_selectors__WEBPACK_IMPORTED_MODULE_3__.selectProgressStatus);
   progressStatus = progressStatus.toFixed(1);
   progressStatus = Math.min(progressStatus, 100);
@@ -4657,13 +4653,11 @@ const StatusModal = ({
           storeDispatch,
           stringFilters: stringFilters
         });
-        console.log('response', response);
         setIsLoading(false);
         if (!response.success) {
-          setEmptyPostMessage(response.message || (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('No strings found to translate.', 'wpml-auto-translate-addon'));
+          setEmptyPostMessage(response.message || (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)("No strings found to translate.", "automl-ai-translation-for-wpml"));
           return;
         }
-        console.log('coi');
         // Initialize string translation flow
         (0,_bulk_translate__WEBPACK_IMPORTED_MODULE_1__.initBulkTranslateStrings)(response.stringKeys, response.stringsByLanguage, response.nonce, storeDispatch, prefix, updateDestoryHandler, response.totalPerLanguage || {}, response.fetchPage || null);
       } else {
@@ -4695,29 +4689,29 @@ const StatusModal = ({
     setDestroyHandlers(prev => [...prev, callback]);
   };
   const onModalClose = e => {
-    destroyHandlers.forEach(callback => typeof callback === 'function' && callback());
+    destroyHandlers.forEach(callback => typeof callback === "function" && callback());
     onDestory(e);
   };
   (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
-    if (countInfo.totalPosts < 1 && !isLoading && bulkStatus !== 'status') {
-      updateBulkStatus('status');
+    if (countInfo.totalPosts < 1 && !isLoading && bulkStatus !== "status") {
+      updateBulkStatus("status");
       return;
     }
     if (translatePostInfo && Object.keys(translatePostInfo).length > 0) {
       if (pendingPosts.length < 1) {
-        updateBulkStatus('completed');
+        updateBulkStatus("completed");
         return;
       }
       let error = false;
       let running = false;
       const runLoop = (items, index) => {
         const status = translatePostInfo[items[index]].status;
-        if (status === 'running' || status === 'in-progress' || status === 'pending') {
+        if (status === "running" || status === "in-progress" || status === "pending") {
           running = true;
-          bulkStatus !== 'running' && updateBulkStatus('running');
+          bulkStatus !== "running" && updateBulkStatus("running");
           return;
         }
-        if (status === 'error') {
+        if (status === "error") {
           error = true;
         }
         index++;
@@ -4728,9 +4722,9 @@ const StatusModal = ({
       runLoop(Object.keys(translatePostInfo), 0);
       if (running) return;
       if (error) {
-        updateBulkStatus('pending');
+        updateBulkStatus("pending");
       } else {
-        updateBulkStatus('pending');
+        updateBulkStatus("pending");
       }
     }
   }, [translatePostInfo]);
@@ -4739,14 +4733,14 @@ const StatusModal = ({
   };
   const getBulkStatus = () => {
     switch (bulkStatus) {
-      case 'running':
-        return (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('In Progress', 'autopoly-ai-translation-for-polylang-pro');
-      case 'pending':
-        return (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('Pending', 'autopoly-ai-translation-for-polylang-pro');
-      case 'completed':
-        return (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('Completed', 'autopoly-ai-translation-for-polylang-pro');
+      case "running":
+        return (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)("In Progress", "automl-ai-translation-for-wpml");
+      case "pending":
+        return (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)("Pending", "automl-ai-translation-for-wpml");
+      case "completed":
+        return (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)("Completed", "automl-ai-translation-for-wpml");
       default:
-        return (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('Status', 'autopoly-ai-translation-for-polylang-pro');
+        return (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)("Status", "automl-ai-translation-for-wpml");
     }
   };
   (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
@@ -4769,8 +4763,8 @@ const StatusModal = ({
   }, [pendingPosts]);
   const AIErrorBtnHandler = e => {
     const type = {
-      'translateAgain': _components_translate_provider_ai_services__WEBPACK_IMPORTED_MODULE_6__["default"].translateAgain,
-      'continue': _components_translate_provider_ai_services__WEBPACK_IMPORTED_MODULE_6__["default"].translateComplete
+      translateAgain: _components_translate_provider_ai_services__WEBPACK_IMPORTED_MODULE_6__["default"].translateAgain,
+      continue: _components_translate_provider_ai_services__WEBPACK_IMPORTED_MODULE_6__["default"].translateComplete
     };
     const btnType = e.target.dataset.status;
     type[btnType]({
@@ -4786,7 +4780,7 @@ const StatusModal = ({
     });
   };
   const getTranslatedPostLink = () => {
-    const translatedLanguagesArr = Object.values(translatePostInfo).filter(post => post.status === 'completed' && post.targetLanguage);
+    const translatedLanguagesArr = Object.values(translatePostInfo).filter(post => post.status === "completed" && post.targetLanguage);
     const translatedLangs = translatedLanguagesArr.map(post => post.targetLanguage).filter((lang, index, self) => self.indexOf(lang) === index);
     if (translatedLangs.length === 1) {
       const translatedLang = translatedLangs[0];
@@ -4795,31 +4789,31 @@ const StatusModal = ({
       const params = new URLSearchParams(url.search);
 
       // Set or update the required params
-      params.set('lang', translatedLang);
-      params.set('orderby', 'date');
-      params.set('order', 'desc');
+      params.set("lang", translatedLang);
+      params.set("orderby", "date");
+      params.set("order", "desc");
       const newQuery = Object.fromEntries(params.entries());
-      return window.location.href.split('?')[0] + '?' + new URLSearchParams(newQuery).toString();
+      return window.location.href.split("?")[0] + "?" + new URLSearchParams(newQuery).toString();
     } else {
       return window.location.href;
     }
   };
   const getServiceProviderLabel = () => {
     switch (serviceProvider) {
-      case 'google':
-        return 'Google Translate';
-      case 'localAiTranslator':
-        return 'Chrome AI Translator';
-      case 'openai_ai':
-        return 'OpenAI';
-      case 'google_ai':
-        return 'Gemini';
-      case 'openrouter_ai':
-        return 'OpenRouter';
-      case 'deepl_ai':
-        return 'DeepL';
+      case "google":
+        return "Google Translate";
+      case "localAiTranslator":
+        return "Chrome AI Translator";
+      case "openai_ai":
+        return "OpenAI";
+      case "google_ai":
+        return "Gemini";
+      case "openrouter_ai":
+        return "OpenRouter";
+      case "deepl_ai":
+        return "DeepL";
       default:
-        return 'AI Translator';
+        return "AI Translator";
     }
   };
   const allPostStatus = postId => {
@@ -4829,7 +4823,7 @@ const StatusModal = ({
       return true;
     }
     for (let i = 0; i < targetLangsArr.length; i++) {
-      if (!translatePostInfo[postId + '_' + targetLangsArr[i]] || ['pending', 'in-progress', 'running'].includes(translatePostInfo[postId + '_' + targetLangsArr[i]].status)) {
+      if (!translatePostInfo[postId + "_" + targetLangsArr[i]] || ["pending", "in-progress", "running"].includes(translatePostInfo[postId + "_" + targetLangsArr[i]].status)) {
         allPostStatus = false;
         break;
       }
@@ -4839,7 +4833,7 @@ const StatusModal = ({
   return errorModal ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(_components_error_modal_box__WEBPACK_IMPORTED_MODULE_5__["default"], {
     message: errorModalData.errorHtml,
     onClose: closeErrorModal,
-    Title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('Bulk Translation Error', 'autopoly-ai-translation-for-polylang-pro'),
+    Title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)("Bulk Translation Error", "automl-ai-translation-for-wpml"),
     prefix: prefix,
     children: errorModalData.aiError && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsxs)("div", {
       className: `${prefix}-ai-error-buttons`,
@@ -4847,19 +4841,19 @@ const StatusModal = ({
         className: `${prefix}-ai-error-button button`,
         "data-status": "translateAgain",
         onClick: AIErrorBtnHandler,
-        children: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('Translate', 'autopoly-ai-translation-for-polylang-pro')
+        children: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)("Translate", "automl-ai-translation-for-wpml")
       }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("button", {
         className: `${prefix}-ai-error-button button`,
         "data-status": "continue",
         onClick: AIErrorBtnHandler,
-        children: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('Continue', 'autopoly-ai-translation-for-polylang-pro')
+        children: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)("Continue", "automl-ai-translation-for-wpml")
       })]
     })
   }) : /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsxs)("div", {
     id: `${prefix}-status-modal-container`,
     children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsxs)("h2", {
       className: `${prefix}-bulk-status-heading ${bulkStatus}`,
-      children: [(0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.sprintf)((0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('Bulk Translation %s', 'autopoly-ai-translation-for-polylang-pro'), getBulkStatus()), bulkStatus === 'running' && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("span", {
+      children: [(0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.sprintf)((0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)("Bulk Translation %s", "automl-ai-translation-for-wpml"), getBulkStatus()), bulkStatus === "running" && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("span", {
         className: `${prefix}-bulk-status-running`
       })]
     }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("div", {
@@ -4879,17 +4873,17 @@ const StatusModal = ({
             children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("div", {
               className: `${prefix}-progress`,
               style: {
-                width: progressStatus + '%'
+                width: progressStatus + "%"
               },
-              children: progressStatus + '%'
+              children: progressStatus + "%"
             })
           })
         }), charactersCountVisibility && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsxs)("div", {
           className: `${prefix}-translator-strings-count`,
-          children: [(0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('Wahooo! You have saved your valuable time via auto translating', 'autopoly-ai-translation-for-polylang-pro'), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsxs)("strong", {
+          children: [(0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)("Wahooo! You have saved your valuable time via auto translating", "automl-ai-translation-for-wpml"), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsxs)("strong", {
             className: "totalChars",
             children: [" ", countInfo.charactersTranslated, " "]
-          }), (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('characters using', 'autopoly-ai-translation-for-polylang-pro'), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsxs)("strong", {
+          }), (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)("characters using", "automl-ai-translation-for-wpml"), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsxs)("strong", {
             children: [" ", getServiceProviderLabel()]
           })]
         })]
@@ -4899,7 +4893,7 @@ const StatusModal = ({
           className: `${prefix}-string-count`,
           children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsxs)("span", {
             className: `${prefix}-count-text-heading`,
-            children: [(0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('Strings:', 'autopoly-ai-translation-for-polylang-pro'), " "]
+            children: [(0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)("Strings:", "automl-ai-translation-for-wpml"), " "]
           }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("span", {
             className: `${prefix}-string-number`,
             children: countInfo.stringsTranslated
@@ -4908,7 +4902,7 @@ const StatusModal = ({
           className: `${prefix}-char-count`,
           children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsxs)("span", {
             className: `${prefix}-count-text-heading`,
-            children: [(0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('Characters:', 'autopoly-ai-translation-for-polylang-pro'), " "]
+            children: [(0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)("Characters:", "automl-ai-translation-for-wpml"), " "]
           }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("span", {
             className: `${prefix}-char-number`,
             children: countInfo.charactersTranslated
@@ -4917,10 +4911,10 @@ const StatusModal = ({
           className: `${prefix}-time-taken`,
           children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsxs)("span", {
             className: `${prefix}-count-text-heading`,
-            children: [(0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('Time Taken:', 'autopoly-ai-translation-for-polylang-pro'), " "]
+            children: [(0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)("Time Taken:", "automl-ai-translation-for-wpml"), " "]
           }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsxs)("span", {
             className: `${prefix}-time-taken-number`,
-            children: [countInfo.timeTaken ?? 0, " ", (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('seconds', 'autopoly-ai-translation-for-polylang-pro')]
+            children: [countInfo.timeTaken ?? 0, " ", (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)("seconds", "automl-ai-translation-for-wpml")]
           })]
         })]
       }), (!isStringTranslationPage || !isLoading && pendingPosts.length === 0) && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("div", {
@@ -4931,13 +4925,11 @@ const StatusModal = ({
             children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("thead", {
               children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsxs)("tr", {
                 children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("th", {
-                  children: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('Language', 'autopoly-ai-translation-for-polylang-pro')
+                  children: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)("Language", "automl-ai-translation-for-wpml")
                 }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("th", {
-                  children: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('Status', 'autopoly-ai-translation-for-polylang-pro')
+                  children: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)("Status", "automl-ai-translation-for-wpml")
                 }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("th", {
-                  children: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('Title', 'autopoly-ai-translation-for-polylang-pro')
-                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("th", {
-                  children: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('Actions', 'autopoly-ai-translation-for-polylang-pro')
+                  children: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)("Title", "automl-ai-translation-for-wpml")
                 })]
               })
             }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsxs)("tbody", {
@@ -4985,14 +4977,14 @@ const StatusModal = ({
                     className: `${prefix}-group-title`,
                     children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("td", {
                       colSpan: "5",
-                      children: errorPostsInfo[key]?.title || (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('Untitled', 'autopoly-ai-translation-for-polylang-pro')
+                      children: errorPostsInfo[key]?.title || (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)("Untitled", "automl-ai-translation-for-wpml")
                     })
                   }, `group-title-${key}`), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("tr", {
                     children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("td", {
                       colSpan: "4",
                       style: {
-                        textAlign: 'center',
-                        width: '100%'
+                        textAlign: "center",
+                        width: "100%"
                       },
                       className: `${prefix}-error-message`,
                       dangerouslySetInnerHTML: {
@@ -5003,8 +4995,8 @@ const StatusModal = ({
                 }, key);
               }), !isLoading && Object.keys(translatePostInfo).map((key, index) => {
                 const info = translatePostInfo[key];
-                const isStringAggregate = key.startsWith('strings_');
-                const workingStatus = info.status === 'running' || info.status === 'in-progress';
+                const isStringAggregate = key.startsWith("strings_");
+                const workingStatus = info.status === "running" || info.status === "in-progress";
                 if (isStringAggregate) {
                   const total = info.total || 0;
                   const completed = info.completed || 0;
@@ -5022,13 +5014,11 @@ const StatusModal = ({
                       })
                     }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("td", {
                       children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsxs)("span", {
-                        className: `${prefix}-status ${info.messageClass || ''} ${info.status || ''}`,
-                        children: [info.status === 'completed' && (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('Completed', 'autopoly-ai-translation-for-polylang-pro'), info.status === 'error' && info.errorMessage, workingStatus && `${completed}/${total} ${(0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('strings', 'wpml-auto-translate-addon')}`, info.status === 'pending' && (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('Pending', 'autopoly-ai-translation-for-polylang-pro')]
+                        className: `${prefix}-status ${info.messageClass || ""} ${info.status || ""}`,
+                        children: [info.status === "completed" && (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)("Completed", "automl-ai-translation-for-wpml"), info.status === "error" && info.errorMessage, workingStatus && `${completed}/${total} ${(0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)("strings", "automl-ai-translation-for-wpml")}`, info.status === "pending" && (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)("Pending", "automl-ai-translation-for-wpml")]
                       })
                     }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("td", {
-                      children: workingStatus ? `${completed} / ${total}` : info.status === 'completed' ? `${total} ${(0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('translated', 'wpml-auto-translate-addon')}` : '—'
-                    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("td", {
-                      children: "\u2014"
+                      children: workingStatus ? `${completed} / ${total}` : info.status === "completed" ? `${total} ${(0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)("translated", "automl-ai-translation-for-wpml")}` : "—"
                     })]
                   }, key);
                 }
@@ -5038,7 +5028,7 @@ const StatusModal = ({
                     className: `${prefix}-group-title`,
                     children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("td", {
                       colSpan: "5",
-                      children: info.parentPostTitle || (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('Untitled', 'autopoly-ai-translation-for-polylang-pro')
+                      children: info.parentPostTitle || (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)("Untitled", "automl-ai-translation-for-wpml")
                     })
                   }, `group-title-${info.parentPostId || key}`));
                 }
@@ -5053,9 +5043,9 @@ const StatusModal = ({
                         alt: info.targetLanguage
                       }), info.languageName || info.targetLanguage]
                     })
-                  }), info.status === 'error' ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.Fragment, {
+                  }), info.status === "error" ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.Fragment, {
                     children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("td", {
-                      colSpan: info.errorHtml ? '2' : '3',
+                      colSpan: info.errorHtml ? "2" : "3",
                       children: info.errorMessage
                     }), info.errorHtml && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("td", {
                       colSpan: "1",
@@ -5064,16 +5054,16 @@ const StatusModal = ({
                       },
                       children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("button", {
                         className: `${prefix}-status-error-button`,
-                        children: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('Error Details', 'autopoly-ai-translation-for-polylang-pro')
+                        children: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)("Error Details", "automl-ai-translation-for-wpml")
                       })
                     })]
                   }) : /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.Fragment, {
                     children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("td", {
                       children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsxs)("span", {
                         className: `${prefix}-status ${info.messageClass} ${info.status}`,
-                        children: [info.status === 'pending' && (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('Pending', 'autopoly-ai-translation-for-polylang-pro'), info.status === 'completed' && (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('Completed', 'autopoly-ai-translation-for-polylang-pro'), workingStatus && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsxs)("div", {
+                        children: [info.status === "pending" && (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)("Pending", "automl-ai-translation-for-wpml"), info.status === "completed" && (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)("Completed", "automl-ai-translation-for-wpml"), workingStatus && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsxs)("div", {
                           className: `${prefix}-progress-bar-circular`,
-                          "data-id": info.parentPostId + '_' + info.targetLanguage,
+                          "data-id": info.parentPostId + "_" + info.targetLanguage,
                           children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsxs)("svg", {
                             className: `${prefix}-circle`,
                             viewBox: "0 0 36 36",
@@ -5092,36 +5082,36 @@ const StatusModal = ({
                         })]
                       })
                     }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("td", {
-                      children: info.status === 'completed' ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("a", {
+                      children: info.status === "completed" ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("a", {
                         href: info.postLink,
                         target: "_blank",
                         rel: "noopener noreferrer",
                         children: info.targetPostTitle
-                      }) : info.status === 'in-progress' ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsxs)("div", {
+                      }) : info.status === "in-progress" ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsxs)("div", {
                         className: `${prefix}-${info.messageClass}-text`,
-                        children: [(0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('In Progress', 'autopoly-ai-translation-for-polylang-pro'), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("span", {})]
+                        children: [(0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)("In Progress", "automl-ai-translation-for-wpml"), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("span", {})]
                       }) : /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("div", {
                         className: `${prefix}-progress-skeleton short`
                       })
                     }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("td", {
-                      children: info.status === 'completed' && info.targetPostId ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("span", {
+                      children: info.status === "completed" && info.targetPostId ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("span", {
                         className: `${prefix}-view-link`,
                         children: allPostStatus(info.parentPostId) ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("a", {
                           href: info.postEditLink,
                           target: "_blank",
                           rel: "noopener noreferrer",
                           className: "button button-primary",
-                          title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.sprintf)((0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('Open the translated %s for review', 'autopoly-ai-translation-for-polylang-pro'), automl_wpml_bulk_translate_object.post_label),
-                          children: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('Review', 'autopoly-ai-translation-for-polylang-pro')
+                          title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.sprintf)((0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)("Open the translated %s for review", "automl-ai-translation-for-wpml"), automl_wpml_bulk_translate_object.post_label),
+                          children: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)("Review", "automl-ai-translation-for-wpml")
                         }) : /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("button", {
                           className: "button disabled",
                           disabled: true,
-                          title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.sprintf)((0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('Please wait until all translations for this %s are complete before reviewing.', 'autopoly-ai-translation-for-polylang-pro'), automl_wpml_bulk_translate_object.post_label),
-                          children: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('Review', 'autopoly-ai-translation-for-polylang-pro')
+                          title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.sprintf)((0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)("Please wait until all translations for this %s are complete before reviewing.", "automl-ai-translation-for-wpml"), automl_wpml_bulk_translate_object.post_label),
+                          children: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)("Review", "automl-ai-translation-for-wpml")
                         })
-                      }) : info.status === 'in-progress' ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsxs)("div", {
+                      }) : info.status === "in-progress" ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsxs)("div", {
                         className: `${prefix}-${info.messageClass}-text`,
-                        children: [(0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('In Progress', 'autopoly-ai-translation-for-polylang-pro'), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("span", {})]
+                        children: [(0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)("In Progress", "automl-ai-translation-for-wpml"), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("span", {})]
                       }) : /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("div", {
                         className: `${prefix}-progress-skeleton short`
                       })
@@ -5138,7 +5128,7 @@ const StatusModal = ({
         children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("a", {
           className: `${prefix}-progress-button button button-primary`,
           href: getTranslatedPostLink(),
-          children: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.sprintf)((0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('Check Translated %s', 'autopoly-ai-translation-for-polylang-pro'), automl_wpml_bulk_translate_object.post_label)
+          children: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.sprintf)((0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)("Check Translated %s", "automl-ai-translation-for-wpml"), automl_wpml_bulk_translate_object.post_label)
         })
       })]
     })]
@@ -13172,12 +13162,12 @@ __webpack_require__.r(__webpack_exports__);
 
     // 1️⃣ Clear old cached data on page load
     const clearOldTranslatorCacheOnLoad = () => {
-      const loadKey = 'automl_wpml_LOCAL_AI_PAGE_LOADED';
+      const loadKey = "automl_wpml_LOCAL_AI_PAGE_LOADED";
       if (sessionStorage.getItem(loadKey)) {
         return;
       }
-      localStorage.removeItem('automl_wpml_AVAILABLE_LOCAL_AI_TRANSLATOR_LANGUAGES');
-      sessionStorage.setItem(loadKey, '1');
+      localStorage.removeItem("automl_wpml_AVAILABLE_LOCAL_AI_TRANSLATOR_LANGUAGES");
+      sessionStorage.setItem(loadKey, "1");
     };
 
     // 2️⃣ Language pack availability check (gesture-based)
@@ -13189,7 +13179,7 @@ __webpack_require__.r(__webpack_exports__);
       delete languagesObj.en;
       let savedLanguages = [];
       try {
-        savedLanguages = JSON.parse(localStorage.getItem('automl_wpml_AVAILABLE_LOCAL_AI_TRANSLATOR_LANGUAGES')) || [];
+        savedLanguages = JSON.parse(localStorage.getItem("automl_wpml_AVAILABLE_LOCAL_AI_TRANSLATOR_LANGUAGES")) || [];
       } catch {
         savedLanguages = [];
       }
@@ -13201,57 +13191,39 @@ __webpack_require__.r(__webpack_exports__);
         const targetLang = Object.keys(languagesObj)[0];
         if (supportedLanguages.includes(targetLang)) {
           try {
-            const status = await _components_translate_provider_local_ai_local_ai_translate__WEBPACK_IMPORTED_MODULE_8__["default"].languagePairAvality('en', targetLang);
-            if (['available', 'readily'].includes(status)) {
+            const status = await _components_translate_provider_local_ai_local_ai_translate__WEBPACK_IMPORTED_MODULE_8__["default"].languagePairAvality("en", targetLang);
+            if (["available", "readily"].includes(status)) {
               delete languagesObj[targetLang];
               savedLanguages.push(targetLang);
-              localStorage.setItem('automl_wpml_AVAILABLE_LOCAL_AI_TRANSLATOR_LANGUAGES', JSON.stringify(savedLanguages));
+              localStorage.setItem("automl_wpml_AVAILABLE_LOCAL_AI_TRANSLATOR_LANGUAGES", JSON.stringify(savedLanguages));
             }
           } catch (err) {
-            console.error('Language availability check failed:', targetLang, err);
+            console.error("Language availability check failed:", targetLang, err);
           }
         } else {
           delete languagesObj[targetLang];
         }
         localAiCheckInProgres = false;
         if (Object.keys(languagesObj).length === 0) {
-          document.removeEventListener('mousemove', onMouseMove);
+          document.removeEventListener("mousemove", onMouseMove);
           const doActionsBtn = document.querySelectorAll(`.${prefix}-btn`);
           doActionsBtn.forEach(btn => {
-            btn.removeEventListener('mousemove', checkLanguagePackAvailability);
-            btn.removeEventListener('mouseleave', checkLanguagePackAvailability);
-            btn.removeEventListener('mouseenter', checkLanguagePackAvailability);
+            btn.removeEventListener("mousemove", checkLanguagePackAvailability);
+            btn.removeEventListener("mouseleave", checkLanguagePackAvailability);
+            btn.removeEventListener("mouseenter", checkLanguagePackAvailability);
           });
         }
       };
       const onMouseMove = () => {
         processNextLanguage();
       };
-      document.addEventListener('mousemove', onMouseMove);
+      document.addEventListener("mousemove", onMouseMove);
     };
-
-    // const bulkTranslationHandler = (e) => {
-    //     e.preventDefault();
-
-    //     let checkboxClass = 'table.widefat input[name="post[]"]:checked';
-
-    //     if (automl_wpml_bulk_translate_object.taxonomy_page && '' !== automl_wpml_bulk_translate_object.taxonomy_page) {
-    //         checkboxClass = 'table.widefat input[name="delete_tags[]"]:checked';
-    //     }
-
-    //     const selectedPostIds = document.querySelectorAll(checkboxClass);
-    //     const postIds = Array.from(selectedPostIds).map(postId => postId.value);
-
-    //     checkLanguagePackAvailability();
-
-    //     setPostIds(postIds);
-    //     handleModalVisibility(e);
-    // }
     const bulkTranslationHandler = e => {
       e.preventDefault();
 
       // Check if we're on the String Translation page
-      const isStringTranslationPage = window.location.href.indexOf('wpml-string-translation') !== -1;
+      const isStringTranslationPage = window.location.href.indexOf("wpml-string-translation") !== -1;
       let checkboxClass = 'table.widefat input[name="post[]"]:checked';
       let postIds = [];
       let stringFilters = {};
@@ -13261,24 +13233,24 @@ __webpack_require__.r(__webpack_exports__);
         const statusSelect = document.querySelector('select[name="icl_st_filter_status"]');
         const contextSelect = document.querySelector('select[name="icl_st_filter_context"]');
         const prioritySelect = document.querySelector('select[name="icl-st-filter-translation-priority"]');
-        const searchInput = document.querySelector('input#icl_st_filter_search');
-        const searchTranslationCheckbox = document.querySelector('input#search_translation:not([disabled])');
-        const exactMatchCheckbox = document.querySelector('input#icl_st_filter_search_em:not([disabled])');
-        const stringTable = document.querySelector('#icl_string_translations') || document.querySelector('table.js-wpml-st-table');
-        const checked = stringTable ? stringTable.querySelectorAll('input.wpml-checkbox-native:checked, input.js-icl-st-row-cb:checked') : [];
+        const searchInput = document.querySelector("input#icl_st_filter_search");
+        const searchTranslationCheckbox = document.querySelector("input#search_translation:not([disabled])");
+        const exactMatchCheckbox = document.querySelector("input#icl_st_filter_search_em:not([disabled])");
+        const stringTable = document.querySelector("#icl_string_translations") || document.querySelector("table.js-wpml-st-table");
+        const checked = stringTable ? stringTable.querySelectorAll("input.wpml-checkbox-native:checked, input.js-icl-st-row-cb:checked") : [];
         const selectedStringIds = Array.from(checked).map(el => el.value).filter(Boolean);
 
         // Get values - use empty string if not found
-        const statusValue = statusSelect ? statusSelect.value || '' : '';
-        const contextValue = contextSelect ? contextSelect.value || '' : '';
-        const priorityValue = prioritySelect ? prioritySelect.value || '' : '';
-        const searchValue = searchInput ? searchInput.value || '' : '';
-        const searchTranslationValue = searchTranslationCheckbox && searchTranslationCheckbox.checked ? '1' : '';
-        const exactMatchValue = exactMatchCheckbox && exactMatchCheckbox.checked ? '1' : '';
+        const statusValue = statusSelect ? statusSelect.value || "" : "";
+        const contextValue = contextSelect ? contextSelect.value || "" : "";
+        const priorityValue = prioritySelect ? prioritySelect.value || "" : "";
+        const searchValue = searchInput ? searchInput.value || "" : "";
+        const searchTranslationValue = searchTranslationCheckbox && searchTranslationCheckbox.checked ? "1" : "";
+        const exactMatchValue = exactMatchCheckbox && exactMatchCheckbox.checked ? "1" : "";
         stringFilters = {
           status: statusValue,
           context: contextValue,
-          'translation-priority': priorityValue,
+          "translation-priority": priorityValue,
           search: searchValue,
           search_translation: searchTranslationValue,
           exact_match: exactMatchValue
@@ -13292,17 +13264,6 @@ __webpack_require__.r(__webpack_exports__);
         window.wpmlIsStringTranslationPage = true;
         // For strings, we don't need postIds - we'll translate ALL strings matching filters
         postIds = [];
-      } else {
-        // Normal post/taxonomy flow
-        if (automl_wpml_bulk_translate_object.taxonomy_page && '' !== automl_wpml_bulk_translate_object.taxonomy_page) {
-          checkboxClass = 'table.widefat input[name="delete_tags[]"]:checked';
-        }
-        const selectedPostIds = document.querySelectorAll(checkboxClass);
-        postIds = Array.from(selectedPostIds).map(postId => postId.value);
-
-        // Clear string translation flags
-        window.wpmlStringFilters = {};
-        window.wpmlIsStringTranslationPage = false;
       }
       checkLanguagePackAvailability();
       setPostIds(postIds);
@@ -13310,7 +13271,7 @@ __webpack_require__.r(__webpack_exports__);
     };
     const destroyGoogleWidget = () => {
       const googleWidget = document.querySelector('.skiptranslate iframe[id=":1.container"]');
-      document.body.classList.remove(prefix + '-google-translate');
+      document.body.classList.remove(prefix + "-google-translate");
       if (googleWidget) {
         const closeButton = googleWidget.contentDocument.querySelector('a[id=":1.close"][title="Close"] img');
         if (closeButton) {
@@ -13323,10 +13284,10 @@ __webpack_require__.r(__webpack_exports__);
       if (doActionsBtn) {
         clearOldTranslatorCacheOnLoad();
         doActionsBtn.forEach(btn => {
-          btn.addEventListener('click', bulkTranslationHandler);
-          btn.addEventListener('mousemove', checkLanguagePackAvailability);
-          btn.addEventListener('mouseleave', checkLanguagePackAvailability);
-          btn.addEventListener('mouseenter', checkLanguagePackAvailability);
+          btn.addEventListener("click", bulkTranslationHandler);
+          btn.addEventListener("mousemove", checkLanguagePackAvailability);
+          btn.addEventListener("mouseleave", checkLanguagePackAvailability);
+          btn.addEventListener("mouseenter", checkLanguagePackAvailability);
         });
       }
     }, []);
@@ -13342,18 +13303,18 @@ __webpack_require__.r(__webpack_exports__);
       postIds: postIds
     }) : null;
   };
-  window.addEventListener('load', async () => {
-    const prefix = 'automl-wpml-bulk-translate';
+  window.addEventListener("load", async () => {
+    const prefix = "automl-wpml-bulk-translate";
     await new Promise(resolve => setTimeout(resolve, 500));
 
     // Move bulk translate button to correct position on string translation page
     const bulkTranslateBtn = document.querySelector(`.${prefix}-btn`);
-    bulkTranslateBtn.style.display = 'block';
-    const stringFilterDiv = document.querySelector('.wpml-string-translation-filter');
-    const filterButton = document.querySelector('#icl_st_filter_search_sb');
+    bulkTranslateBtn.style.display = "block";
+    const stringFilterDiv = document.querySelector(".wpml-string-translation-filter");
+    const filterButton = document.querySelector("#icl_st_filter_search_sb");
     if (bulkTranslateBtn && stringFilterDiv && filterButton) {
       // Insert the button after the filter button
-      filterButton.insertAdjacentElement('afterend', bulkTranslateBtn);
+      filterButton.insertAdjacentElement("afterend", bulkTranslateBtn);
     }
     react_dom__WEBPACK_IMPORTED_MODULE_2___default().createRoot(document.getElementById(`${prefix}-wrapper`)).render(/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(react_redux__WEBPACK_IMPORTED_MODULE_5__.Provider, {
       store: _redux_store_store__WEBPACK_IMPORTED_MODULE_4__.store,

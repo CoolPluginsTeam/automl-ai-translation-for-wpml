@@ -96,7 +96,7 @@ if ( ! class_exists( 'WPML_AT_Dashboard_Supported_Blocks' ) ) {
 					<?php
 					// translators: %s: plugin name.
 					printf(
-						esc_html__( 'Supported Blocks for %s', 'wpml-auto-translate-addon' ),
+						esc_html__( 'Supported Blocks for %s', 'automl-ai-translation-for-wpml' ),
 						'WPML Google Auto Translate Addon'
 					);
 					?>
@@ -105,10 +105,10 @@ if ( ! class_exists( 'WPML_AT_Dashboard_Supported_Blocks' ) ) {
 				<div class="wpml-at-supported-blocks-filters">
 					<div class="wpml-at-category-tab">
 						<label for="wpml-at-blocks-category">
-							<?php esc_html_e( 'Block Type Category:', 'wpml-auto-translate-addon' ); ?>
+							<?php esc_html_e( 'Block Type Category:', 'automl-ai-translation-for-wpml' ); ?>
 						</label>
 						<select id="wpml-at-blocks-category" name="wpml_at_blocks_category">
-							<option value="all"><?php esc_html_e( 'All', 'wpml-auto-translate-addon' ); ?></option>
+							<option value="all"><?php esc_html_e( 'All', 'automl-ai-translation-for-wpml' ); ?></option>
 							<option value="core">Core</option>
 							<?php $this->output_blocks_category_options(); ?>
 						</select>
@@ -116,12 +116,12 @@ if ( ! class_exists( 'WPML_AT_Dashboard_Supported_Blocks' ) ) {
 
 					<div class="wpml-at-filter-tab">
 						<label for="wpml-at-blocks-filter">
-							<?php esc_html_e( 'Show Blocks:', 'wpml-auto-translate-addon' ); ?>
+							<?php esc_html_e( 'Show Blocks:', 'automl-ai-translation-for-wpml' ); ?>
 						</label>
 						<select id="wpml-at-blocks-filter" name="wpml_at_blocks_filter">
-							<option value="all"><?php esc_html_e( 'All', 'wpml-auto-translate-addon' ); ?></option>
-							<option value="supported"><?php esc_html_e( 'Supported Blocks', 'wpml-auto-translate-addon' ); ?></option>
-							<option value="unsupported"><?php esc_html_e( 'Unsupported Blocks', 'wpml-auto-translate-addon' ); ?></option>
+							<option value="all"><?php esc_html_e( 'All', 'automl-ai-translation-for-wpml' ); ?></option>
+							<option value="supported"><?php esc_html_e( 'Supported Blocks', 'automl-ai-translation-for-wpml' ); ?></option>
+							<option value="unsupported"><?php esc_html_e( 'Unsupported Blocks', 'automl-ai-translation-for-wpml' ); ?></option>
 						</select>
 					</div>
 				</div>
@@ -131,11 +131,11 @@ if ( ! class_exists( 'WPML_AT_Dashboard_Supported_Blocks' ) ) {
 						<table class="wpml-at-supported-blocks-table" id="wpml-at-supported-blocks-table">
 							<thead>
 								<tr>
-									<th><?php esc_html_e( 'Sr.No', 'wpml-auto-translate-addon' ); ?></th>
-									<th><?php esc_html_e( 'Block Name', 'wpml-auto-translate-addon' ); ?></th>
-									<th><?php esc_html_e( 'Block Title', 'wpml-auto-translate-addon' ); ?></th>
-									<th><?php esc_html_e( 'Status', 'wpml-auto-translate-addon' ); ?></th>
-									<th><?php esc_html_e( 'Modify', 'wpml-auto-translate-addon' ); ?></th>
+									<th><?php esc_html_e( 'Sr.No', 'automl-ai-translation-for-wpml' ); ?></th>
+									<th><?php esc_html_e( 'Block Name', 'automl-ai-translation-for-wpml' ); ?></th>
+									<th><?php esc_html_e( 'Block Title', 'automl-ai-translation-for-wpml' ); ?></th>
+									<th><?php esc_html_e( 'Status', 'automl-ai-translation-for-wpml' ); ?></th>
+									<th><?php esc_html_e( 'Modify', 'automl-ai-translation-for-wpml' ); ?></th>
 								</tr>
 							</thead>
 							<tbody>
@@ -207,7 +207,7 @@ if ( ! class_exists( 'WPML_AT_Dashboard_Supported_Blocks' ) ) {
 				$block_name  = esc_html( $block->name );
 				$block_title = esc_html( $block->title );
 				$status      = in_array( $block_name, $supported_block_names, true ) ? 'Supported' : 'Unsupported';
-				$modify_text = in_array( $block_name, $supported_block_names, true ) ? esc_html__( 'Edit', 'wpml-auto-translate-addon' ) : esc_html__( 'Add', 'wpml-auto-translate-addon' );
+				$modify_text = in_array( $block_name, $supported_block_names, true ) ? esc_html__( 'Edit', 'automl-ai-translation-for-wpml' ) : esc_html__( 'Add', 'automl-ai-translation-for-wpml' );
 
 				// In the original plugin this goes to a custom post type editor; you can change this link.
 				$modify_link = '<a href="' . esc_url( admin_url( 'admin.php?page=wpml-auto-dashboard&tab=settings' ) ) . '">' . $modify_text . '</a>';

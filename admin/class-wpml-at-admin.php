@@ -46,7 +46,7 @@ class WPML_AT_Admin
         //     return;
         // }
 
-        $post_label=__("Strings", "autopoly-ai-translation-for-polylang-pro");
+        $post_label=__("Strings", "automl-ai-translation-for-wpml");
         $taxonomy_page=false;
         
         $slug_translation_option = get_option('automl_wpml_slug_translation_option','title_translate');
@@ -160,14 +160,14 @@ class WPML_AT_Admin
 					'languages' => $languages,
 					'admin_url' => esc_url(admin_url()),
 					'i18n'      => array(
-						'errorPageId'      => esc_html__('Could not detect page ID for this row.', 'wpml-auto-translate-addon'),
-						'errorNoSelection' => esc_html__('Please select at least one post to translate.', 'wpml-auto-translate-addon'),
-						'errorNoLanguage'  => esc_html__('Please select a target language.', 'wpml-auto-translate-addon'),
-						'errorInvalidData' => esc_html__('Invalid post ID or language.', 'wpml-auto-translate-addon'),
-						'errorNoStrings'   => esc_html__('No translation strings found.', 'wpml-auto-translate-addon'),
-						'errorAjax'        => esc_html__('AJAX error while loading content.', 'wpml-auto-translate-addon'),
-						'errorAjaxSave'    => esc_html__('AJAX error while saving.', 'wpml-auto-translate-addon'),
-						'errorUnknown'     => esc_html__('Unknown error occurred.', 'wpml-auto-translate-addon'),
+						'errorPageId'      => esc_html__('Could not detect page ID for this row.', 'automl-ai-translation-for-wpml'),
+						'errorNoSelection' => esc_html__('Please select at least one post to translate.', 'automl-ai-translation-for-wpml'),
+						'errorNoLanguage'  => esc_html__('Please select a target language.', 'automl-ai-translation-for-wpml'),
+						'errorInvalidData' => esc_html__('Invalid post ID or language.', 'automl-ai-translation-for-wpml'),
+						'errorNoStrings'   => esc_html__('No translation strings found.', 'automl-ai-translation-for-wpml'),
+						'errorAjax'        => esc_html__('AJAX error while loading content.', 'automl-ai-translation-for-wpml'),
+						'errorAjaxSave'    => esc_html__('AJAX error while saving.', 'automl-ai-translation-for-wpml'),
+						'errorUnknown'     => esc_html__('Unknown error occurred.', 'automl-ai-translation-for-wpml'),
 					),
 				)
 			);
@@ -253,7 +253,7 @@ class WPML_AT_Admin
 		$actions['cool_translate'] = sprintf(
 			'<a href="#" class="cp-wpml-row-translate-btn" data-post-id="%d" style="color:#21759b;font-weight:600;">%s</a>',
 			absint($post->ID),
-			esc_html__('Translate', 'wpml-auto-translate-addon')
+			esc_html__('Translate', 'automl-ai-translation-for-wpml')
 		);
 
 		return $actions;
@@ -316,7 +316,7 @@ class WPML_AT_Admin
 	{
 ?>
 		<button class="button button-primary automl-wpml-bulk-translate-btn" style="display: none;">
-			<?php esc_html_e('Bulk Translate', 'wpml-auto-translate-addon'); ?>
+			<?php esc_html_e('Bulk Translate', 'automl-ai-translation-for-wpml'); ?>
 		</button>
 	<?php
 	}

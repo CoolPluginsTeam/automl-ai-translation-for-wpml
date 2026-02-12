@@ -80,7 +80,7 @@ class CP_WPML_Google_Auto_Translate_Ajax {
 
 		// Check user capabilities.
 		if ( ! current_user_can( 'edit_posts' ) ) {
-			wp_send_json_error( array( 'msg' => esc_html__( 'Insufficient permissions.', 'wpml-auto-translate-addon' ) ) );
+			wp_send_json_error( array( 'msg' => esc_html__( 'Insufficient permissions.', 'automl-ai-translation-for-wpml' ) ) );
 			return;
 		}
 
@@ -89,7 +89,7 @@ class CP_WPML_Google_Auto_Translate_Ajax {
 		$target_lang = isset( $_POST['target_lang'] ) ? sanitize_text_field( wp_unslash( $_POST['target_lang'] ) ) : '';
 
 		if ( empty( $ids ) ) {
-			wp_send_json_error( array( 'msg' => esc_html__( 'No post IDs provided.', 'wpml-auto-translate-addon' ) ) );
+			wp_send_json_error( array( 'msg' => esc_html__( 'No post IDs provided.', 'automl-ai-translation-for-wpml' ) ) );
 			return;
 		}
 
@@ -224,12 +224,12 @@ class CP_WPML_Google_Auto_Translate_Ajax {
 		// Check nonce but don't die on failure - return JSON error instead.
 		$nonce_check = check_ajax_referer( self::NONCE, 'nonce', false );
 		if ( ! $nonce_check ) {
-			wp_send_json_error( array( 'msg' => esc_html__( 'Security check failed. Please refresh the page and try again.', 'wpml-auto-translate-addon' ) ) );
+			wp_send_json_error( array( 'msg' => esc_html__( 'Security check failed. Please refresh the page and try again.', 'automl-ai-translation-for-wpml' ) ) );
 			return;
 		}
 
 		if ( ! current_user_can( 'edit_posts' ) ) {
-			wp_send_json_error( array( 'msg' => esc_html__( 'Insufficient permissions.', 'wpml-auto-translate-addon' ) ) );
+			wp_send_json_error( array( 'msg' => esc_html__( 'Insufficient permissions.', 'automl-ai-translation-for-wpml' ) ) );
 			return;
 		}
 
@@ -313,7 +313,7 @@ class CP_WPML_Google_Auto_Translate_Ajax {
 
 		// Check user capabilities.
 		if ( ! current_user_can( 'edit_posts' ) ) {
-			wp_send_json_error( array( 'msg' => esc_html__( 'Insufficient permissions.', 'wpml-auto-translate-addon' ) ) );
+			wp_send_json_error( array( 'msg' => esc_html__( 'Insufficient permissions.', 'automl-ai-translation-for-wpml' ) ) );
 			return;
 		}
 
@@ -324,19 +324,19 @@ class CP_WPML_Google_Auto_Translate_Ajax {
 		$strings     = isset( $_POST['translated_strings'] ) ? (array) $_POST['translated_strings'] : array();
 
 		if ( ! $post_id || ! $target_lang || empty( $strings ) ) {
-			wp_send_json_error( array( 'msg' => esc_html__( 'Missing required data.', 'wpml-auto-translate-addon' ) ) );
+			wp_send_json_error( array( 'msg' => esc_html__( 'Missing required data.', 'automl-ai-translation-for-wpml' ) ) );
 			return;
 		}
 
 		$post = get_post( $post_id );
 		if ( ! $post ) {
-			wp_send_json_error( array( 'msg' => esc_html__( 'Invalid post.', 'wpml-auto-translate-addon' ) ) );
+			wp_send_json_error( array( 'msg' => esc_html__( 'Invalid post.', 'automl-ai-translation-for-wpml' ) ) );
 			return;
 		}
 
 		// Check if user can edit this post.
 		if ( ! current_user_can( 'edit_post', $post_id ) ) {
-			wp_send_json_error( array( 'msg' => esc_html__( 'You do not have permission to edit this post.', 'wpml-auto-translate-addon' ) ) );
+			wp_send_json_error( array( 'msg' => esc_html__( 'You do not have permission to edit this post.', 'automl-ai-translation-for-wpml' ) ) );
 			return;
 		}
     
@@ -374,7 +374,7 @@ class CP_WPML_Google_Auto_Translate_Ajax {
 			);
 
 			if ( is_wp_error( $update_result ) ) {
-				wp_send_json_error( array( 'msg' => esc_html__( 'Failed to update translation post.', 'wpml-auto-translate-addon' ) ) );
+				wp_send_json_error( array( 'msg' => esc_html__( 'Failed to update translation post.', 'automl-ai-translation-for-wpml' ) ) );
 				return;
 			}
 		} else {
@@ -390,7 +390,7 @@ class CP_WPML_Google_Auto_Translate_Ajax {
 			);
 
 			if ( is_wp_error( $translated_post_id ) ) {
-				wp_send_json_error( array( 'msg' => esc_html__( 'Post creation failed.', 'wpml-auto-translate-addon' ) ) );
+				wp_send_json_error( array( 'msg' => esc_html__( 'Post creation failed.', 'automl-ai-translation-for-wpml' ) ) );
 				return;
 			}
 
@@ -422,7 +422,7 @@ class CP_WPML_Google_Auto_Translate_Ajax {
 			}
 
 			if ( ! is_array( $data ) ) {
-				wp_send_json_error( array( 'msg' => esc_html__( 'Invalid Elementor data.', 'wpml-auto-translate-addon' ) ) );
+				wp_send_json_error( array( 'msg' => esc_html__( 'Invalid Elementor data.', 'automl-ai-translation-for-wpml' ) ) );
 				return;
 			}
             
@@ -482,7 +482,7 @@ class CP_WPML_Google_Auto_Translate_Ajax {
     
 			wp_send_json_success(
 				array(
-					'msg'     => esc_html__( 'Elementor translation saved successfully.', 'wpml-auto-translate-addon' ),
+					'msg'     => esc_html__( 'Elementor translation saved successfully.', 'automl-ai-translation-for-wpml' ),
 					'post_id' => $translated_post_id,
 					'debug'   => array(
 						'replacements'   => $replacement_count,
@@ -505,7 +505,7 @@ class CP_WPML_Google_Auto_Translate_Ajax {
 			if ( empty( $base_post_content ) ) {
 				wp_send_json_error(
 					array(
-						'msg' => esc_html__( 'Original post content is empty.', 'wpml-auto-translate-addon' ),
+						'msg' => esc_html__( 'Original post content is empty.', 'automl-ai-translation-for-wpml' ),
 					)
 				);
 				return;
@@ -549,7 +549,7 @@ class CP_WPML_Google_Auto_Translate_Ajax {
     
 			wp_send_json_success(
 				array(
-					'msg'                => esc_html__( 'Gutenberg blocks translated and saved.', 'wpml-auto-translate-addon' ),
+					'msg'                => esc_html__( 'Gutenberg blocks translated and saved.', 'automl-ai-translation-for-wpml' ),
 					'post_id'            => $translated_post_id,
 					'translated_post_id' => $translated_post_id,
 					'is_blocks'          => true,
@@ -631,7 +631,7 @@ class CP_WPML_Google_Auto_Translate_Ajax {
     
 		wp_send_json_success(
 			array(
-				'msg'     => esc_html__( 'Classic editor translation saved successfully.', 'wpml-auto-translate-addon' ),
+				'msg'     => esc_html__( 'Classic editor translation saved successfully.', 'automl-ai-translation-for-wpml' ),
 				'post_id' => $translated_post_id,
 				'debug'   => array(
 					'replacements'    => $replacement_count,

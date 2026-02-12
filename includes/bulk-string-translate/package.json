@@ -1,5 +1,5 @@
 {
-  "name": "wpml-auto-translate-addon",
+  "name": "automl-ai-translation-for-wpml",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {

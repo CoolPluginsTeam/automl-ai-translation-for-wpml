@@ -90,8 +90,8 @@ class WPML_AT_Supported_Blocks {
 			
 			add_submenu_page(
 				$parent_slug,
-				__( 'Supported Blocks', 'wpml-auto-translate-addon' ),
-				__( 'Supported Blocks', 'wpml-auto-translate-addon' ),
+				__( 'Supported Blocks', 'automl-ai-translation-for-wpml' ),
+				__( 'Supported Blocks', 'automl-ai-translation-for-wpml' ),
 				'manage_options',
 				'wpml-auto-translate-supported-blocks',
 				array( $this, 'render_page' )
@@ -145,8 +145,8 @@ class WPML_AT_Supported_Blocks {
 			if ( isset( $submenu[ $parent ] ) || $parent === 'wpml-translation-management' ) {
 				add_submenu_page(
 					$parent,
-					__( 'Supported Blocks', 'wpml-auto-translate-addon' ),
-					__( 'Supported Blocks', 'wpml-auto-translate-addon' ),
+					__( 'Supported Blocks', 'automl-ai-translation-for-wpml' ),
+					__( 'Supported Blocks', 'automl-ai-translation-for-wpml' ),
 					'manage_options',
 					'wpml-auto-translate-supported-blocks',
 					array( $this, 'render_page' )
@@ -158,8 +158,8 @@ class WPML_AT_Supported_Blocks {
 		// Last resort: Add as standalone menu (only if we're in admin)
 		if ( is_admin() ) {
 			add_menu_page(
-				__( 'WPML Supported Blocks', 'wpml-auto-translate-addon' ),
-				__( 'WPML Supported Blocks', 'wpml-auto-translate-addon' ),
+				__( 'WPML Supported Blocks', 'automl-ai-translation-for-wpml' ),
+				__( 'WPML Supported Blocks', 'automl-ai-translation-for-wpml' ),
 				'manage_options',
 				'wpml-auto-translate-supported-blocks',
 				array( $this, 'render_page' ),
@@ -224,11 +224,11 @@ class WPML_AT_Supported_Blocks {
 				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
 				'nonce'   => wp_create_nonce( 'wpml_at_supported_blocks_nonce' ),
 				'i18n'    => array(
-					'saving'     => __( 'Saving...', 'wpml-auto-translate-addon' ),
-					'saved'      => __( 'Changes saved successfully!', 'wpml-auto-translate-addon' ),
-					'error'      => __( 'Error saving changes. Please try again.', 'wpml-auto-translate-addon' ),
-					'selectAll'  => __( 'Select All', 'wpml-auto-translate-addon' ),
-					'deselectAll' => __( 'Deselect All', 'wpml-auto-translate-addon' ),
+					'saving'     => __( 'Saving...', 'automl-ai-translation-for-wpml' ),
+					'saved'      => __( 'Changes saved successfully!', 'automl-ai-translation-for-wpml' ),
+					'error'      => __( 'Error saving changes. Please try again.', 'automl-ai-translation-for-wpml' ),
+					'selectAll'  => __( 'Select All', 'automl-ai-translation-for-wpml' ),
+					'deselectAll' => __( 'Deselect All', 'automl-ai-translation-for-wpml' ),
 				),
 			)
 		);
@@ -246,23 +246,23 @@ class WPML_AT_Supported_Blocks {
 
 		// Check permissions
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'wpml-auto-translate-addon' ) );
+			wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'automl-ai-translation-for-wpml' ) );
 		}
 
 		// Verify we're on the correct page
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading GET parameter for conditional logic, not processing form data.
 		if ( empty( $_GET['page'] ) || 'wpml-auto-translate-supported-blocks' !== $_GET['page'] ) {
-			wp_die( esc_html__( 'Invalid page access.', 'wpml-auto-translate-addon' ) );
+			wp_die( esc_html__( 'Invalid page access.', 'automl-ai-translation-for-wpml' ) );
 		}
 
 		?>
 		<div class="wrap wpml-at-supported-blocks-wrapper">
-			<h1><?php echo esc_html__( 'Supported Blocks Translation Settings', 'wpml-auto-translate-addon' ); ?></h1>
+			<h1><?php echo esc_html__( 'Supported Blocks Translation Settings', 'automl-ai-translation-for-wpml' ); ?></h1>
 			<p class="description">
 				<?php
 				echo sprintf(
 					/* translators: %s: Plugin name */
-					esc_html__( 'Manage Gutenberg blocks to make them translation-ready with %s.', 'wpml-auto-translate-addon' ),
+					esc_html__( 'Manage Gutenberg blocks to make them translation-ready with %s.', 'automl-ai-translation-for-wpml' ),
 					'<strong>WPML Google Auto Translate Addon</strong>'
 				);
 				?>
@@ -271,23 +271,23 @@ class WPML_AT_Supported_Blocks {
 			<div class="wpml-at-filters">
 				<div class="wpml-at-filter-group">
 					<label for="wpml-at-blocks-category">
-						<?php esc_html_e( 'Block Type Category:', 'wpml-auto-translate-addon' ); ?>
+						<?php esc_html_e( 'Block Type Category:', 'automl-ai-translation-for-wpml' ); ?>
 					</label>
 					<select id="wpml-at-blocks-category" name="wpml_at_blocks_category">
-						<option value="all"><?php esc_html_e( 'All', 'wpml-auto-translate-addon' ); ?></option>
-						<option value="core"><?php esc_html_e( 'Core', 'wpml-auto-translate-addon' ); ?></option>
+						<option value="all"><?php esc_html_e( 'All', 'automl-ai-translation-for-wpml' ); ?></option>
+						<option value="core"><?php esc_html_e( 'Core', 'automl-ai-translation-for-wpml' ); ?></option>
 						<?php $this->render_block_categories(); ?>
 					</select>
 				</div>
 
 				<div class="wpml-at-filter-group">
 					<label for="wpml-at-blocks-filter">
-						<?php esc_html_e( 'Show Blocks:', 'wpml-auto-translate-addon' ); ?>
+						<?php esc_html_e( 'Show Blocks:', 'automl-ai-translation-for-wpml' ); ?>
 					</label>
 					<select id="wpml-at-blocks-filter" name="wpml_at_blocks_filter">
-						<option value="all"><?php esc_html_e( 'All', 'wpml-auto-translate-addon' ); ?></option>
-						<option value="supported"><?php esc_html_e( 'Supported Blocks', 'wpml-auto-translate-addon' ); ?></option>
-						<option value="unsupported"><?php esc_html_e( 'Unsupported Blocks', 'wpml-auto-translate-addon' ); ?></option>
+						<option value="all"><?php esc_html_e( 'All', 'automl-ai-translation-for-wpml' ); ?></option>
+						<option value="supported"><?php esc_html_e( 'Supported Blocks', 'automl-ai-translation-for-wpml' ); ?></option>
+						<option value="unsupported"><?php esc_html_e( 'Unsupported Blocks', 'automl-ai-translation-for-wpml' ); ?></option>
 					</select>
 				</div>
 			</div>
@@ -295,19 +295,19 @@ class WPML_AT_Supported_Blocks {
 			<div class="wpml-at-table-section">
 				<div class="wpml-at-table-actions">
 					<button type="button" id="wpml-at-save-changes" class="button button-primary">
-						<?php esc_html_e( 'Save Changes', 'wpml-auto-translate-addon' ); ?>
+						<?php esc_html_e( 'Save Changes', 'automl-ai-translation-for-wpml' ); ?>
 					</button>
 					<span id="wpml-at-save-message" class="wpml-at-save-message"></span>
 				</div>
 				<table id="wpml-at-blocks-table" class="wp-list-table widefat fixed striped">
 					<thead>
 						<tr>
-							<th><?php esc_html_e( 'Sr.No', 'wpml-auto-translate-addon' ); ?></th>
-							<th><?php esc_html_e( 'Block Name', 'wpml-auto-translate-addon' ); ?></th>
-							<th><?php esc_html_e( 'Block Title', 'wpml-auto-translate-addon' ); ?></th>
-							<th><?php esc_html_e( 'Enable Translation', 'wpml-auto-translate-addon' ); ?></th>
-							<th><?php esc_html_e( 'Status', 'wpml-auto-translate-addon' ); ?></th>
-							<th><?php esc_html_e( 'Attributes', 'wpml-auto-translate-addon' ); ?></th>
+							<th><?php esc_html_e( 'Sr.No', 'automl-ai-translation-for-wpml' ); ?></th>
+							<th><?php esc_html_e( 'Block Name', 'automl-ai-translation-for-wpml' ); ?></th>
+							<th><?php esc_html_e( 'Block Title', 'automl-ai-translation-for-wpml' ); ?></th>
+							<th><?php esc_html_e( 'Enable Translation', 'automl-ai-translation-for-wpml' ); ?></th>
+							<th><?php esc_html_e( 'Status', 'automl-ai-translation-for-wpml' ); ?></th>
+							<th><?php esc_html_e( 'Attributes', 'automl-ai-translation-for-wpml' ); ?></th>
 						</tr>
 					</thead>
 					<tbody>
@@ -382,7 +382,7 @@ class WPML_AT_Supported_Blocks {
 	 */
 	private function render_blocks_table() {
 		if ( ! class_exists( 'WP_Block_Type_Registry' ) ) {
-			echo '<tr><td colspan="6">' . esc_html__( 'Block registry not available.', 'wpml-auto-translate-addon' ) . '</td></tr>';
+			echo '<tr><td colspan="6">' . esc_html__( 'Block registry not available.', 'automl-ai-translation-for-wpml' ) . '</td></tr>';
 			return;
 		}
 
@@ -453,7 +453,7 @@ class WPML_AT_Supported_Blocks {
 			if ( ! empty( $attributes ) && $attributes !== '-' ) {
 				echo '<br>';
 			}
-			$modify_text = $is_enabled ? esc_html__( 'Edit', 'wpml-auto-translate-addon' ) : esc_html__( 'Add', 'wpml-auto-translate-addon' );
+			$modify_text = $is_enabled ? esc_html__( 'Edit', 'automl-ai-translation-for-wpml' ) : esc_html__( 'Add', 'automl-ai-translation-for-wpml' );
 			$custom_post_id = WPML_AT_Custom_Block_Post::get_custom_block_post_id();
 			$modify_link = admin_url( 'post.php?post=' . esc_attr( $custom_post_id ) . '&action=edit&wpml_at_new_block=' . esc_attr( $block_name ) );
 			echo '<a href="' . esc_url( $modify_link ) . '" class="wpml-at-modify-link" target="_blank">' . esc_html( $modify_text ) . '</a>';
@@ -480,14 +480,14 @@ class WPML_AT_Supported_Blocks {
 		check_ajax_referer( 'wpml_at_supported_blocks_nonce', 'nonce' );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_send_json_error( array( 'message' => __( 'Unauthorized', 'wpml-auto-translate-addon' ) ) );
+			wp_send_json_error( array( 'message' => __( 'Unauthorized', 'automl-ai-translation-for-wpml' ) ) );
 		}
 
 		$block_name = isset( $_POST['block_name'] ) ? sanitize_text_field( wp_unslash( $_POST['block_name'] ) ) : '';
 		$enabled = isset( $_POST['enabled'] ) ? (bool) $_POST['enabled'] : false;
 
 		if ( empty( $block_name ) ) {
-			wp_send_json_error( array( 'message' => __( 'Invalid block name', 'wpml-auto-translate-addon' ) ) );
+			wp_send_json_error( array( 'message' => __( 'Invalid block name', 'automl-ai-translation-for-wpml' ) ) );
 		}
 
 		$custom_rules = $this->get_custom_block_rules();
@@ -496,7 +496,7 @@ class WPML_AT_Supported_Blocks {
 		update_option( 'wpml_at_custom_block_rules', $custom_rules );
 
 		wp_send_json_success( array(
-			'message' => __( 'Block support updated successfully', 'wpml-auto-translate-addon' ),
+			'message' => __( 'Block support updated successfully', 'automl-ai-translation-for-wpml' ),
 		) );
 	}
 
@@ -507,7 +507,7 @@ class WPML_AT_Supported_Blocks {
 		check_ajax_referer( 'wpml_at_supported_blocks_nonce', 'nonce' );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_send_json_error( array( 'message' => __( 'Unauthorized', 'wpml-auto-translate-addon' ) ) );
+			wp_send_json_error( array( 'message' => __( 'Unauthorized', 'automl-ai-translation-for-wpml' ) ) );
 		}
 
 		// Sanitize and validate blocks array input.
@@ -526,7 +526,7 @@ class WPML_AT_Supported_Blocks {
 		update_option( 'wpml_at_custom_block_rules', $custom_rules );
 
 		wp_send_json_success( array(
-			'message' => __( 'Block support updated successfully', 'wpml-auto-translate-addon' ),
+			'message' => __( 'Block support updated successfully', 'automl-ai-translation-for-wpml' ),
 			'count'  => count( $blocks ),
 		) );
 	}
