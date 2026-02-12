@@ -9,6 +9,7 @@ use WPML_Package_Helper;
 use DOMDocument;
 use DOMXPath;
 use WPML_Package;
+use AUTOML_WPML\Helper\Helper;
 
 /**
  * Get_Package_Content
@@ -81,7 +82,9 @@ class Get_Package_Content {
 
 		$this->translation_package = $this->set_translatable_strings();
 
-		return;
+		// Set post title, excerpt for translation
+		$this->translation_package = $this->set_post_default_strings();
+
 		$builder = new WPML_Element_Translation_Package( null );
 		
 		$this->package = $builder->create_translation_package(
@@ -91,7 +94,25 @@ class Get_Package_Content {
 		);
 	}
 
-	private function set_translatable_strings() {
+	private function set_post_default_strings(): array {
+		$source_post=get_post($this->post_id);
+
+		if(!$source_post){
+			return $this->translation_package;
+		}
+
+		if(isset($source_post->post_title) && !empty($source_post->post_title)){
+			$this->translation_package['title'] = $source_post->post_title;
+		}
+
+		if(isset($source_post->post_excerpt) && !empty($source_post->post_excerpt)){
+			$this->translation_package['excerpt'] = $source_post->post_excerpt;
+		}
+
+		return $this->translation_package;
+	}
+
+	private function set_translatable_strings(): array {
 	
 		if(empty($this->package)){
 			return array();
@@ -99,14 +120,10 @@ class Get_Package_Content {
 
 		$translation_package = [];
 
-		foreach($this->package as $package_id => $package){
-
-			if($package instanceof WPML_Package) {
-				$source_post_title=$package->__get('post_title');
-
-				if($source_post_title && !empty($source_post_title) && !isset($translation_package['title'])) {
-					$translation_package['title'] = $source_post_title;
-				}
+		
+		foreach($this->package as $package){
+			if(!isset($package->kind) || !in_array($package->kind, Helper::supported_editors(), true)) {
+				continue;
 			}
 
 			$strings = $package->get_package_strings();
@@ -143,7 +160,6 @@ class Get_Package_Content {
 
 	public function get_translatable_strings() {
 		return $this->translation_package;
-		// return $this->extract_translatable_strings($this->package);
 	}
 
 	private function extract_translatable_strings($package) {
