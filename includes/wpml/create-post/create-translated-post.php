@@ -35,7 +35,10 @@ class Create_Translated_Post {
 	 * @var string
 	 */
 	private $target_language;
-
+	/**
+	 * @var int
+	 */
+	private $translated_post_id;
 	/**
 	 * @var string
 	 */
@@ -83,7 +86,7 @@ class Create_Translated_Post {
 		}
 
 		if ( isset( $translated_title ) && ! empty( $translated_title ) ) {
-			$this->translated_title = $translated_title;
+			$this->translated_title = sanitize_text_field($translated_title);
 		}
 
 		$this->editor_type             = $editor_type;
@@ -103,15 +106,68 @@ class Create_Translated_Post {
 			return wp_send_json_error( 'Post translation status is false' );
 		}
 
-		return $this->create_translated_post();
+		$this->create_translated_post();
+        $this->update_translate_strings();
+
+        return $this->translated_post_id;
 	}
 
 	private function is_create_post() {
 		return ( defined( 'DOING_AUTOML_WPML_CREATE_TRANSLATED_POST' ) && true === constant( 'DOING_AUTOML_WPML_CREATE_TRANSLATED_POST' ) );
 	}
 
-	private function create_translated_post() {
-	}
+	private function create_translated_post(): void {
+        $post_type = get_post_type( $this->post_id );
+		$post_data = get_post( $this->post_id, ARRAY_A );
+
+        unset( $post_data['ID'] ); // remove ID to duplicate
+		$post_data['post_status'] = 'draft';
+
+        if(isset($this->translated_title) && !empty($this->translated_title)) {
+            $post_data['post_title'] = $this->translated_title;
+        }
+
+        // Insert translated post
+		$translated_post_id = wp_insert_post( $post_data );
+
+        if ( is_wp_error( $translated_post_id ) ) {
+			wp_send_json_error([ 'msg' => 'Failed to create translated post.' ]);
+		}
+
+        // Duplicate meta
+		$meta = get_post_meta( $this->post_id );
+		foreach ( $meta as $meta_key => $meta_values ) {
+			if ( in_array( $meta_key, ['_edit_lock', '_edit_last'] ) ) continue;
+	
+			foreach ( $meta_values as $meta_value ) {
+				update_post_meta( $translated_post_id, $meta_key, maybe_unserialize( $meta_value ) );
+			}
+		}
+
+        // WPML language linking
+		do_action( 'wpml_set_element_language_details', [
+			'element_id'           => $translated_post_id,
+			'element_type'         => 'post_' . $post_type,
+			'trid'                 => apply_filters( 'wpml_element_trid', null, $this->post_id, 'post_' . $post_type ),
+			'language_code'        => $this->target_language,
+			'source_language_code' => apply_filters( 'wpml_post_language_details', null, $this->post_id )['language_code']
+		]);
+
+        $this->translated_post_id = $translated_post_id;
+    }
+
+    private function update_translate_strings(): void {
+        if($this->editor_type === 'Elementor'){
+            $nonce = wp_create_nonce('automl_wpml_elementor_content_update_nonce');
+
+            if(!defined('DOING_AUTOML_WPML_ELEMENTOR_CONTENT_UPDATE')){
+                define('DOING_AUTOML_WPML_ELEMENTOR_CONTENT_UPDATE', true);
+            }
+
+            $elementor_content_update = new Elementor_Content_Update( $this->post_id, $this->translated_post_id, $this->translate_strings, $this->target_language, $nonce );
+            $elementor_content_update->update_elementor_content();
+        }
+    }
 
 	private function filter_translate_strings( array $translate_strings ): void {
 		$this->translate_strings = array();
