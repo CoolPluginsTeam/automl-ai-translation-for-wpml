@@ -80,17 +80,23 @@ class Register_Assets {
 
         $available_ai_services = array();
 
-		if ( class_exists( '\WordPress\AiClient\AiClient' ) ) {
-			$registry     = \WordPress\AiClient\AiClient::defaultRegistry();
-			$provider_ids = $registry->getRegisteredProviderIds();
-		
-			foreach ( $provider_ids as $provider_id ) {
-				if ( $registry->isProviderConfigured( $provider_id ) ) {
-					// e.g. 'google', 'openai', 'anthropic', etc.
-					$available_ai_services[] = $provider_id;
-				}
-			}
-		}
+		// Use transient to avoid isProviderConfigured() HTTP requests on every string translation page load.
+        if ( class_exists( '\WordPress\AiClient\AiClient' ) ) {
+            $cache_key = 'automl_wpml_configured_providers';
+            $cached    = get_transient( $cache_key );
+            if ( false !== $cached && is_array( $cached ) ) {
+                $available_ai_services = $cached;
+            } else {
+                $registry     = \WordPress\AiClient\AiClient::defaultRegistry();
+                $provider_ids = $registry->getRegisteredProviderIds();
+                foreach ( $provider_ids as $provider_id ) {
+                    if ( $registry->isProviderConfigured( $provider_id ) ) {
+                        $available_ai_services[] = $provider_id;
+                    }
+                }
+                set_transient( $cache_key, $available_ai_services, 24 * HOUR_IN_SECONDS );
+            }
+        }
 
         $extra_data = array();
 

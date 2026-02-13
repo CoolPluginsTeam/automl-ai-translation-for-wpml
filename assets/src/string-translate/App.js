@@ -110,8 +110,6 @@ const App = ({ onDestory, prefix, postIds }) => {
   const handleSelectAllLanguages = (e) => {
     const checked = e.target.checked;
     if (checked) {
-    
-      console.log('targetLanguages', targetLanguages);
       setSelectedLanguages(Object.keys(targetLanguages));
     } else {
       setSelectedLanguages([]);

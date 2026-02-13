@@ -1,34 +1,22 @@
 <?php
 
+namespace AUTOML_WPML\Includes\String_Translation;
+
+if ( ! defined( 'ABSPATH' ) ) exit;
+
+use AUTOML_WPML\Helper\Helper;
+use WPML_AT_Helper;
 /**
- * Admin functionality for WPML Auto Translate Addon.
+ * Register_Assets
  *
- * @package WPML_Auto_Translate
+ * @package AUTOML_WPML\Includes\String_Translation
  */
-
-// If this file is called directly, abort.
-if (! defined('ABSPATH')) {
-	exit;
-}
-
-/**
- * Admin class.
- */
-class WPML_AT_Admin
-{
-
-	/**
-	 * Constructor.
-	 */
-	public function __construct()
-	{
-		add_action('admin_enqueue_scripts', array($this, 'enqueue_assets'));
-		add_filter('page_row_actions', array($this, 'add_translate_button'), 10, 2);
-		add_action('admin_init', array($this, 'add_row_actions_for_custom_post_types'));
-		add_action('current_screen', array($this, 'string_translation_bulk_button'));
+class Register_Assets {
+	public function __construct() {
+        add_action('admin_enqueue_scripts', array($this, 'enqueue_assets'));
 	}
 
-	/**
+		/**
 	 * Enqueue admin assets.
 	 *
 	 * @param string $hook Current admin page hook.
@@ -136,125 +124,6 @@ class WPML_AT_Admin
 				);
 			}
 		}
-		
-	/**
-	 * Add translate button to row actions for translatable post types.
-	 *
-	 * @param array   $actions Row actions.
-	 * @param WP_Post $post    Post object.
-	 * @return array Modified row actions.
-	 */
-	public function add_translate_button($actions, $post)
-	{
-		global $sitepress;
-
-		// Skip for revisions or autosaves.
-		if (! $post || 'revision' === $post->post_type) {
-			return $actions;
-		}
-
-		// Check if WPML is active.
-		if (! $sitepress) {
-			return $actions;
-		}
-
-		// Check if this post type is translatable in WPML.
-		$translatable_types = $sitepress->get_translatable_documents();
-		if (! isset($translatable_types[$post->post_type])) {
-			return $actions;
-		}
-
-		// Check user capabilities.
-		if (! current_user_can('edit_post', $post->ID)) {
-			return $actions;
-		}
-
-		// Add the Translate button.
-		$actions['cool_translate'] = sprintf(
-			'<a href="#" class="cp-wpml-row-translate-btn" data-post-id="%d" style="color:#21759b;font-weight:600;">%s</a>',
-			absint($post->ID),
-			esc_html__('Translate', 'automl-ai-translation-for-wpml')
-		);
-
-		return $actions;
-	}
-
-	/**
-	 * Dynamically add row actions filter for all translatable post types.
-	 */
-	public function add_row_actions_for_custom_post_types()
-	{
-		global $sitepress;
-
-		if (! $sitepress) {
-			return;
-		}
-
-		$translatable_types = $sitepress->get_translatable_documents();
-
-		foreach (array_keys($translatable_types) as $post_type) {
-			// Skip posts and pages as they're already handled.
-			if (in_array($post_type, array('post', 'page'), true)) {
-				continue;
-			}
-
-			// Add filter for custom post type row actions.
-			add_filter($post_type . '_row_actions', array($this, 'add_translate_button'), 10, 2);
-		}
-	}
-
-	/**
-	 * Add bulk translate button to WPML String Translation page.
-	 *
-	 * @param WP_Screen $screen Current screen object.
-	 * @return void
-	 */
-	public function string_translation_bulk_button($screen)
-	{
-		if (! $screen) {
-			return;
-		}
-
-		// Check if we're on the string translation page.
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading GET parameter for conditional logic.
-		$page = isset($_GET['page']) ? sanitize_text_field(wp_unslash($_GET['page'])) : '';
-		if (empty($page) || strpos($page, 'wpml-string-translation/menu/string-translation.php') === false) {
-			return;
-		}
-
-		// Add button and container to the page.
-		add_action('admin_notices', array($this, 'render_string_bulk_translate_button'));
-		add_action('admin_footer', array($this, 'render_bulk_translate_container'));
-	}
-
-	/**
-	 * Render bulk translate button on string translation page.
-	 *
-	 * @return void
-	 */
-	public function render_string_bulk_translate_button()
-	{
-?>
-		<button class="button button-primary automl-wpml-bulk-translate-btn" style="display: none;">
-			<?php esc_html_e('Bulk Translate', 'automl-ai-translation-for-wpml'); ?>
-		</button>
-	<?php
-	}
-
-	/**
-	 * Render bulk translate container div.
-	 *
-	 * @return void
-	 */
-	public function render_bulk_translate_container()
-	{
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading GET parameter for conditional logic.
-		$page = isset($_GET['page']) ? sanitize_text_field(wp_unslash($_GET['page'])) : '';
-		if (empty($page) || strpos($page, 'wpml-string-translation/menu/string-translation.php') === false) {
-			return;
-		}
-	?>
-		<div id="automl-wpml-bulk-translate-wrapper"></div>
-<?php
-	}
 }
+
+new Register_Assets();

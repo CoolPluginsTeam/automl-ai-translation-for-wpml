@@ -4,7 +4,9 @@
     "main": "./assets/src/bulk-translate/index.js",
     "scripts": {
         "build": "wp-scripts build ./assets/src/bulk-translate/index.js --output-path=./assets/bulk-translate/",
-        "start": "wp-scripts start ./assets/src/bulk-translate/index.js --output-path=./assets/bulk-translate/"
+        "start": "wp-scripts start ./assets/src/bulk-translate/index.js --output-path=./assets/bulk-translate/",
+        "build:string": "wp-scripts build ./assets/src/string-translate/index.js --output-path=./assets/bulk-string-translate/",
+        "start:string": "wp-scripts start ./assets/src/string-translate/index.js --output-path=./assets/bulk-string-translate/ --watch"
     },
     "repository": {
         "type": "git",
