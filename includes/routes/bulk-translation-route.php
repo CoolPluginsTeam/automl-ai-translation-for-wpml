@@ -379,7 +379,7 @@ if ( ! class_exists( 'Bulk_Translation_Route' ) ) :
 				$untranslated_languages = array_diff( $valid_target_languages, $automl_wpml_post_translated_languages );
 
 				if ( count( $untranslated_languages ) > 0 ) {
-					$automl_wpml_content_translation['posts'][ $post_id ]['languages'] = $untranslated_languages;
+					$automl_wpml_content_translation['posts'][ $post_id ]['languages'] = array_values($untranslated_languages);
 				}
 			}
 
@@ -422,7 +422,8 @@ if ( ! class_exists( 'Bulk_Translation_Route' ) ) :
 			$source_language = sanitize_text_field( $params['source_language'] );
 			$post_title      = isset( $params['post_title'] ) ? sanitize_text_field( $params['post_title'] ) : '';
 			$post_excerpt    = isset( $params['post_excerpt'] ) ? wp_kses_post( $params['post_excerpt'] ) : '';
-			$post_content    = isset( $params['post_content'] ) ? json_decode( wp_unslash( $params['post_content'] ), true ) : '';
+			$post_content    = isset( $params['post_content'] ) ? json_decode( $params['post_content'], true ) : '';
+			$post_content = is_array($post_content) ? $post_content : array();
 
 			$editor_type = isset( $editor_type ) && 'block' === $editor_type ? 'Gutenberg' : $editor_type;
 
