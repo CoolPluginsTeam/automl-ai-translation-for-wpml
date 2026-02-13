@@ -33,7 +33,7 @@ class Register_Assets {
             return;
         }
 
-        $post_label=__("Pages", "autopoly-ai-translation-for-polylang-pro");
+        $post_label=__("Pages", "automl-ai-translation-for-wpml");
         $taxonomy_page=false;
 
         if(isset($current_screen->post_type)){
