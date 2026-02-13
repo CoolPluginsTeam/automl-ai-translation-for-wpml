@@ -30,7 +30,8 @@ class WPML_AT_Helper {
 					$languages[] = array(
 						'code' => $lang['code'],
 						'name' => $lang['native_name'],
-						'flag_url' => $lang["country_flag_url"],
+						'flag_url' => $lang['country_flag_url'],
+						'locale' => $lang['default_locale'],
 					);
 				}
 			}
@@ -43,6 +44,8 @@ class WPML_AT_Helper {
 						$languages[] = array(
 							'code' => $code,
 							'name' => $lang['native_name'],
+							'flag_url' => $lang['country_flag_url'],
+							'locale' => $lang['default_locale'],
 						);
 					}
 				}
@@ -50,6 +53,17 @@ class WPML_AT_Helper {
 		}
 
 		return $languages;
+	}
+
+	public static function get_default_language() {
+		$default_language = null;
+		if ( function_exists( 'icl_get_default_language' ) ) {
+			$default_language = icl_get_default_language();
+		} elseif ( class_exists( 'SitePress' ) ) {
+			global $sitepress;
+			$default_language = $sitepress->get_default_language();
+		}
+		return $default_language;
 	}
 
 	/**

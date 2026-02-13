@@ -1,0 +1,67 @@
+<?php
+
+namespace AUTOML_WPML\Includes\Bulk_Translation;
+
+if ( ! defined( 'ABSPATH' ) ) exit;
+
+use AUTOML_WPML\Helper\Helper;
+
+/**
+ * Bulk_Translation
+ *
+ * @package AUTOML_WPML\Includes\Bulk_Translation
+ */
+class Bulk_Translation {
+	/**
+         * Single instance of the class
+         *
+         * @var self
+         */
+        private static $instance;
+
+        public static function get_instance()
+        {
+            if(!isset(self::$instance)) {
+                self::$instance = new self();
+            }
+            return self::$instance;
+        }
+
+        public function __construct()
+        {
+            add_action('current_screen', array($this, 'bulk_translate_btn'));
+        }
+
+        public function bulk_translate_btn($screen)
+        {
+            
+            if(!class_exists(Helper::class) || !Helper::tranlastable_post_type($screen)){
+                return;
+            }
+
+            $post_status=isset($_GET['post_status']) ? sanitize_text_field(wp_unslash($_GET['post_status'])) : '';
+            
+            if('trash' === $post_status){
+                return;
+            }
+
+            add_filter( "views_{$screen->id}", array($this, 'automl_wpml_bulk_translate_button') );
+
+            add_action('admin_footer', array($this, 'bulk_translate_container'));
+        }
+
+        public function automl_wpml_bulk_translate_button($views)
+        {
+            echo "<button class='button automl-wpml-bulk-translate-btn' style='display:none;'>Bulk Translate</button>";
+
+            return $views;
+        }
+
+        public function bulk_translate_container()
+        {
+            echo "<div id='automl-wpml-bulk-translate-wrapper'></div>";
+        }
+}
+
+Bulk_Translation::get_instance();
+

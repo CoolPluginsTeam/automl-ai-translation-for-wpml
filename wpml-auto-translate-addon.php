@@ -39,6 +39,9 @@ if ( file_exists( $autoload ) ) {
 
 use WordPress\AI_Client\AI_Client;
 
+use AUTOML_WPML\Includes\Routes\Bulk_Translation_Route;
+use AUTOML_WPML\Helper\Helper;
+
 /**
  * Main plugin class.
  */
@@ -142,6 +145,14 @@ final class WPML_Auto_Translate_Addon {
 	 */
 	private function load_dependencies() {
 		$files = array(
+		  'helper/helper.php',
+		  'includes/wpml/get-package-content.php',
+		  'includes/wpml/builder/content-update-base.php',
+		  'includes/wpml/builder/elementor-widgets-update.php',
+		  'includes/wpml/builder/gutenberg-blocks-update.php',
+		  'includes/wpml/create-translated-post.php',
+		  'includes/bulk-translation/bulk-translation.php',
+		  'includes/bulk-translation/register-assets.php',
 			'includes/class-wpml-at-helper.php',
 			'includes/class-wpml-engine.php',
 			'admin/class-wpml-at-admin.php',
@@ -183,8 +194,8 @@ final class WPML_Auto_Translate_Addon {
 		if ( class_exists( 'WPML_AT_Strings_Ajax' ) ) {
 			WPML_AT_Strings_Ajax::init();
 		}
-        if ( class_exists( '\AUTOML_WPML\Includes\Routes\Bulk_Translation_Route' ) ) {
-			new \AUTOML_WPML\Includes\Routes\Bulk_Translation_Route( 'automl-wpml-translate' );
+        if ( class_exists( Bulk_Translation_Route::class ) ) {
+			new Bulk_Translation_Route( 'automl-bulk-translate' );
 		}
 		
 		// Initialize admin classes.
