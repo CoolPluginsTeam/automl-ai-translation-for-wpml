@@ -46,44 +46,72 @@ if ( ! current_user_can( 'manage_options' ) ) {
 					$current_models       = get_option( 'wpml_at_ai_translation_models', array() );
 					$current_openai_model = isset( $current_models['openai'] ) ? $current_models['openai'] : '';
 					$current_google_model = isset( $current_models['google'] ) ? $current_models['google'] : '';
-
+					$openai_api_key = get_option( 'wp_ai_client_provider_credentials', array() )['openai'];
+					$google_api_key = get_option( 'wp_ai_client_provider_credentials', array() )['google'];
+                    if ( empty( $current_openai_model ) && !empty( $openai_api_key ) ) {
+						$current_openai_model = 'gpt-5-mini';
+						update_option( 'wpml_at_ai_translation_models', array( 'openai' => $current_openai_model ) );
+					}
+					if ( empty( $current_google_model ) && !empty( $google_api_key ) ) {
+						$current_google_model = 'gemini-2.5-flash';
+						update_option( 'wpml_at_ai_translation_models', array( 'google' => $current_google_model ) );
+					}
+					
 					$openai_models = array();
 					$google_models = array();
+
+					// Use "has API key" instead of isProviderConfigured() to avoid HTTP requests on every page load.
+					$has_openai_key = ! empty( $wp_ai_credentials['openai'] );
+					$has_google_key = ! empty( $wp_ai_credentials['google'] );
 
 					if ( class_exists( '\WordPress\AiClient\AiClient' ) ) {
 						$registry = \WordPress\AiClient\AiClient::defaultRegistry();
 
-						// OpenAI models.
-						if ( $registry->isProviderConfigured( 'openai' ) ) {
-							$openai_class = $registry->getProviderClassName( 'openai' );
-							try {
-								$directory     = $openai_class::modelMetadataDirectory();
-								$openai_models = array_map(
-									static function ( $model ) {
-										/** @var \WordPress\AiClient\Providers\Models\DTO\ModelMetadata $model */
-										return $model->getId();
-									},
-									$directory->listModelMetadata()
-								);
-							} catch ( \Throwable $e ) {
-								$openai_models = array();
+						// OpenAI models (cached 1 hour to avoid API request on every refresh).
+						if ( $has_openai_key ) {
+							$cache_key = 'automl_wpml_openai_models';
+							$cached    = get_transient( $cache_key );
+							if ( false !== $cached && is_array( $cached ) ) {
+								$openai_models = $cached;
+							} else {
+								try {
+									$openai_class = $registry->getProviderClassName( 'openai' );
+									$directory    = $openai_class::modelMetadataDirectory();
+									$openai_models = array_map(
+										static function ( $model ) {
+											/** @var \WordPress\AiClient\Providers\Models\DTO\ModelMetadata $model */
+											return $model->getId();
+										},
+										$directory->listModelMetadata()
+									);
+									set_transient( $cache_key, $openai_models, 24 * HOUR_IN_SECONDS );
+								} catch ( \Throwable $e ) {
+									$openai_models = array();
+								}
 							}
 						}
 
-						// Google / Gemini models.
-						if ( $registry->isProviderConfigured( 'google' ) ) {
-							$google_class = $registry->getProviderClassName( 'google' );
-							try {
-								$directory     = $google_class::modelMetadataDirectory();
-								$google_models = array_map(
-									static function ( $model ) {
-										/** @var \WordPress\AiClient\Providers\Models\DTO\ModelMetadata $model */
-										return $model->getId();
-									},
-									$directory->listModelMetadata()
-								);
-							} catch ( \Throwable $e ) {
-								$google_models = array();
+						// Google / Gemini models (cached 1 hour to avoid API request on every refresh).
+						if ( $has_google_key ) {
+							$cache_key = 'automl_wpml_google_models';
+							$cached    = get_transient( $cache_key );
+							if ( false !== $cached && is_array( $cached ) ) {
+								$google_models = $cached;
+							} else {
+								try {
+									$google_class = $registry->getProviderClassName( 'google' );
+									$directory    = $google_class::modelMetadataDirectory();
+									$google_models = array_map(
+										static function ( $model ) {
+											/** @var \WordPress\AiClient\Providers\Models\DTO\ModelMetadata $model */
+											return $model->getId();
+										},
+										$directory->listModelMetadata()
+									);
+									set_transient( $cache_key, $google_models, 24 * HOUR_IN_SECONDS );
+								} catch ( \Throwable $e ) {
+									$google_models = array();
+								}
 							}
 						}
 					}

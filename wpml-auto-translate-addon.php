@@ -183,6 +183,9 @@ final class WPML_Auto_Translate_Addon {
 		}
 
 		// Initialize AJAX handlers.
+		if ( class_exists( WPML_AT_Strings_Ajax::class ) ) {
+			WPML_AT_Strings_Ajax::init();
+		}
         if ( class_exists( Bulk_Translation_Route::class ) ) {
 			new Bulk_Translation_Route( 'automl-bulk-translate' );
 		}

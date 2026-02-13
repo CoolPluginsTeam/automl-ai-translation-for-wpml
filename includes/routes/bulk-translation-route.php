@@ -265,10 +265,10 @@ if ( ! class_exists( 'Bulk_Translation_Route' ) ) :
             try {
                 $builder = \WordPress\AI_Client\AI_Client::prompt();
                 $raw     = $builder
-                    // ->using_model( $model )
+                    ->using_model( $model )
 					->using_provider( $service_slug )
                     ->with_text( $content )
-                    ->generateText();
+                    ->generate_text();
             } catch ( \Throwable $e ) {
                 wp_send_json_error( 'Error during text generation: ' . $e->getMessage() );
             }

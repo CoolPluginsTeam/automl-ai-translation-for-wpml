@@ -23,7 +23,6 @@ class WPML_AT_Admin
 	public function __construct()
 	{
 		add_action('admin_enqueue_scripts', array($this, 'enqueue_assets'));
-		add_filter('post_row_actions', array($this, 'add_translate_button'), 10, 2);
 		add_filter('page_row_actions', array($this, 'add_translate_button'), 10, 2);
 		add_action('admin_init', array($this, 'add_row_actions_for_custom_post_types'));
 		add_action('current_screen', array($this, 'string_translation_bulk_button'));
@@ -40,25 +39,31 @@ class WPML_AT_Admin
 		// Sanitize and validate page parameter.
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading GET parameter for conditional logic, not processing form data.
 		$page = isset($_GET['page']) ? sanitize_text_field(wp_unslash($_GET['page'])) : '';
-		$is_translation_dashboard = ! empty($page) && strpos($page, 'tm/menu/main.php') !== false;
 		$is_string_translation     = ! empty($page) && strpos($page, 'wpml-string-translation/menu/string-translation.php') !== false;
-		$is_post_list              = strpos($hook, 'edit.php') !== false;
-		$is_post_edit              = strpos($hook, 'post.php') !== false || strpos($hook, 'post-new.php') !== false;
-        $available_ai_services = array();
+		$needs_ai_services         = $is_string_translation;
+		$available_ai_services     = array();
 
-		if ( class_exists( '\WordPress\AiClient\AiClient' ) ) {
-			$registry     = \WordPress\AiClient\AiClient::defaultRegistry();
-			$provider_ids = $registry->getRegisteredProviderIds();
-		
-			foreach ( $provider_ids as $provider_id ) {
-				if ( $registry->isProviderConfigured( $provider_id ) ) {
-					// e.g. 'google', 'openai', 'anthropic', etc.
-					$available_ai_services[] = $provider_id;
-				}
-			}
-		}
 		// Enqueue translation dashboard/post list scripts.
-		if ($is_translation_dashboard || $is_post_list || $is_string_translation) {
+		if ( $needs_ai_services ) {
+
+						// Use transient to avoid isProviderConfigured() HTTP requests on every string translation page load.
+						if ( class_exists( '\WordPress\AiClient\AiClient' ) ) {
+							$cache_key = 'automl_wpml_configured_providers';
+							$cached    = get_transient( $cache_key );
+							if ( false !== $cached && is_array( $cached ) ) {
+								$available_ai_services = $cached;
+							} else {
+								$registry     = \WordPress\AiClient\AiClient::defaultRegistry();
+								$provider_ids = $registry->getRegisteredProviderIds();
+								foreach ( $provider_ids as $provider_id ) {
+									if ( $registry->isProviderConfigured( $provider_id ) ) {
+										$available_ai_services[] = $provider_id;
+									}
+								}
+								set_transient( $cache_key, $available_ai_services, 24 * HOUR_IN_SECONDS );
+							}
+						}
+			}
 
 			$languages = WPML_AT_Helper::get_wpml_languages();
 			$default_language = WPML_AT_Helper::get_default_language();
@@ -131,8 +136,7 @@ class WPML_AT_Admin
 				);
 			}
 		}
-	}
-
+		
 	/**
 	 * Add translate button to row actions for translatable post types.
 	 *
