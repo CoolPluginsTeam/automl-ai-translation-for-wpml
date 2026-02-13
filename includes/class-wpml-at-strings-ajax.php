@@ -71,7 +71,7 @@ class WPML_AT_Strings_Ajax
     }
 
     // Force WPML to return all results when we're not filtering by selected IDs
-$_GET['show_results'] = 'all';
+// $_GET['show_results'] = 'all';
 
 $rows = array();
     // No selection: use WPML API (all strings, respecting GET filters)

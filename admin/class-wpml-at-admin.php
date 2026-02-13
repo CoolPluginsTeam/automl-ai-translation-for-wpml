@@ -29,90 +29,89 @@ class WPML_AT_Admin
 		add_action('current_screen', array($this, 'string_translation_bulk_button'));
 	}
 
-	public function enqueue_bulk_translate_assets() {
-        $current_screen = function_exists('get_current_screen') ? get_current_screen() : false;
+	// public function enqueue_bulk_translate_assets() {
+    //     $current_screen = function_exists('get_current_screen') ? get_current_screen() : false;
 
-        if(!$current_screen){
-            return;
-        }
+    //     if(!$current_screen){
+    //         return;
+    //     }
         
-        // if(!class_exists(Helper::class) || !Helper::tranlastable_post_type($current_screen)){
-        //     return;
-        // }
+    //     // if(!class_exists(Helper::class) || !Helper::tranlastable_post_type($current_screen)){
+    //     //     return;
+    //     // }
 
-        // $post_status=isset($_GET['post_status']) ? sanitize_text_field(wp_unslash($_GET['post_status'])) : '';
+    //     // $post_status=isset($_GET['post_status']) ? sanitize_text_field(wp_unslash($_GET['post_status'])) : '';
 
-        // if('trash' === $post_status){
-        //     return;
-        // }
+    //     // if('trash' === $post_status){
+    //     //     return;
+    //     // }
 
-        $post_label=__("Strings", "automl-ai-translation-for-wpml");
-        $taxonomy_page=false;
+    //     $post_label=__("Strings", "automl-ai-translation-for-wpml");
+    //     $taxonomy_page=false;
         
-        $slug_translation_option = get_option('automl_wpml_slug_translation_option','title_translate');
+    //     $slug_translation_option = get_option('automl_wpml_slug_translation_option','title_translate');
 
-        $editor_script_asset = include WPML_AT_PLUGIN_DIR . 'assets/bulk-string-translate/index.asset.php';
+    //     $editor_script_asset = include WPML_AT_PLUGIN_DIR . 'assets/bulk-string-translate/index.asset.php';
         
-        $rtl=function_exists('is_rtl') ? is_rtl() : false;
-        $css_file=$rtl ? 'index-rtl.css' : 'index.css';
+    //     $rtl=function_exists('is_rtl') ? is_rtl() : false;
+    //     $css_file=$rtl ? 'index-rtl.css' : 'index.css';
       
-        wp_enqueue_script('automl-wpml-bulk-translate', WPML_AT_PLUGIN_URL . 'assets/bulk-string-translate/index.js', $editor_script_asset['dependencies'], $editor_script_asset['version'], true);
-        wp_enqueue_style('automl-wpml-bulk-translate', WPML_AT_PLUGIN_URL . 'assets/bulk-string-translate/'.$css_file, array(), $editor_script_asset['version']);
+    //     wp_enqueue_script('automl-wpml-bulk-translate', WPML_AT_PLUGIN_URL . 'assets/bulk-string-translate/index.js', $editor_script_asset['dependencies'], $editor_script_asset['version'], true);
+    //     wp_enqueue_style('automl-wpml-bulk-translate', WPML_AT_PLUGIN_URL . 'assets/bulk-string-translate/'.$css_file, array(), $editor_script_asset['version']);
 
-        $languages = WPML_AT_Helper::get_wpml_languages();
+    //     $languages = WPML_AT_Helper::get_wpml_languages();
+    //     $lang_object = array();
 
-        $lang_object = array();
+    //     foreach ($languages as $lang) {
+    //         $lang_object[$lang['code']] = array('name' => $lang['name'], 'flag' => $lang['flag_url'], 'locale' => $lang['locale']);
+    //     }
+     
+    //     // $services=automl_wpml_ai_services()->get_registered_service_slugs();
+    //     $services=array('google');
+    //     $available_ai_services=array();
 
-        foreach ($languages as $lang) {
-            $lang_object[$lang['code']] = array('name' => $lang['name'], 'flag' => $lang['flag_url'], 'locale' => $lang['locale']);
-        }
+    //     foreach($services as $service){
+    //         // $service_status=automl_wpml_ai_services()->is_service_available($service);
+    //         $service_status=true;
+    //         if($service_status){
+    //             array_push($available_ai_services, $service);
+    //         }
+    //     }
 
-        // $services=automl_wpml_ai_services()->get_registered_service_slugs();
-        $services=array('google');
-        $available_ai_services=array();
+    //     $extra_data = array();
 
-        foreach($services as $service){
-            // $service_status=automl_wpml_ai_services()->is_service_available($service);
-            $service_status=true;
-            if($service_status){
-                array_push($available_ai_services, $service);
-            }
-        }
+    //     $extra_data['postMetaSync'] = 'false';
 
-        $extra_data = array();
+    //     $ai_max_tokens=get_option('automl_wpml_ai_request_token_per_request', 500);
+    //     $ai_batch_size=get_option('automl_wpml_ai_request_batch_size', 5);
 
-        $extra_data['postMetaSync'] = 'false';
-
-        $ai_max_tokens=get_option('automl_wpml_ai_request_token_per_request', 500);
-        $ai_batch_size=get_option('automl_wpml_ai_request_batch_size', 5);
-
-        wp_localize_script(
-            'automl-wpml-bulk-translate',
-            'automl_wpml_bulk_translate_object',
-            array_merge(array(
-                'ajax_url' => admin_url('admin-ajax.php'),
-                'languageObject' => $lang_object,
-                'nonce' => wp_create_nonce('wp_rest'),
-                'bulkTranslateRouteUrl' => get_rest_url(null, 'automl-wpml-translate'),
-                'bulkTranslatePrivateKey' => wp_create_nonce('automl_wpml_bulk_translate_entries_nonce'),
-                'automl_wpml_url'           => esc_url(WPML_AT_PLUGIN_URL),
-                'AIServices' => $available_ai_services,
-                'admin_url' => admin_url(),
-                'ai_translate_route_url' => get_rest_url(null, 'automl-wpml-translate'),
-                'ai_translate_route_nonce' => wp_create_nonce('wp_rest'),
-                'ai_translate_nonce' => wp_create_nonce('automl_wpml_ai_translate_nonce'),
-				'get_glossary_validate' => wp_create_nonce('automl_wpml_get_glossary_private'),
-                'post_label' => $post_label,
-                'update_translate_data' => 'automl_wpml_update_translate_data',
-                'slug_translation_option' => $slug_translation_option,
-                'taxonomy_page' => $taxonomy_page,
-                'AIRequestMaxTokens' => $ai_max_tokens,
-                'AIRequestBatchSize' => $ai_batch_size,
-                'automl_wpml_glossary_nonce' => wp_create_nonce('automl_wpml_glossary_nonce'),
-                'default_language_slug' => $default_language_slug,
-            ), $extra_data)
-        );  
-	}
+    //     wp_localize_script(
+    //         'automl-wpml-bulk-translate',
+    //         'automl_wpml_bulk_translate_object',
+    //         array_merge(array(
+    //             'ajax_url' => admin_url('admin-ajax.php'),
+    //             'languageObject' => $lang_object,
+    //             'nonce' => wp_create_nonce('wp_rest'),
+    //             'bulkTranslateRouteUrl' => get_rest_url(null, 'automl-wpml-translate'),
+    //             'bulkTranslatePrivateKey' => wp_create_nonce('automl_wpml_bulk_translate_entries_nonce'),
+    //             'automl_wpml_url'           => esc_url(WPML_AT_PLUGIN_URL),
+    //             'AIServices' => $available_ai_services,
+    //             'admin_url' => admin_url(),
+    //             'ai_translate_route_url' => get_rest_url(null, 'automl-wpml-translate'),
+    //             'ai_translate_route_nonce' => wp_create_nonce('wp_rest'),
+    //             'ai_translate_nonce' => wp_create_nonce('automl_wpml_ai_translate_nonce'),
+	// 			'get_glossary_validate' => wp_create_nonce('automl_wpml_get_glossary_private'),
+    //             'post_label' => $post_label,
+    //             'update_translate_data' => 'automl_wpml_update_translate_data',
+    //             'slug_translation_option' => $slug_translation_option,
+    //             'taxonomy_page' => $taxonomy_page,
+    //             'AIRequestMaxTokens' => $ai_max_tokens,
+    //             'AIRequestBatchSize' => $ai_batch_size,
+    //             'automl_wpml_glossary_nonce' => wp_create_nonce('automl_wpml_glossary_nonce'),
+    //             'default_language_slug' => $default_language_slug,
+    //         ), $extra_data)
+    //     );  
+	// }
 
 	/**
 	 * Enqueue admin assets.
@@ -146,11 +145,11 @@ class WPML_AT_Admin
 		if ($is_translation_dashboard || $is_post_list || $is_string_translation) {
 
 			$languages = WPML_AT_Helper::get_wpml_languages();
-			
-			$languageObject = array();
-			foreach ($languages as $language) {
-				$languageObject[$language['code']] = $language;
-			}
+			$lang_object = array();
+
+        foreach ($languages as $lang) {
+            $lang_object[$lang['code']] = array('name' => $lang['name'], 'flag' => $lang['flag_url']);
+        }
 			wp_localize_script(
 				'cp-wpml-auto-translate-admin',
 				'CP_WPML_AUTO_TRANSLATE',
@@ -198,7 +197,7 @@ class WPML_AT_Admin
 					'automl_wpml_bulk_translate_object',
 					array(
 						'taxonomy_page'          => '',
-						'languageObject'         => $languageObject,
+						'languageObject'         => $lang_object,
 						'ajax'                   => esc_url( admin_url( 'admin-ajax.php' ) ),
 						'nonce'                  => wp_create_nonce( CP_WPML_Google_Auto_Translate_Ajax::NONCE ),
 						'default_language_slug'  => apply_filters( 'wpml_default_language', null ),

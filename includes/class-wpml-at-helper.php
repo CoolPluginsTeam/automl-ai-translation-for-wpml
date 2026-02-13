@@ -30,6 +30,7 @@ class WPML_AT_Helper {
 					$languages[] = array(
 						'code' => $lang['code'],
 						'name' => $lang['native_name'],
+						'flag_url' => $lang["country_flag_url"],
 					);
 				}
 			}
