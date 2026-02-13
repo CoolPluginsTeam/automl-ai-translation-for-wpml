@@ -100,7 +100,7 @@ class Create_Translated_Post {
 			exit;
 		}
 
-		if ( ! isset( $translate_strings ) || empty( $translate_strings ) ) {
+		if ( (! isset( $translate_strings ) || empty( $translate_strings )) && (! isset( $translated_title ) || empty( $translated_title )) && (! isset( $translated_excerpt ) || empty( $translated_excerpt )) ) {
 			$this->post_translation_status = false;
 			wp_send_json_error( 'No translate strings found' );
 			exit;
