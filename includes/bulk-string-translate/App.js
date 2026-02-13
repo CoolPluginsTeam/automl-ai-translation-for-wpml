@@ -37,6 +37,8 @@ const App = ({ onDestory, prefix, postIds }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [errorModal, setErrorModal] = useState(false);
   const [localAiModalError, setLocalAiModalError] = useState(false);
+  const targetLanguages=JSON.parse(JSON.stringify(languageObject));
+  delete targetLanguages[automl_wpml_bulk_translate_object.default_language_slug];
 
   const destroyApp = (e) => {
     setStatusModalVisibility(false);
@@ -108,7 +110,9 @@ const App = ({ onDestory, prefix, postIds }) => {
   const handleSelectAllLanguages = (e) => {
     const checked = e.target.checked;
     if (checked) {
-      setSelectedLanguages(Object.keys(languageObject));
+    
+      console.log('targetLanguages', targetLanguages);
+      setSelectedLanguages(Object.keys(targetLanguages));
     } else {
       setSelectedLanguages([]);
     }
@@ -263,12 +267,12 @@ const App = ({ onDestory, prefix, postIds }) => {
                     onChange={(e) => handleSelectAllLanguages(e)}
                     checked={
                       selectedLanguages.length ===
-                      Object.keys(languageObject).length
+                      Object.keys(targetLanguages).length
                     }
                   />
                   <label htmlFor="select-all-languages">
                     {selectedLanguages.length ===
-                    Object.keys(languageObject).length
+                    Object.keys(targetLanguages).length
                       ? __("Unselect All", "automl-ai-translation-for-wpml")
                       : __("Select All", "automl-ai-translation-for-wpml")}
                   </label>

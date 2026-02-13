@@ -82,6 +82,8 @@ class AI_Client {
 	 * @return Prompt_Builder The prompt builder instance.
 	 */
 	public static function prompt( $prompt = null ): Prompt_Builder {
+		var_dump(AiClient::defaultRegistry());
+		die();
 		if ( ! self::$initialized ) {
 			_doing_it_wrong(
 				__METHOD__,

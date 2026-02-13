@@ -107,7 +107,6 @@ class AiClient
             $registry->registerProvider(AnthropicProvider::class);
             $registry->registerProvider(GoogleProvider::class);
             $registry->registerProvider(OpenAiProvider::class);
-
             self::$defaultRegistry = $registry;
         }
 
