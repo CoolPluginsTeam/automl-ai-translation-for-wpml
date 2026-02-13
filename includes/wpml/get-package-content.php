@@ -80,7 +80,22 @@ class Get_Package_Content {
 		if(wpml_is_st_loaded()){
 			$wpml_package_helper = new WPML_Package_Helper();
 			$this->package = $wpml_package_helper->get_post_string_packages(false, $this->post_id);
-			$this->translation_package = $this->set_translatable_strings();
+
+			if(empty($this->package)) {
+				$builder = new WPML_Element_Translation_Package( null );
+		
+				$builder->create_translation_package(
+					$this->post_id,
+					$this->source_lang,
+					true // is original
+				);
+
+				$this->package = $wpml_package_helper->get_post_string_packages(false, $this->post_id);
+			}
+
+			if(!empty($this->package)) {
+				$this->translation_package = $this->set_translatable_strings();
+			}
 		}
 		
 		// Set post title, excerpt for translation
