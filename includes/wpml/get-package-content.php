@@ -22,7 +22,7 @@ class Get_Package_Content {
 	private $source_lang;
 	private $package;
 	private $package_factory;
-	private $translation_package;
+	private $translation_package = array();
 
 	public function __construct($post_id, $source_lang = null) {
 		if(!$this->is_bulk_translation() && !$this->is_create_post()) {
@@ -77,21 +77,14 @@ class Get_Package_Content {
 
 	private function create_package() {
 
-		$wpml_package_helper = new WPML_Package_Helper();
-		$this->package = $wpml_package_helper->get_post_string_packages(false, $this->post_id);
-
-		$this->translation_package = $this->set_translatable_strings();
-
+		if(wpml_is_st_loaded()){
+			$wpml_package_helper = new WPML_Package_Helper();
+			$this->package = $wpml_package_helper->get_post_string_packages(false, $this->post_id);
+			$this->translation_package = $this->set_translatable_strings();
+		}
+		
 		// Set post title, excerpt for translation
 		$this->translation_package = $this->set_post_default_strings();
-
-		$builder = new WPML_Element_Translation_Package( null );
-		
-		$this->package = $builder->create_translation_package(
-			$this->post_id,
-			$this->source_lang,
-			true // is original
-		);
 	}
 
 	private function set_post_default_strings(): array {
@@ -151,10 +144,6 @@ class Get_Package_Content {
 
 		$automl_wpml_content_translation=array('contents'=>$automl_wpml_content_translation);
 
-		if(isset($translation_package['title']) && !empty($translation_package['title'])) {
-			$automl_wpml_content_translation['title'] = $translation_package['title'];
-		}
-
 		return $automl_wpml_content_translation;
 	}
 
@@ -170,6 +159,7 @@ class Get_Package_Content {
 		}
 		
 		foreach ($package['contents'] as $key => $content) {
+
 			// Only process fields with translate => 1
 			if (!is_array($content) || !isset($content['translate']) || $content['translate'] != 1) {
 				continue;
@@ -233,6 +223,7 @@ class Get_Package_Content {
 			// Special handling for body field - parse HTML and break into individual elements
 			if ($key === 'body') {
 				$parsed_elements = $this->parse_html_content($data);
+
 				if (!empty($parsed_elements)) {
 					// Add each element as a separate row
 					foreach ($parsed_elements as $index => $element) {
@@ -243,10 +234,10 @@ class Get_Package_Content {
 								$element_field_name = $field_name . ' - ' . strtoupper($element['tag']) . ' ' . ($index + 1);
 							}
 
-							$strings[$element_field_name] = array();
+							$strings[$key . '_element_' . $index] = array();
 
 							$this->set_content_strings(
-								$strings[$element_field_name],
+								$strings[$key . '_element_' . $index],
 								$key . '_element_' . $index,
 								$element_field_name,
 								$text,
