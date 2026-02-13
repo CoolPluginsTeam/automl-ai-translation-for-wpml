@@ -145,14 +145,14 @@ final class WPML_Auto_Translate_Addon {
 	 */
 	private function load_dependencies() {
 		$files = array(
-		  'helper/helper.php',
-		  'includes/wpml/get-package-content.php',
-		  'includes/wpml/builder/content-update-base.php',
-		  'includes/wpml/builder/elementor-widgets-update.php',
-		  'includes/wpml/builder/gutenberg-blocks-update.php',
-		  'includes/wpml/create-translated-post.php',
-		  'includes/bulk-translation/bulk-translation.php',
-		  'includes/bulk-translation/register-assets.php',
+			'helper/helper.php',
+			'includes/wpml/get-package-content.php',
+			'includes/wpml/builder/content-update-base.php',
+			'includes/wpml/builder/elementor-widgets-update.php',
+			'includes/wpml/builder/gutenberg-blocks-update.php',
+			'includes/wpml/create-translated-post.php',
+			'includes/bulk-translation/bulk-translation.php',
+			'includes/bulk-translation/register-assets.php',
 			'includes/class-wpml-at-helper.php',
 			'includes/class-wpml-engine.php',
 			'admin/class-wpml-at-admin.php',

@@ -72,27 +72,25 @@ class Register_Assets {
         $lang_object = array();
 
         $default_language=WPML_AT_Helper::get_default_language();
-		$default_language_slug=false;
-
-		if(isset($default_language->slug) && !empty($default_language->slug)){
-			$default_language_slug=$default_language->slug;
-		}
+		$default_language_slug=$default_language;
 
         foreach ($languages as $lang) {
             $lang_object[$lang['code']] = array('name' => $lang['name'], 'flag' => $lang['flag_url'], 'locale' => $lang['locale']);
         }
 
-        // $services=automl_wpml_ai_services()->get_registered_service_slugs();
-        $services=array('google');
-        $available_ai_services=array();
+        $available_ai_services = array();
 
-        foreach($services as $service){
-            // $service_status=automl_wpml_ai_services()->is_service_available($service);
-            $service_status=true;
-            if($service_status){
-                array_push($available_ai_services, $service);
-            }
-        }
+		if ( class_exists( '\WordPress\AiClient\AiClient' ) ) {
+			$registry     = \WordPress\AiClient\AiClient::defaultRegistry();
+			$provider_ids = $registry->getRegisteredProviderIds();
+		
+			foreach ( $provider_ids as $provider_id ) {
+				if ( $registry->isProviderConfigured( $provider_id ) ) {
+					// e.g. 'google', 'openai', 'anthropic', etc.
+					$available_ai_services[] = $provider_id;
+				}
+			}
+		}
 
         $extra_data = array();
 
@@ -108,7 +106,7 @@ class Register_Assets {
                 'ajax_url' => admin_url('admin-ajax.php'),
                 'languageObject' => $lang_object,
                 'nonce' => wp_create_nonce('wp_rest'),
-                'bulkTranslateRouteUrl' => get_rest_url(null, 'automl-bulk-translation'),
+                'bulkTranslateRouteUrl' => get_rest_url(null, 'automl-bulk-translate'),
                 'bulkTranslatePrivateKey' => wp_create_nonce('automl_wpml_bulk_translate_entries_nonce'),
                 'automl_wpml_url'           => esc_url(WPML_AT_PLUGIN_URL),
                 'AIServices' => $available_ai_services,
