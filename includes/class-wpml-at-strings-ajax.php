@@ -3,7 +3,7 @@
 /**
  * AJAX handlers for WPML String Translation (plugin/theme strings) via Google Translate.
  * Uses WPML ST APIs: icl_get_string_translations(), icl_add_string_translation().
- * Reuses the same nonce as post translation (CP_WPML_Google_Auto_Translate_Ajax::NONCE).
+ * Reuses the same nonce as post translation ('cp_wpml_auto_translate_nonce').
  *
  * @package WPML_Auto_Translate
  */
@@ -37,7 +37,7 @@ class WPML_AT_Strings_Ajax
 	 */
 	public static function get_strings()
 {
-    if (! check_ajax_referer(CP_WPML_Google_Auto_Translate_Ajax::NONCE, 'nonce', false)) {
+    if (! check_ajax_referer('cp_wpml_auto_translate_nonce', 'nonce', false)) {
         wp_send_json_error(array('msg' => __('Security check failed. Please refresh the page and try again.', 'automl-ai-translation-for-wpml')));
         return;
     }
@@ -148,7 +148,7 @@ $rows = array();
 		if ($use_json) {
 			// Extract nonce from JSON for verification
 			$nonce = isset($json_data['nonce']) ? sanitize_text_field($json_data['nonce']) : '';
-			if (! wp_verify_nonce($nonce, CP_WPML_Google_Auto_Translate_Ajax::NONCE)) {
+			if (! wp_verify_nonce($nonce, 'cp_wpml_auto_translate_nonce')) {
 				wp_send_json_error(array('msg' => esc_html__('Security check failed. Please refresh the page and try again.', 'automl-ai-translation-for-wpml')));
 				return;
 			}
@@ -157,7 +157,7 @@ $rows = array();
 			$dashboard_stats = isset($json_data['dashboard_stats']) && is_array($json_data['dashboard_stats']) ? $json_data['dashboard_stats'] : array();
 		} else {
 			// Fallback to POST (backward compatibility)
-			if (! check_ajax_referer(CP_WPML_Google_Auto_Translate_Ajax::NONCE, 'nonce', false)) {
+			if (! check_ajax_referer('cp_wpml_auto_translate_nonce', 'nonce', false)) {
 				wp_send_json_error(array('msg' => esc_html__('Security check failed. Please refresh the page and try again.', 'automl-ai-translation-for-wpml')));
 				return;
 			}

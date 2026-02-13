@@ -84,7 +84,6 @@ if ( ! class_exists( 'WPML_Auto_Dashboard' ) ) {
 			// - admin/wpml-auto-dashboard/views/settings.php
 			// - admin/wpml-auto-dashboard/views/license.php
 			// - admin/wpml-auto-dashboard/views/free-vs-pro.php
-			// - admin/wpml-auto-dashboard/views/support-blocks.php
 			// - admin/wpml-auto-dashboard/views/sidebar.php
 			// - admin/wpml-auto-dashboard/views/footer.php
 			$file_prefix = 'admin/wpml-auto-dashboard/views/';
@@ -135,12 +134,9 @@ if ( ! class_exists( 'WPML_Auto_Dashboard' ) ) {
 						echo '<p>' . esc_html__( 'View file not found.', 'automl-ai-translation-for-wpml' ) . '</p>';
 					}
 
-					// Sidebar (everything except support-blocks).
-					if ( 'support-blocks' !== $current_tab ) {
-						$sidebar_file = WPML_AT_PLUGIN_DIR . $file_prefix . 'sidebar.php';
-						if ( file_exists( $sidebar_file ) ) {
-							require $sidebar_file;
-						}
+					$sidebar_file = WPML_AT_PLUGIN_DIR . $file_prefix . 'sidebar.php';
+					if ( file_exists( $sidebar_file ) ) {
+						require $sidebar_file;
 					}
 					?>
 				</div>

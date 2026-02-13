@@ -155,7 +155,7 @@ class WPML_AT_Admin
 				'CP_WPML_AUTO_TRANSLATE',
 				array(
 					'ajax'      => esc_url(admin_url('admin-ajax.php')),
-					'nonce'     => wp_create_nonce(CP_WPML_Google_Auto_Translate_Ajax::NONCE),
+					'nonce'     => wp_create_nonce('cp_wpml_auto_translate_nonce'),
 					'languages' => $languages,
 					'admin_url' => esc_url(admin_url()),
 					'i18n'      => array(
@@ -199,7 +199,7 @@ class WPML_AT_Admin
 						'taxonomy_page'          => '',
 						'languageObject'         => $lang_object,
 						'ajax'                   => esc_url( admin_url( 'admin-ajax.php' ) ),
-						'nonce'                  => wp_create_nonce( CP_WPML_Google_Auto_Translate_Ajax::NONCE ),
+						'nonce'                  => wp_create_nonce( 'cp_wpml_auto_translate_nonce' ),
 						'default_language_slug'  => apply_filters( 'wpml_default_language', null ),
 						'bulkTranslateRouteUrl' => get_rest_url(null, 'automl-wpml-translate'),
 						'bulkTranslatePrivateKey' => wp_create_nonce('automl_wpml_bulk_translate_entries_nonce'),

@@ -154,13 +154,8 @@ final class WPML_Auto_Translate_Addon {
 			'includes/bulk-translation/bulk-translation.php',
 			'includes/bulk-translation/register-assets.php',
 			'includes/class-wpml-at-helper.php',
-			'includes/class-wpml-engine.php',
 			'admin/class-wpml-at-admin.php',
-			'admin/class-wpml-at-widget.php',
-			'admin/class-wpml-at-supported-blocks.php',
-			'admin/class-wpml-at-custom-block-post.php',
 			'includes/class-wpml-at-strings-ajax.php',
-			'includes/class-cp-wpml-google-auto-translate-ajax.php',
 			'includes/routes/bulk-translation-route.php',
 			'admin/class-wpml-auto-dashboard.php',
 			'admin/cpt_dashboard/cpt_dashboard.php',
@@ -188,12 +183,6 @@ final class WPML_Auto_Translate_Addon {
 		}
 
 		// Initialize AJAX handlers.
-		if ( class_exists( 'CP_WPML_Google_Auto_Translate_Ajax' ) ) {
-			CP_WPML_Google_Auto_Translate_Ajax::init();
-		}
-		if ( class_exists( 'WPML_AT_Strings_Ajax' ) ) {
-			WPML_AT_Strings_Ajax::init();
-		}
         if ( class_exists( Bulk_Translation_Route::class ) ) {
 			new Bulk_Translation_Route( 'automl-bulk-translate' );
 		}
@@ -202,15 +191,6 @@ final class WPML_Auto_Translate_Addon {
 		if ( is_admin() ) {
 			if ( class_exists( 'WPML_AT_Admin' ) ) {
 				new WPML_AT_Admin();
-			}
-			if ( class_exists( 'WPML_AT_Widget' ) ) {
-				new WPML_AT_Widget();
-			}
-			if ( class_exists( 'WPML_AT_Supported_Blocks' ) ) {
-				WPML_AT_Supported_Blocks::get_instance();
-			}
-			if ( class_exists( 'WPML_AT_Custom_Block_Post' ) ) {
-				WPML_AT_Custom_Block_Post::get_instance();
 			}
 			if ( class_exists( 'WPML_Auto_Dashboard' ) ) {
 				WPML_Auto_Dashboard::get_instance();
