@@ -13,6 +13,9 @@ import Notice from './components/notice';
 const App = ({ onDestory, prefix, postIds }) => {
     const dispatch = useDispatch();
     const { languageObject = {} } = automl_wpml_bulk_translate_object || {};
+    const targetLanguages={...languageObject};
+    delete targetLanguages[automl_wpml_bulk_translate_object.default_language_slug];
+
     const emptyPostIdsErrorMessage = sprintf(__('Please select at least one %s for translation.', 'automl-ai-translation-for-wpml'), automl_wpml_bulk_translate_object.post_label);
     const [selectedLanguages, setSelectedLanguages] = useState([]);
     const [errorMessage, setErrorMessage] = useState(postIds.length === 0 ? emptyPostIdsErrorMessage : '');
@@ -76,7 +79,7 @@ const App = ({ onDestory, prefix, postIds }) => {
     const handleSelectAllLanguages = (e) => {
         const checked = e.target.checked;
         if (checked) {
-            setSelectedLanguages(Object.keys(languageObject));
+            setSelectedLanguages(Object.keys(targetLanguages));
         } else {
             setSelectedLanguages([]);
         }
@@ -199,11 +202,11 @@ const App = ({ onDestory, prefix, postIds }) => {
                                     name="select-all-languages"
                                     id="select-all-languages"
                                     onChange={(e) => handleSelectAllLanguages(e)}
-                                    checked={selectedLanguages.length === Object.keys(languageObject).length} />
+                                    checked={selectedLanguages.length === Object.keys(targetLanguages).length} />
                                 <label
                                     htmlFor="select-all-languages"
                                 >
-                                    {selectedLanguages.length === Object.keys(languageObject).length ? __('Unselect All', 'automl-ai-translation-for-wpml') : __('Select All', 'automl-ai-translation-for-wpml')}
+                                    {selectedLanguages.length === Object.keys(targetLanguages).length ? __('Unselect All', 'automl-ai-translation-for-wpml') : __('Select All', 'automl-ai-translation-for-wpml')}
                                 </label>
                             </div>
                         </div>

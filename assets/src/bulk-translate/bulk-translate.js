@@ -39,10 +39,12 @@ const initBulkTranslate = async (postKeys = [], nonce, storeDispatch, prefix, up
                 return;
             }
 
-            for (const lang of languages) {
-                storeDispatch(unsetPendingPost(postId + '_' + lang));
-                storeDispatch(updateProgressStatus(100 / pendingPosts.length));
-                storeDispatch(updateTranslatePostInfo({ [postId + '_' + lang]: { status: 'error', messageClass: 'error', errorMessage: __('This post editor type is not supported for translation', 'automl-ai-translation-for-wpml') } }));
+            if (!['block', 'elementor'].includes(editorType)) {
+                for (const lang of languages) {
+                    storeDispatch(unsetPendingPost(postId + '_' + lang));
+                    storeDispatch(updateProgressStatus(100 / pendingPosts.length));
+                    storeDispatch(updateTranslatePostInfo({ [postId + '_' + lang]: { status: 'error', messageClass: 'error', errorMessage: __('This post editor type is not supported for translation', 'automl-ai-translation-for-wpml') } }));
+                }
             }
 
             const source = { title: title, content: JSON.parse(JSON.stringify(content)), post_name: post_name, excerpt: excerpt };
@@ -275,6 +277,7 @@ const bulkTranslateEntries = async ({ ids, langs, storeDispatch }) => {
         const postIdExist = new Array();
         const existsPostInPendingPosts = Object.keys(store.getState().translatePostInfo);
 
+        
         postKeys.forEach(postId => {
             postId = parseInt(postId);
             const languages = posts[postId].languages;
