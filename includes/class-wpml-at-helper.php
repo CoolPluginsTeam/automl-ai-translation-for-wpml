@@ -16,18 +16,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 class WPML_AT_Helper {
 
 	/**
-	 * Nonce key for AJAX requests.
-	 */
-	const NONCE_KEY = 'cp_wpml_auto_translate_nonce';
-
-	/**
-	 * Constructor.
-	 */
-	public function __construct() {
-		// Helper class - no hooks needed.
-	}
-
-	/**
 	 * Get WPML active languages.
 	 *
 	 * @return array Array of language codes and names.
@@ -122,51 +110,6 @@ class WPML_AT_Helper {
 		);
 	}
 
-	public static function find_wpml_job_id_for_post_lang( int $post_id, string $target_lang ): int {
-		global $wpdb;
-	
-		$translations = $wpdb->prefix . 'icl_translations';
-		$status       = $wpdb->prefix . 'icl_translation_status';
-		$jobs         = $wpdb->prefix . 'icl_translate_job';
-	
-		// Get TRID for original post
-		$row = $wpdb->get_row(
-			$wpdb->prepare(
-				"SELECT trid
-				 FROM {$translations}
-				 WHERE element_id = %d
-				   AND element_type LIKE 'post_%%'
-				 LIMIT 1",
-				$post_id
-			),
-			ARRAY_A
-		);
-	
-		if ( empty( $row['trid'] ) ) {
-			return 0;
-		}
-	
-		$trid = (int) $row['trid'];
-	
-		// Find latest job for this TRID + target language
-		$job_id = (int) $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT tj.job_id
-				 FROM {$jobs} tj
-				 INNER JOIN {$status} ts ON ts.rid = tj.rid
-				 INNER JOIN {$translations} t ON t.translation_id = ts.translation_id
-				 WHERE t.trid = %d
-				   AND t.language_code = %s
-				 ORDER BY tj.job_id DESC
-				 LIMIT 1",
-				$trid,
-				$target_lang
-			)
-		);
-	
-		return $job_id ?: 0;
-	}
-
 	/**
 	 * Extract language code and element ID from translation object/array.
 	 *
@@ -211,44 +154,6 @@ class WPML_AT_Helper {
 		}
 
 		return 0;
-	}
-
-	/**
-	 * Decode Unicode escape sequences (like u03a0 or \u03a0) to actual characters.
-	 *
-	 * @param string $text Text with Unicode escape sequences.
-	 * @return string Decoded text.
-	 */
-	public static function decode_unicode_escapes( $text ) {
-		if ( empty( $text ) || ! is_string( $text ) ) {
-			return $text;
-		}
-
-		// Check if text contains Unicode escape sequences (uXXXX or \uXXXX format).
-		if ( ! preg_match( '/[\\\\]?u[0-9a-fA-F]{4}/', $text ) ) {
-			return $text; // No Unicode escapes found, return as-is.
-		}
-
-		// Replace uXXXX with \uXXXX format for JSON decode.
-		$text_with_backslash = preg_replace( '/(?<!\\\\)u([0-9a-fA-F]{4})/', '\\\\u$1', $text );
-
-		// Try JSON decode which handles \uXXXX format.
-		$decoded = json_decode( '"' . $text_with_backslash . '"' );
-
-		if ( json_last_error() === JSON_ERROR_NONE && is_string( $decoded ) ) {
-			return $decoded;
-		}
-
-		// Fallback: manual decoding of uXXXX patterns (without backslash).
-		return preg_replace_callback(
-			'/u([0-9a-fA-F]{4})/',
-			function( $matches ) {
-				$hex        = $matches[1];
-				$code_point = hexdec( $hex );
-				return mb_convert_encoding( pack( 'n', $code_point ), 'UTF-8', 'UCS-2BE' );
-			},
-			$text
-		);
 	}
 }
 

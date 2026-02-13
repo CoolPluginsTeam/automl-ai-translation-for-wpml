@@ -38,37 +38,46 @@ if ( ! class_exists( 'Bulk_Translation_Route' ) ) :
 		 * Register the routes
 		 */
 		public function register_routes() {
-			register_rest_route(
-				$this->base_name,
-				'/(?P<slug>[\w-]+)/translate-text',
-				array(
-					'methods'             => 'POST',
-					'callback'            => array( $this, 'ai_translation' ),
-					'permission_callback' => array( $this, 'permission_only_admins' ),
-					'args'                => array(
-						'slug'              => array(
-							'type'              => 'string',
-							'required'          => true,
-							'sanitize_callback' => 'sanitize_key',
-						),
-						'automl_wpml_nonce' => array(
-							'type'              => 'string',
-							'required'          => true,
-							'sanitize_callback' => 'sanitize_text_field',
-							'validate_callback' => array( $this, 'validate_automl_wpml_ai_translate_nonce' ),
-						),
-						'strings'           => array(
-							'type'     => 'string',
-							'required' => true,
-						),
-						'target_language'   => array(
-							'type'              => 'string',
-							'required'          => true,
-							'sanitize_callback' => 'sanitize_text_field',
-						),
-					),
-				)
-			);
+            register_rest_route(
+                $this->base_name,
+                '/(?P<slug>[\w-]+)/translate-text',
+                array(
+                    'methods'             => 'POST',
+                    'callback'            => array( $this, 'ai_translation' ),
+                    'permission_callback' => array( $this, 'permission_only_admins' ),
+                    'args'                => array(
+                        'slug'            => array(
+                            'type'              => 'string',
+                            'required'          => true,
+                            'sanitize_callback' => 'sanitize_key',
+                        ),
+                        'automl_wpml_nonce'      => array(
+                            'type'              => 'string',
+                            'required'          => true,
+                            'sanitize_callback' => 'sanitize_text_field',
+                            'validate_callback' => array( $this, 'validate_automl_wpml_ai_translate_nonce' ),
+                        ),
+                        'strings'         => array(
+                            'type'     => 'string',
+                            'required' => true,
+                        ),
+                        'target_language' => array(
+                            'type'              => 'string',
+                            'required'          => true,
+                            'sanitize_callback' => 'sanitize_text_field',
+                        ),
+                        'source_language' => array(
+                            'type'              => 'string',
+                            'required'          => true,
+                            'sanitize_callback' => 'sanitize_text_field',
+                        ),
+                        'action'          => array(
+                            'type'     => 'string',
+                            'required' => false,
+                        ),
+                    ),
+                )
+            );
 
 			register_rest_route(
 				$this->base_name,
@@ -178,86 +187,111 @@ if ( ! class_exists( 'Bulk_Translation_Route' ) ) :
 		 * @param WP_REST_Request $params The request parameters.
 		 * @return WP_REST_Response The response.
 		 */
-		public function ai_translation( $params ) {
-			// Check if the user is logged in and has the necessary capabilities
-			if ( ! is_user_logged_in() ) {
-				wp_send_json_error( 'You are not authorized to perform this action.' );
-			}
-			if ( ! current_user_can( 'edit_posts' ) ) {
-				wp_send_json_error( 'You are not authorized to perform this action.' );
-			}
+        public function ai_translation( $params ) {
+            if ( ! is_user_logged_in() ) {
+                wp_send_json_error( 'You are not authorized to perform this action.' );
+            }
+            if ( ! current_user_can( 'edit_posts' ) ) {
+                wp_send_json_error( 'You are not authorized to perform this action.' );
+            }
+        
+            $params = $params->get_params();
+        
+            $service_slug = isset( $params['slug'] ) ? sanitize_key( $params['slug'] ) : '';
+            if ( ! $service_slug ) {
+                wp_send_json_error( 'Invalid service slug.' );
+            }
+        
+            if ( ! wp_verify_nonce( $params['automl_wpml_nonce'] ?? '', 'automl_wpml_ai_translate_nonce' ) ) {
+                wp_send_json_error( 'You are not authorized to perform this action.' );
+            }
+        
+            $strings_raw = $params['strings'] ?? '';
+            $target_language = isset( $params['target_language'] ) ? sanitize_text_field( $params['target_language'] ) : '';
+            $source_language = isset( $params['source_language'] ) ? sanitize_text_field( $params['source_language'] ) : 'en';
+        
+            if ( ! $target_language ) {
+                wp_send_json_error( 'Invalid target language.' );
+            }
+        
+            // Decode numeric-key => text map, e.g. {"0":"text","1":"text"}
+            $strings = is_string( $strings_raw ) ? json_decode( $strings_raw, true ) : $strings_raw;
+            if ( ! is_array( $strings ) ) {
+                $strings = array();
+            }
+        
+            // Get selected model for this provider from our option.
+            $models   = get_option( 'wpml_at_ai_translation_models', array() );
+            $model_id = isset( $models[ $service_slug ] ) ? $models[ $service_slug ] : '';
+            if ( ! $model_id ) {
+                wp_send_json_error( 'No AI model selected for this provider.' );
+            }
+        
+            if ( ! class_exists( '\WordPress\AiClient\AiClient' ) || ! class_exists( '\WordPress\AI_Client\AI_Client' ) ) {
+                wp_send_json_error( 'AI SDK is not available.' );
+            }
+        
+            $registry = \WordPress\AiClient\AiClient::defaultRegistry();
+            if ( ! $registry->isProviderConfigured( $service_slug ) ) {
+                wp_send_json_error( 'API key for this provider is not configured.' );
+            }
+        
+            $provider_class = $registry->getProviderClassName( $service_slug );
+        
+            try {
+                $model = $provider_class::model( $model_id );
+            } catch ( \Throwable $e ) {
+                wp_send_json_error( 'Invalid model: ' . $e->getMessage() );
+            }
+        
+            // Build one prompt with JSON instructions (your existing $content template).
+            $strings_for_prompt = json_encode( $strings );
+            $content = sprintf(
+                'Instruction 1: Translate visible text content semantically into %s language. Provide a proper meaning-based translation.
+        Instruction 2: Do not translate or modify any content inside square brackets []. These are shortcodes or dynamic placeholders and must remain exactly as they are.
+        Instruction 3: Preserve all HTML tags and their attributes such as class, id, data-*, etc. Do not alter any part of the HTML structure.
+        Instruction 4: Return the translation in the format of a JSON object with the keys being numeric values (matching the source keys), and the values being the translated strings.
+        Instruction 5: Do not escape double quotes with backslashes. Output must be valid JSON without extra slashes.
+        Instruction 6: Translate the provided JSON array into %s language, regardless of whether the values are the same and Ensure the JSON is well-formed and complete.
+        Instruction 7: Decode any &lt; and &gt; HTML entities back to < and > symbols in the output & preserve and maintain whitespace.
+        Instruction 8: Return the output as a valid JSON object. Do not wrap the output in a string or markdown code block. Ensure the JSON is clean, parseable, and properly formatted. Please ensure that the output follows the format: {"key(numeric value)": "(translations of the strings in %s language)"} Strings are :- %s',
+                $target_language,
+                $target_language,
+                $target_language,
+                $strings_for_prompt
+            );
+        
+           // $content is your long instruction + JSON string
+            try {
+                $builder = \WordPress\AI_Client\AI_Client::prompt();
+                $raw     = $builder
+                    ->using_model( $model )
+                    ->with_text( $content )
+                    ->generate_text();
+            } catch ( \Throwable $e ) {
+                wp_send_json_error( 'Error during text generation: ' . $e->getMessage() );
+            }
+           	// Clean the text
+						$cleanText = preg_replace( '/(^```json\n|```$)/', '', $raw );
 
-			// Get the parameters from the request
-			$params = $params->get_params();
+						$cleanText = str_replace( '<ATFPP_NEW_L>', '\n', $cleanText );
+						$cleanText = str_replace( '<ATFPP_NEW_R>', '\r', $cleanText );
 
-			// Get the service slug
-			$service_slug = $params['slug'];
+						// Replace the double backslashes with a single backslash
+						$final_text = preg_replace( '/\\\\{2,}([\'"n])/', '\\\$1', $cleanText );
 
-			// Verify the nonce
-			if ( ! wp_verify_nonce( $params['automl_wpml_nonce'], 'automl_wpml_ai_translate_nonce' ) ) {
-				wp_send_json_error( 'You are not authorized to perform this action.' );
-			}
-
-			// Check if the user has the necessary capabilities
-			if ( wp_get_current_user()->has_cap( 'edit_posts' ) ) {
-				// Check if the service is available
-				if ( automl_wpml_ai_services()->is_service_available( $params['slug'] ) ) {
-
-					// Get the strings
-					$strings = $params['strings'];
-
-					// Convert strings to array if it's a JSON string
-					$string_array = is_string( $strings ) ? json_decode( $strings, true ) : $strings;
-
-					if ( strpos( $strings, '&lt;' ) !== false && strpos( $strings, '&gt;' ) !== false ) {
-						$strings = html_entity_decode( $strings );
-					}
-
-					// Get the target language
-					$target_language = $params['target_language'];
-
-					// Use the source language from params
-					$source_language = $params['source_language'];
-
-					// Get the custom prompt
-					$custom_prompt = get_option( 'automl_wpml_context_aware', '' );
-
-					$ai_request_timeout = get_option( 'automl_wpml_ai_request_timeout', 120 );
-
-					// Only return the translation in the format of a JSON object with the keys being numeric values (matching the source keys), and the values being the translated strings
-					$content = sprintf(
-						'Instruction 1: Translate visible text content semantically into %s language. Provide a proper meaning-based translation.  
-				    Instruction 2: Do not translate or modify any content inside square brackets []. These are shortcodes or dynamic placeholders and must remain exactly as they are.
-				    Instruction 3: Preserve all HTML tags and their attributes such as class, id, data-*, etc. Do not alter any part of the HTML structure.
-				    Instruction 4: Return the translation in the format of a JSON object with the keys being numeric values (matching the source keys), and the values being the translated strings.
-				    Instruction 5: Do not escape double quotes with backslashes. Output must be valid JSON without extra slashes.
-				    Instruction 6: Translate the provided JSON array into %s language, regardless of whether the values are the same and Ensure the JSON is well-formed and complete.
-                    Instruction 7: Decode any &lt; and &gt; HTML entities back to < and > symbols in the output & preserve and maintain whitespace.
-				    Instruction 8: Return the output as a valid JSON object. Do not wrap the output in a string or markdown code block. Ensure the JSON is clean, parseable, and properly formatted. Please ensure that the output follows the format: {"key(numeric value)": "(translations of the strings in %s language)}" Strings are :- %s',
-						$target_language,
-						$target_language,
-						$target_language,
-						json_encode( $strings )
-					);
-
-					// Try to generate the text
-					try {
-
-					} catch ( Exception $e ) {
-						wp_send_json_error( 'Error during text generation: ' . $e->getMessage() );
-					}
-				} else {
-					wp_send_json_error(
-						sprintf(
-							'%s service is not available.',
-							$service_slug === 'google' ? 'GeminiAI' : ucfirst( $service_slug )
-						)
-					);
-				}
-			}
-
-				wp_send_json_error( 'You are not authorized to perform this action.' );
-		}
+						$translated_text = json_decode( $final_text, true );
+            if ( ! is_array( $translated_text ) ) {
+                wp_send_json_error( 'AI response is not valid JSON.' );
+            }
+        
+            // Frontend expects: { success: true, data: { translate_data: { "0": "...", "1": "..." } } }
+            wp_send_json_success(
+                array(
+                    'translate_data' => $translated_text,
+                )
+            );
+        }
 
 		public function bulk_translate_entries( $params ) {
 			// Check if the user is logged in and has the necessary capabilities
