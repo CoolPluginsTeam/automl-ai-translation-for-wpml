@@ -36,6 +36,7 @@ class Gutenberg_Blocks_Update extends Content_Update_Base {
     protected $editor_type = 'Gutenberg';
 
     public function __construct(int $post_id, int $translated_post_id, array $translate_strings, string $target_language, string $nonce) {
+        add_filter('option_wpml-gutenberg-config', array($this, 'update_gutenberg_config'), 10, 2);
         parent::__construct($post_id, $translated_post_id, $translate_strings, $target_language, $nonce);
     }
 
@@ -65,7 +66,7 @@ class Gutenberg_Blocks_Update extends Content_Update_Base {
 			WPML_TranslateLinks::getTranslatorForString( $string_factory, $sitepress->get_active_languages() )
 		);
 
-        $this->gutenberg_builder_factory=new WPML_Gutenberg_Integration($strings_in_block,$config_option,$strings_registration);
+        $this->gutenberg_builder_factory=new WPML_Gutenberg_Integration($strings_in_block,$config_option,$strings_registration, $sitepress);
     }
 
     private function create_strings_in_block( WPML_Gutenberg_Config_Option $config_option ) {
@@ -76,6 +77,171 @@ class Gutenberg_Blocks_Update extends Content_Update_Base {
 
 		return new StringsInBlockCollection( $string_parsers );
 	}
+
+    public function update_gutenberg_config( $config, $option_name ) {
+        if($this->is_content_update()){
+            $custom_block_config=$this->get_block_parse_rules();
+    
+            if(!empty($custom_block_config)){
+                $this->set_custom_block_config($config,$custom_block_config);
+            }
+        }
+        
+        return $config;
+    }
+
+    private function get_block_parse_rules()
+    {
+        $response = wp_remote_get( esc_url_raw( WPML_AT_PLUGIN_URL . 'includes/blocks-config/blocks-config.json' ), array(
+            'timeout' => 15,
+        ) );
+
+        if ( is_wp_error( $response ) || 200 !== (int) wp_remote_retrieve_response_code( $response ) ) {
+            global $wp_filesystem;
+
+            // Initialize the WordPress filesystem
+            if ( ! function_exists( 'WP_Filesystem' ) ) {
+                require_once ABSPATH . 'wp-admin/includes/file.php';
+            }
+
+            WP_Filesystem();
+
+            $local_path = WPML_AT_PLUGIN_DIR . 'includes/blocks-config/blocks-config.json';
+            if($wp_filesystem->exists($local_path) && $wp_filesystem->is_readable( $local_path )){
+                $block_rules = $wp_filesystem->get_contents( $local_path );
+            }else{
+                $block_rules = array();
+            }
+        } else {
+            $block_rules = wp_remote_retrieve_body( $response );
+        }
+
+        if(empty($block_rules)){
+            return array();
+        }
+
+        $block_translation_rules = json_decode($block_rules);
+
+        return $block_translation_rules;
+    }
+
+    private function set_custom_block_config( array &$config, $custom_block_config ): void {
+
+        if ( empty( $custom_block_config ) ) {
+            return;
+        }
+    
+        foreach ( (array) $custom_block_config as $block_name => $block_config ) {
+    
+            // Skip if block not present in base config
+            if ( ! isset( $config[ $block_name ] ) ) {
+                continue;
+            }
+    
+            // Ensure attributes exist
+            if ( empty( $block_config->attributes ) ) {
+                continue;
+            }
+    
+            $this->set_block_config_attributes(
+                $config,
+                $block_name,
+                (array) $block_config->attributes
+            );
+        }
+    }
+    
+    private function set_block_config_attributes( array &$config, string $block_name, array $attributes ): void {
+        // Ensure base keys exist
+        if ( ! isset( $config[ $block_name ]['key'] ) ) {
+            $config[ $block_name ]['key'] = [];
+        }
+        foreach ( $attributes as $attr_key => $attr_value ) {
+    
+            // Skip if attribute already exists
+            if ( isset( $config[ $block_name ]['key'][ $attr_key ] ) ) {
+                continue;
+            }
+    
+            /**
+             * CASE 1 — SIMPLE ATTRIBUTE (true)
+             */
+            if ( $attr_value === true ) {
+                $config[ $block_name ]['key'][ $attr_key ] = [];
+                continue;
+            }
+    
+            /**
+             * CASE 2 — OBJECT ATTRIBUTE
+             */
+            if ( is_object( $attr_value ) ) {
+                $config[ $block_name ]['key'][ $attr_key ] = 
+                    $this->parse_object_children( $attr_value );
+                continue;
+            }
+    
+            /**
+             * CASE 3 — ARRAY ATTRIBUTE
+             */
+            if ( is_array( $attr_value ) ) {
+                $config[ $block_name ]['*'][ $attr_key ] = 
+                    $this->parse_array_children( $attr_value );
+            }
+        }
+    }
+
+    private function parse_object_children( $object ): array {
+
+        $result = [];
+    
+        foreach ( (array) $object as $child_key => $child_value ) {
+    
+            // simple true value
+            if ( $child_value === true ) {
+                $result[ $child_key ]['children'] = [];
+                continue;
+            }
+    
+            // nested object
+            if ( is_object( $child_value ) ) {
+                $result[ $child_key ]['children'] = 
+                    $this->parse_object_children( $child_value );
+                continue;
+            }
+    
+            // nested array
+            if ( is_array( $child_value ) ) {
+                $result[ $child_key ]['children'] = 
+                    $this->parse_array_children( $child_value );
+            }
+        }
+    
+        return $result;
+    }
+
+    private function parse_array_children( array $array ): array {
+
+        $result = [];
+    
+        foreach ( $array as $index => $item ) {
+    
+            if ( is_object( $item ) ) {
+                $result[ $index ] = $this->parse_object_children( $item );
+                continue;
+            }
+    
+            if ( is_array( $item ) ) {
+                $result[ $index ] = $this->parse_array_children( $item );
+                continue;
+            }
+    
+            if ( $item === true ) {
+                $result[ $index ] = [];
+            }
+        }
+    
+        return $result;
+    }            
 
     protected function update_builder_translation(): void {
 
@@ -91,5 +257,4 @@ class Gutenberg_Blocks_Update extends Content_Update_Base {
         
         wpml_update_escaped_post( [ 'ID' => $this->translated_post_id, 'post_content' => $updated_content ], $this->target_language );
     }
-
 }
