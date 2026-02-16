@@ -156,6 +156,8 @@ class Gutenberg_Blocks_Update extends Content_Update_Base {
         if ( ! isset( $config[ $block_name ]['key'] ) ) {
             $config[ $block_name ]['key'] = [];
         }
+
+
         foreach ( $attributes as $attr_key => $attr_value ) {
     
             // Skip if attribute already exists
@@ -175,8 +177,7 @@ class Gutenberg_Blocks_Update extends Content_Update_Base {
              * CASE 2 — OBJECT ATTRIBUTE
              */
             if ( is_object( $attr_value ) ) {
-                $config[ $block_name ]['key'][ $attr_key ] = 
-                    $this->parse_object_children( $attr_value );
+                $this->parse_object_children( $config[ $block_name ]['key'][ $attr_key ], $attr_value );
                 continue;
             }
     
@@ -184,63 +185,52 @@ class Gutenberg_Blocks_Update extends Content_Update_Base {
              * CASE 3 — ARRAY ATTRIBUTE
              */
             if ( is_array( $attr_value ) ) {
-                $config[ $block_name ]['*'][ $attr_key ] = 
-                    $this->parse_array_children( $attr_value );
+                if(!isset($config[ $block_name ]['key'][ $attr_key ])){
+                    $config[ $block_name ]['key'][ $attr_key ] = ['*' => ['children' => []]];
+                }
+                    
+                if(!isset($config[ $block_name ]['key'][ $attr_key ]['*'])) $config[ $block_name ]['key'][ $attr_key ]['*'] = ['children' => []];
+
+                $this->parse_array_children( $config[ $block_name ]['key'][ $attr_key ]['*']['children'], $attr_value[0] );
             }
         }
     }
 
-    private function parse_object_children( $object ): array {
-
-        $result = [];
-    
+    private function parse_object_children( &$reference, $object ): void {    
         foreach ( (array) $object as $child_key => $child_value ) {
     
             // simple true value
             if ( $child_value === true ) {
-                $result[ $child_key ]['children'] = [];
+                $reference[ $child_key ]= [];
                 continue;
             }
     
             // nested object
             if ( is_object( $child_value ) ) {
-                $result[ $child_key ]['children'] = 
-                    $this->parse_object_children( $child_value );
+                $this->parse_object_children( $reference[ $child_key ], $child_value );
                 continue;
             }
     
             // nested array
             if ( is_array( $child_value ) ) {
-                $result[ $child_key ]['children'] = 
-                    $this->parse_array_children( $child_value );
+                if(!isset($reference[$child_key]['*'])) $reference[$child_key]['*'] = ['children' => []];
+                    $this->parse_array_children( $reference[ $child_key ]["*"]['children'], $child_value[0] );
             }
         }
-    
-        return $result;
     }
 
-    private function parse_array_children( array $array ): array {
+    private function parse_array_children( &$reference, $child_values ): void {
 
-        $result = [];
-    
-        foreach ( $array as $index => $item ) {
-    
-            if ( is_object( $item ) ) {
-                $result[ $index ] = $this->parse_object_children( $item );
-                continue;
-            }
-    
-            if ( is_array( $item ) ) {
-                $result[ $index ] = $this->parse_array_children( $item );
-                continue;
-            }
-    
-            if ( $item === true ) {
-                $result[ $index ] = [];
-            }
+        if ( is_object( $child_values ) ) {
+            $this->parse_object_children( $reference, $child_values );
+            return;
         }
     
-        return $result;
+        if ( is_array( $child_values ) ) {
+            if(!isset($reference['*'])) $reference['*'] = ['children' => []];
+            $this->parse_array_children( $reference["*"]['children'], $child_values[0] );
+            return;
+        }
     }            
 
     protected function update_builder_translation(): void {
