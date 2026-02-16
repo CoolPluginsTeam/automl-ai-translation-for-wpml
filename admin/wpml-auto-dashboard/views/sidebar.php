@@ -129,14 +129,14 @@ endif;
 		<div class="wpml-auto-dashboard-sts-top">
 			<?php
 			// You can later store stats in an option similar to this.
-			$wpml_auto_all_translation_data = get_option( 'wpml_auto_dashboard_data', array() );
+			$automl_wpml_all_translation_data = get_option( 'wpml_auto_dashboard_data', array() );
 
-			if ( ! is_array( $wpml_auto_all_translation_data ) || ! isset( $wpml_auto_all_translation_data['wpml_auto'] ) ) {
-				$wpml_auto_all_translation_data['wpml_auto'] = array();
+			if ( ! is_array( $automl_wpml_all_translation_data ) || ! isset( $automl_wpml_all_translation_data['wpml_auto'] ) ) {
+				$automl_wpml_all_translation_data['wpml_auto'] = array();
 			}
 
 			$totals = array_reduce(
-				$wpml_auto_all_translation_data['wpml_auto'],
+				$automl_wpml_all_translation_data['wpml_auto'],
 				function ( $carry, $translation ) {
 					$carry['string_count']    += intval( $translation['string_count'] ?? 0 );
 					$carry['character_count'] += intval( $translation['character_count'] ?? 0 );
@@ -155,7 +155,7 @@ endif;
 				)
 			);
 
-			$wpml_auto_time_taken_str = wpml_auto_format_time_taken( $totals['time_taken'] );
+			$automl_wpml_time_taken_str = wpml_auto_format_time_taken( $totals['time_taken'] );
 			?>
 			<span><?php echo esc_html( wpml_auto_format_number( $totals['character_count'] ) ); ?></span>
 			<span><?php esc_html_e( 'Total Characters Translated!', 'automl-ai-translation-for-wpml' ); ?></span>
@@ -171,7 +171,7 @@ endif;
 			</li>
 			<li>
 				<span><?php esc_html_e( 'Time Taken', 'automl-ai-translation-for-wpml' ); ?></span>
-				<span><?php echo esc_html( $wpml_auto_time_taken_str ); ?></span>
+				<span><?php echo esc_html( $automl_wpml_time_taken_str ); ?></span>
 			</li>
 		</ul>
 	</div>

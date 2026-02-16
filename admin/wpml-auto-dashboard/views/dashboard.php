@@ -23,8 +23,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<ul>
 						<li>
 							<?php
-							// translators: 1: strong tag, 2: strong tag.
 							echo sprintf(
+								// translators: %1$s: strong tag, %2$s: strong tag.
 								esc_html__(
 									'Go to %1$sWPML > Translation Management%2$s in your WordPress dashboard. Choose the content you want to translate.',
 									'automl-ai-translation-for-wpml'
@@ -36,8 +36,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 						</li>
 						<li>
 							<?php
-							// translators: 1: strong tag, 2: strong tag.
 							echo sprintf(
+								// translators: %1$s: strong tag, %2$s: strong tag.
 								esc_html__(
 									'Use the %1$sWPML translation dashboard%2$s to select jobs and send them for automatic translation.',
 									'automl-ai-translation-for-wpml'
@@ -50,8 +50,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 						<li><?php echo esc_html__( 'Select Google Translate as your translation engine through this addon.', 'automl-ai-translation-for-wpml' ); ?></li>
 						<li>
 							<?php
-							// translators: 1: strong tag, 2: strong tag.
 							echo sprintf(
+								// translators: %1$s: strong tag, %2$s: strong tag.
 								esc_html__(
 									'Click the %1$sTranslate%2$s button. The addon will automatically generate translations using Google.',
 									'automl-ai-translation-for-wpml'
@@ -63,8 +63,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 						</li>
 						<li>
 							<?php
-							// translators: 1: strong tag, 2: strong tag.
 							echo sprintf(
+								// translators: %1$s: strong tag, %2$s: strong tag.
 								esc_html__(
 									'Review the translated content, make any manual edits if needed, then click %1$sSave%2$s.',
 									'automl-ai-translation-for-wpml'
@@ -92,8 +92,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<ul>
 						<li>
 							<?php
-							// translators: 1: strong tag, 2: strong tag.
 							echo sprintf(
+								// translators: %1$s: strong tag, %2$s: strong tag.
 								esc_html__(
 									'Enable the %1$sGoogle Website Translator widget%2$s from this addon’s settings.',
 									'automl-ai-translation-for-wpml'
@@ -105,29 +105,19 @@ if ( ! defined( 'ABSPATH' ) ) {
 						</li>
 						<li>
 							<?php
-							// translators: 1: strong tag, 2: strong tag.
-							echo sprintf(
-								esc_html__(
+							echo esc_html__(
 									'Use the widget on the front-end to quickly preview how your site looks in different languages.',
 									'automl-ai-translation-for-wpml'
-								),
-								'<strong>',
-								'</strong>'
-							);
+								);
 							?>
 						</li>
 						<li><?php echo esc_html__( 'Compare preview translations with saved WPML translations to refine your content.', 'automl-ai-translation-for-wpml' ); ?></li>
 						<li>
 							<?php
-							// translators: 1: strong tag, 2: strong tag.
-							echo sprintf(
-								esc_html__(
+							echo esc_html__(
 									'When you are satisfied with the results, update your WPML translation jobs accordingly.',
 									'automl-ai-translation-for-wpml'
-								),
-								'<strong>',
-								'</strong>'
-							);
+								);
 							?>
 						</li>
 					</ul>

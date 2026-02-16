@@ -23,8 +23,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 		<p>
 			<?php
-			// translators: %s: plugin name.
 			echo sprintf(
+				// translators: %s: plugin name.
 				esc_html__( "You're using %s - no license needed. Enjoy!", 'automl-ai-translation-for-wpml' ),
 				'<strong>' . esc_html__( 'WPML Google Auto Translate Addon', 'automl-ai-translation-for-wpml' ) . '</strong>'
 			);

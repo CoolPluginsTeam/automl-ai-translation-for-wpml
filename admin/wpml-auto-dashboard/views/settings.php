@@ -40,77 +40,77 @@ if ( ! current_user_can( 'manage_options' ) ) {
                     settings_fields( 'wp-ai-client-settings' );
           
 					// Current AI SDK credentials.
-					$wp_ai_credentials = get_option( 'wp_ai_client_provider_credentials', array() );
+					$automl_wpml_ai_credentials = get_option( 'wp_ai_client_provider_credentials', array() );
 
 					// Current selected models (saved by the addon).
-					$current_models       = get_option( 'wpml_at_ai_translation_models', array() );
-					$current_openai_model = isset( $current_models['openai'] ) ? $current_models['openai'] : '';
-					$current_google_model = isset( $current_models['google'] ) ? $current_models['google'] : '';
-					$openai_api_key = get_option( 'wp_ai_client_provider_credentials', array() )['openai'];
-					$google_api_key = get_option( 'wp_ai_client_provider_credentials', array() )['google'];
-                    if ( empty( $current_openai_model ) && !empty( $openai_api_key ) ) {
-						$current_openai_model = 'gpt-5-mini';
-						update_option( 'wpml_at_ai_translation_models', array( 'openai' => $current_openai_model ) );
+					$automl_wpml_current_models       = get_option( 'wpml_at_ai_translation_models', array() );
+					$automl_wpml_current_openai_model = isset( $automl_wpml_current_models['openai'] ) ? $automl_wpml_current_models['openai'] : '';
+					$automl_wpml_current_google_model = isset( $automl_wpml_current_models['google'] ) ? $automl_wpml_current_models['google'] : '';
+					$automl_wpml_openai_api_key = get_option( 'wp_ai_client_provider_credentials', array() )['openai'];
+					$automl_wpml_google_api_key = get_option( 'wp_ai_client_provider_credentials', array() )['google'];
+                    if ( empty( $automl_wpml_current_openai_model ) && !empty( $automl_wpml_openai_api_key ) ) {
+						$automl_wpml_current_openai_model = 'gpt-5-mini';
+						update_option( 'wpml_at_ai_translation_models', array( 'openai' => $automl_wpml_current_openai_model ) );
 					}
-					if ( empty( $current_google_model ) && !empty( $google_api_key ) ) {
-						$current_google_model = 'gemini-2.5-flash';
-						update_option( 'wpml_at_ai_translation_models', array( 'google' => $current_google_model ) );
+					if ( empty( $automl_wpml_current_google_model ) && !empty( $automl_wpml_google_api_key ) ) {
+						$automl_wpml_current_google_model = 'gemini-2.5-flash';
+						update_option( 'wpml_at_ai_translation_models', array( 'google' => $automl_wpml_current_google_model ) );
 					}
 					
-					$openai_models = array();
-					$google_models = array();
+					$automl_wpml_openai_models = array();
+					$automl_wpml_google_models = array();
 
 					// Use "has API key" instead of isProviderConfigured() to avoid HTTP requests on every page load.
-					$has_openai_key = ! empty( $wp_ai_credentials['openai'] );
-					$has_google_key = ! empty( $wp_ai_credentials['google'] );
+					$automl_wpml_has_openai_key = ! empty( $automl_wpml_ai_credentials['openai'] );
+					$automl_wpml_has_google_key = ! empty( $automl_wpml_ai_credentials['google'] );
 
 					if ( class_exists( '\WordPress\AiClient\AiClient' ) ) {
-						$registry = \WordPress\AiClient\AiClient::defaultRegistry();
+						$automl_wpml_registry = \WordPress\AiClient\AiClient::defaultRegistry();
 
 						// OpenAI models (cached 1 hour to avoid API request on every refresh).
-						if ( $has_openai_key ) {
-							$cache_key = 'automl_wpml_openai_models';
-							$cached    = get_transient( $cache_key );
-							if ( false !== $cached && is_array( $cached ) ) {
-								$openai_models = $cached;
+						if ( $automl_wpml_has_openai_key ) {
+							$automl_wpml_cache_key = 'automl_wpml_openai_models';
+							$automl_wpml_cached    = get_transient( $automl_wpml_cache_key );
+							if ( false !== $automl_wpml_cached && is_array( $automl_wpml_cached ) ) {
+								$automl_wpml_openai_models = $automl_wpml_cached;
 							} else {
 								try {
-									$openai_class = $registry->getProviderClassName( 'openai' );
-									$directory    = $openai_class::modelMetadataDirectory();
-									$openai_models = array_map(
+									$automl_wpml_openai_class = $automl_wpml_registry->getProviderClassName( 'openai' );
+									$automl_wpml_directory    = $automl_wpml_openai_class::modelMetadataDirectory();
+									$automl_wpml_openai_models = array_map(
 										static function ( $model ) {
 											/** @var \WordPress\AiClient\Providers\Models\DTO\ModelMetadata $model */
 											return $model->getId();
 										},
-										$directory->listModelMetadata()
+										$automl_wpml_directory->listModelMetadata()
 									);
-									set_transient( $cache_key, $openai_models, 24 * HOUR_IN_SECONDS );
+									set_transient( $automl_wpml_cache_key, $automl_wpml_openai_models, 24 * HOUR_IN_SECONDS );
 								} catch ( \Throwable $e ) {
-									$openai_models = array();
+									$automl_wpml_openai_models = array();
 								}
 							}
 						}
 
 						// Google / Gemini models (cached 1 hour to avoid API request on every refresh).
-						if ( $has_google_key ) {
-							$cache_key = 'automl_wpml_google_models';
-							$cached    = get_transient( $cache_key );
-							if ( false !== $cached && is_array( $cached ) ) {
-								$google_models = $cached;
+						if ( $automl_wpml_has_google_key ) {
+							$automl_wpml_cache_key = 'automl_wpml_google_models';
+							$automl_wpml_cached    = get_transient( $automl_wpml_cache_key );
+							if ( false !== $automl_wpml_cached && is_array( $automl_wpml_cached ) ) {
+								$automl_wpml_google_models = $automl_wpml_cached;
 							} else {
 								try {
-									$google_class = $registry->getProviderClassName( 'google' );
-									$directory    = $google_class::modelMetadataDirectory();
-									$google_models = array_map(
+									$automl_wpml_google_class = $automl_wpml_registry->getProviderClassName( 'google' );
+									$automl_wpml_directory    = $automl_wpml_google_class::modelMetadataDirectory();
+									$automl_wpml_google_models = array_map(
 										static function ( $model ) {
 											/** @var \WordPress\AiClient\Providers\Models\DTO\ModelMetadata $model */
 											return $model->getId();
 										},
-										$directory->listModelMetadata()
+										$automl_wpml_directory->listModelMetadata()
 									);
-									set_transient( $cache_key, $google_models, 24 * HOUR_IN_SECONDS );
+									set_transient( $automl_wpml_cache_key, $automl_wpml_google_models, 24 * HOUR_IN_SECONDS );
 								} catch ( \Throwable $e ) {
-									$google_models = array();
+									$automl_wpml_google_models = array();
 								}
 							}
 						}
@@ -120,7 +120,7 @@ if ( ! current_user_can( 'manage_options' ) ) {
 					<div class="wpml-auto-dashboard-api-settings-form">
 						<?php
 						// Providers shown in the UI.
-						$wpml_auto_api_settings = array(
+						$automl_wpml_api_settings = array(
 							'openai' => array(
 								'name'        => 'OpenAI',
 								'doc_url'     => 'https://developer.wordpress.org/docs/ai/#openai',
@@ -133,33 +133,33 @@ if ( ! current_user_can( 'manage_options' ) ) {
 							),
 						);
 
-						foreach ( $wpml_auto_api_settings as $api_key => $settings ) :
+						foreach ( $automl_wpml_api_settings as $automl_wpml_api_key => $automl_wpml_settings ) :
 							?>
-							<label for="<?php echo esc_attr( $api_key ); ?>-api">
+							<label for="<?php echo esc_attr( $automl_wpml_api_key ); ?>-api">
 								<?php
-								// translators: %s: API name.
 								printf(
+									// translators: %s: API name.
 									esc_html__( 'Add %s API key', 'automl-ai-translation-for-wpml' ),
-									esc_html( $settings['name'] )
+									esc_html( $automl_wpml_settings['name'] )
 								);
 								?>
 							</label>
 							<div class="input-group">
                             <input
                                 type="password"
-                                id="<?php echo esc_attr( $api_key ); ?>-api"
-                                name="wp_ai_client_provider_credentials[<?php echo esc_attr( $api_key ); ?>]"
-                                value="<?php echo isset( $wp_ai_credentials[ $api_key ] ) ? esc_attr( $wp_ai_credentials[ $api_key ] ) : ''; ?>"
-                                placeholder="<?php echo esc_attr( $settings['placeholder'] ); ?>"
+                                id="<?php echo esc_attr( $automl_wpml_api_key ); ?>-api"
+                                name="wp_ai_client_provider_credentials[<?php echo esc_attr( $automl_wpml_api_key ); ?>]"
+                                value="<?php echo isset( $automl_wpml_ai_credentials[ $automl_wpml_api_key ] ) ? esc_attr( $automl_wpml_ai_credentials[ $automl_wpml_api_key ] ) : ''; ?>"
+                                placeholder="<?php echo esc_attr( $automl_wpml_settings['placeholder'] ); ?>"
                                 autocomplete="new-password"
                             />
 							</div>
 
 							<?php
-							$has_key = ! empty( $wp_ai_credentials[ $api_key ] );
+							$automl_wpml_has_key = ! empty( $automl_wpml_ai_credentials[ $automl_wpml_api_key ] );
 
 							// OpenAI model selector.
-							if ( 'openai' === $api_key && $has_key && ! empty( $openai_models ) ) : ?>
+							if ( 'openai' === $automl_wpml_api_key && $automl_wpml_has_key && ! empty( $automl_wpml_openai_models ) ) : ?>
 								<div class="wpml-auto-dashboard-api-settings-openai-model">
 									<label for="wpml_selected_openai_model" class="api-settings-label">
 										<?php esc_html_e( 'Select OpenAI Model', 'automl-ai-translation-for-wpml' ); ?>
@@ -170,9 +170,9 @@ if ( ! current_user_can( 'manage_options' ) ) {
 										class="wpml-openai-model-select"
 									>
 										<option value=""><?php esc_html_e( 'Select model...', 'automl-ai-translation-for-wpml' ); ?></option>
-										<?php foreach ( $openai_models as $model_id ) : ?>
-											<option value="<?php echo esc_attr( $model_id ); ?>" <?php selected( $current_openai_model, $model_id ); ?>>
-												<?php echo esc_html( $model_id ); ?>
+										<?php foreach ( $automl_wpml_openai_models as $automl_wpml_model_id ) : ?>
+											<option value="<?php echo esc_attr( $automl_wpml_model_id ); ?>" <?php selected( $automl_wpml_current_openai_model, $automl_wpml_model_id ); ?>>
+												<?php echo esc_html( $automl_wpml_model_id ); ?>
 											</option>
 										<?php endforeach; ?>
 									</select>
@@ -181,7 +181,7 @@ if ( ! current_user_can( 'manage_options' ) ) {
 							endif;
 
 							// Google / Gemini model selector.
-							if ( 'google' === $api_key && $has_key && ! empty( $google_models ) ) : ?>
+							if ( 'google' === $automl_wpml_api_key && $automl_wpml_has_key && ! empty( $automl_wpml_google_models ) ) : ?>
 								<div class="wpml-auto-dashboard-api-settings-google-model">
 									<label for="wpml_selected_google_model" class="api-settings-label">
 										<?php esc_html_e( 'Select Gemini Model', 'automl-ai-translation-for-wpml' ); ?>
@@ -192,9 +192,9 @@ if ( ! current_user_can( 'manage_options' ) ) {
 										class="wpml-google-model-select"
 									>
 										<option value=""><?php esc_html_e( 'Select model...', 'automl-ai-translation-for-wpml' ); ?></option>
-										<?php foreach ( $google_models as $model_id ) : ?>
-											<option value="<?php echo esc_attr( $model_id ); ?>" <?php selected( $current_google_model, $model_id ); ?>>
-												<?php echo esc_html( $model_id ); ?>
+										<?php foreach ( $automl_wpml_google_models as $automl_wpml_model_id ) : ?>
+											<option value="<?php echo esc_attr( $automl_wpml_model_id ); ?>" <?php selected( $automl_wpml_current_google_model, $automl_wpml_model_id ); ?>>
+												<?php echo esc_html( $automl_wpml_model_id ); ?>
 											</option>
 										<?php endforeach; ?>
 									</select>
@@ -205,8 +205,8 @@ if ( ! current_user_can( 'manage_options' ) ) {
 							printf(
 								// translators: 1: Click here link, 2: API name.
 								esc_html__( '%1$s to see how to configure %2$s in the AI SDK.', 'automl-ai-translation-for-wpml' ),
-								'<a href="' . esc_url( $settings['doc_url'] ) . '" target="_blank">' . esc_html__( 'Click here', 'automl-ai-translation-for-wpml' ) . '</a>',
-								esc_html( $settings['name'] )
+								'<a href="' . esc_url( $automl_wpml_settings['doc_url'] ) . '" target="_blank">' . esc_html__( 'Click here', 'automl-ai-translation-for-wpml' ) . '</a>',
+								esc_html( $automl_wpml_settings['name'] )
 							);
 							echo '<br/><br/>';
 						endforeach;

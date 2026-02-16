@@ -19,8 +19,8 @@ class Helper {
      * @return bool True if bulk translation should be rendered, false otherwise.
      */
     public static function tranlastable_post_type($current_screen){
-
-        if((isset($current_screen->action) && $current_screen->action === 'add') || (isset($_GET['post']) && isset($_GET['action']) && $_GET['action'] === 'edit')){
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading GET parameter for conditional logic.
+        if((isset($current_screen->action) && $current_screen->action === 'add') || (isset($_GET['post']) && isset($_GET['action']) && sanitize_text_field(wp_unslash($_GET['action'])) === 'edit')){
             return false;
         }
 

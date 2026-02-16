@@ -26,7 +26,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 		<div class="wpml-auto-dashboard-translations">
 			<?php
-			$wpml_auto_ai_translations = array(
+			$automl_wpml_ai_translations = array(
 				array(
 					'logo'       => 'openai-translate-logo.png',
 					'alt'        => 'OpenAI',
@@ -53,19 +53,19 @@ if ( ! defined( 'ABSPATH' ) ) {
 				),
 			);
 
-			foreach ( $wpml_auto_ai_translations as $item ) :
+			foreach ( $automl_wpml_ai_translations as $automl_wpml_ai_translation ) :
 				?>
 				<div class="wpml-auto-dashboard-translation-card">
 					<div class="logo">
-						<img src="<?php echo esc_url( WPML_AT_PLUGIN_URL . 'assets/images/' . $item['logo'] ); ?>"
-							alt="<?php echo esc_attr( $item['alt'] ); ?>">
+						<img src="<?php echo esc_url( WPML_AT_PLUGIN_URL . 'assets/images/' . $automl_wpml_ai_translation['logo'] ); ?>"
+							alt="<?php echo esc_attr( $automl_wpml_ai_translation['alt'] ); ?>">
 					</div>
-					<h3><?php echo esc_html( $item['title'] ); ?></h3>
-					<p><?php echo esc_html( $item['description'] ); ?></p>
+					<h3><?php echo esc_html( $automl_wpml_ai_translation['title'] ); ?></h3>
+					<p><?php echo esc_html( $automl_wpml_ai_translation['description'] ); ?></p>
 					<div class="play-btn-container">
-						<a href="<?php echo esc_url( $item['url'] ); ?>" target="_blank">
-							<img src="<?php echo esc_url( WPML_AT_PLUGIN_URL . 'admin/wpml-auto-dashboard/images/' . $item['icon'] ); ?>"
-								alt="<?php echo esc_attr( $item['alt'] ); ?>">
+						<a href="<?php echo esc_url( $automl_wpml_ai_translation['url'] ); ?>" target="_blank">
+							<img src="<?php echo esc_url( WPML_AT_PLUGIN_URL . 'admin/wpml-auto-dashboard/images/' . $automl_wpml_ai_translation['icon'] ); ?>"
+								alt="<?php echo esc_attr( $automl_wpml_ai_translation_item['alt'] ); ?>">
 						</a>
 					</div>
 				</div>

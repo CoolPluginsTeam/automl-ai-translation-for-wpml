@@ -22,14 +22,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 		<div class="wpml-auto-dashboard-social-icons">
 			<?php
-			$wpml_auto_social_links = array(
+			$automl_wpml_social_links = array(
 				array( 'https://www.facebook.com/coolplugins/', 'facebook.svg', esc_html__( 'Facebook', 'automl-ai-translation-for-wpml' ) ),
 				array( 'https://linkedin.com/company/coolplugins', 'linkedin.svg', esc_html__( 'LinkedIn', 'automl-ai-translation-for-wpml' ) ),
 				array( 'https://x.com/cool_plugins', 'twitter.svg', esc_html__( 'Twitter / X', 'automl-ai-translation-for-wpml' ) ),
 				array( 'https://www.youtube.com/@cool_plugins', 'youtube.svg', esc_html__( 'YouTube Channel', 'automl-ai-translation-for-wpml' ) ),
 			);
 
-			foreach ( $wpml_auto_social_links as $link ) {
+			foreach ( $automl_wpml_social_links as $link ) {
 				echo '<a href="' . esc_url( $link[0] ) . '" target="_blank">
 						<img src="' . esc_url( WPML_AT_PLUGIN_URL . 'admin/wpml-auto-dashboard/images/' . $link[1] ) . '" alt="' . esc_attr( $link[2] ) . '">
 					  </a>';

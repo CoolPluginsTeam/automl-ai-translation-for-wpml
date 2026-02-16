@@ -36,7 +36,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			</thead>
 			<tbody>
 				<?php
-				$wpml_auto_features = array(
+				$automl_wpml_features = array(
 					__( 'WPML Translation Dashboard integration', 'automl-ai-translation-for-wpml' )          => array( true, true ),
 					__( 'Uses your own AI/API keys (via AI SDK)', 'automl-ai-translation-for-wpml' )       => array( true, false ),
 					__( 'No per‑word SaaS billing from this addon', 'automl-ai-translation-for-wpml' )     => array( true, false ),
@@ -48,15 +48,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 					__( 'Dedicated enterprise support SLAs', 'automl-ai-translation-for-wpml' )            => array( false, true ),
 				);
 
-				foreach ( $wpml_auto_features as $feature => $availability ) :
+				foreach ( $automl_wpml_features as $automl_wpml_feature => $automl_wpml_availability ) :
 					?>
 					<tr>
-						<td><?php echo esc_html( $feature ); ?></td>
-						<td class="<?php echo $availability[0] ? 'check' : 'cross'; ?>">
-							<?php echo $availability[0] ? '✓' : '✗'; ?>
+						<td><?php echo esc_html( $automl_wpml_feature ); ?></td>
+						<td class="<?php echo $automl_wpml_availability[0] ? 'check' : 'cross'; ?>">
+							<?php echo $automl_wpml_availability[0] ? '✓' : '✗'; ?>
 						</td>
-						<td class="<?php echo $availability[1] ? 'check' : 'cross'; ?>">
-							<?php echo $availability[1] ? '✓' : '✗'; ?>
+						<td class="<?php echo $automl_wpml_availability[1] ? 'check' : 'cross'; ?>">
+							<?php echo $automl_wpml_availability[1] ? '✓' : '✗'; ?>
 						</td>
 					</tr>
 					<?php

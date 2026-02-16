@@ -32,9 +32,9 @@ if ( ! defined( 'WPML_AT_PLUGIN_URL' ) ) {
 if ( ! defined( 'WPML_AT_PLUGIN_BASENAME' ) ) {
 	define( 'WPML_AT_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
 }
-$autoload = WPML_AT_PLUGIN_DIR . 'vendor/autoload.php';
-if ( file_exists( $autoload ) ) {
-	require_once $autoload;
+$automl_wpml_autoload = WPML_AT_PLUGIN_DIR . 'vendor/autoload.php';
+if ( file_exists( $automl_wpml_autoload ) ) {
+	require_once $automl_wpml_autoload;
 }
 
 use WordPress\AI_Client\AI_Client;
