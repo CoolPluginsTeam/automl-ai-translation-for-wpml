@@ -11,6 +11,7 @@ use AUTOML_WPML\Includes\Wpml\Builder\Elementor_Widgets_Update;
 use AUTOML_WPML\Includes\Wpml\Builder\Gutenberg_Blocks_Update;
 use AUTOML_WPML\Includes\Wpml\Builder\Content_Update_Base;
 use AUTOML_WPML\Helper\Helper;
+use AUTOML_WPML\Helper\Sanitized_Content;
 
 /**
  * Create_Translated_Post
@@ -216,6 +217,10 @@ class Create_Translated_Post {
 		}
     }
 
+	private function string_has_html( string $string ): bool {
+		return $string !== strip_tags( $string );
+	}
+
 	private function filter_translate_strings( array $translate_strings ): void {
 		$this->translate_strings = array();
 
@@ -227,7 +232,8 @@ class Create_Translated_Post {
 				if ( isset( $translate_strings[ $package_key ] ) && ! empty( $translate_strings[ $package_key ] ) ) {
 					if ( isset( $package_content['translate'] ) && $package_content['translate'] === 1 ) {
 						if ( isset( $package_content['html'] ) && isset( $package_content['text'] ) ) {
-							if ( $package_content['text'] === $package_content['html'] ) {
+
+							if ( $package_content['text'] === $package_content['html'] || !$this->string_has_html($package_content['html']) ) {
 								$this->translate_strings[ $package_key ] = array(
 									$this->target_language => array(
 										'value'  => sanitize_text_field( $translate_strings[ $package_key ]['html'] ),
@@ -235,9 +241,13 @@ class Create_Translated_Post {
 									),
 								);
 							} elseif ( ! empty( $package_content['html'] ) ) {
+
+								$automl_wpml_sanitized_content = new Sanitized_Content( $package_content['html'] );
+								$final_value = $automl_wpml_sanitized_content->get_sanitized_content($translate_strings[ $package_key ]['html']);
+
 								$this->translate_strings[ $package_key ] = array(
 									$this->target_language => array(
-										'value'  => wp_kses_post( $translate_strings[ $package_key ]['html'] ),
+										'value'  => $final_value,
 										'status' => 10,
 									),
 								);
