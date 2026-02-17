@@ -154,36 +154,48 @@ import LocalAITranslate from "./components/translate-provider/local-ai/local-ai-
           );
       
           const stringTable =
-            document.querySelector("#icl_string_translations") ||
-            document.querySelector("table.js-wpml-st-table");
-      
-          const checked = stringTable
-            ? stringTable.querySelectorAll(
-                "input.wpml-checkbox-native:checked, input.js-icl-st-row-cb:checked",
-              )
-            : [];
-      
-          const selectedStringIds = [];
-          const selectedStringsMap = {};
-      
-          Array.from(checked).forEach((el) => {
-            const id = el.value;
-            if (!id) return;
-      
-            selectedStringIds.push(id);
-      
-            // Read the JSON from the row's data-string attribute
-            const row = el.closest('tr[data-string]');
-            if (row && row.dataset.string) {
-              try {
-                const parsed = JSON.parse(row.dataset.string);
-                // Store by string_id so we can use it later in bulk-translate.js
-                selectedStringsMap[String(parsed.string_id)] = parsed;
-              } catch (err) {
-                // If parsing fails, we still have the ID in selectedStringIds
-              }
-            }
-          });
+  document.querySelector("#icl_string_translations") ||
+  document.querySelector("table.js-wpml-st-table");
+
+// All checkboxes in the table (whether checked or not)
+const allCheckboxes = stringTable
+  ? stringTable.querySelectorAll(
+      "input.wpml-checkbox-native, input.js-icl-st-row-cb",
+    )
+  : [];
+
+// Only the checked ones
+const checked = stringTable
+  ? stringTable.querySelectorAll(
+      "input.wpml-checkbox-native:checked, input.js-icl-st-row-cb:checked",
+    )
+  : [];
+
+// If nothing is checked, treat ALL rows as selected
+const effectiveSelection =
+  checked && checked.length > 0 ? checked : allCheckboxes;
+
+const selectedStringIds = [];
+const selectedStringsMap = {};
+
+Array.from(effectiveSelection).forEach((el) => {
+  const id = el.value;
+  if (!id) return;
+
+  selectedStringIds.push(id);
+
+  // Read the JSON from the row's data-string attribute
+  const row = el.closest('tr[data-string]');
+  if (row && row.dataset.string) {
+    try {
+      const parsed = JSON.parse(row.dataset.string);
+      // Store by string_id so we can use it later in bulk-translate.js
+      selectedStringsMap[String(parsed.string_id)] = parsed;
+    } catch (err) {
+      // If parsing fails, we still have the ID in selectedStringIds
+    }
+  }
+});
       
           // Get filter values - use empty string if not found
           const statusValue = statusSelect ? statusSelect.value || "" : "";

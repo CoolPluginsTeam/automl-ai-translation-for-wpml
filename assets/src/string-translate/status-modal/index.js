@@ -86,7 +86,6 @@ const StatusModal = ({ postIds, selectedLanguages, prefix, onDestory }) => {
           prefix,
           updateDestoryHandler,
           response.totalPerLanguage || {},
-          response.fetchPage || null,
         );
       } else {
         // Post/taxonomy translation flow
@@ -137,6 +136,7 @@ const StatusModal = ({ postIds, selectedLanguages, prefix, onDestory }) => {
       (callback) => typeof callback === "function" && callback(),
     );
     onDestory(e);
+    window.location.reload();
   };
 
   useEffect(() => {
