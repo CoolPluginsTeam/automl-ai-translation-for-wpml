@@ -146,6 +146,7 @@ final class WPML_Auto_Translate_Addon {
 	private function load_dependencies() {
 		$files = array(
 			'helper/helper.php',
+			'helper/sanitized-content.php',
 			'includes/wpml/get-package-content.php',
 			'includes/wpml/builder/content-update-base.php',
 			'includes/wpml/builder/elementor-widgets-update.php',
