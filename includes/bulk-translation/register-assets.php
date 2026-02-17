@@ -115,6 +115,7 @@ class Register_Assets {
                 'nonce' => wp_create_nonce('wp_rest'),
                 'bulkTranslateRouteUrl' => get_rest_url(null, 'automl-bulk-translate'),
                 'bulkTranslatePrivateKey' => wp_create_nonce('automl_wpml_bulk_translate_entries_nonce'),
+                'pendingPostsIdsKey' => wp_create_nonce('automl_wpml_pending_posts_ids_nonce'),
                 'automl_wpml_url'           => esc_url(WPML_AT_PLUGIN_URL),
                 'AIServices' => $available_ai_services,
                 'admin_url' => admin_url(),
