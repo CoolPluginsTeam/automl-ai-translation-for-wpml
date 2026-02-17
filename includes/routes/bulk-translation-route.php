@@ -81,6 +81,32 @@ if ( ! class_exists( 'Bulk_Translation_Route' ) ) :
 
 			register_rest_route(
 				$this->base_name,
+				'/(?P<slug>[\w-]+)/pending-posts-ids',
+				array(
+					'methods'             => 'POST',
+					'callback'            => array( $this, 'get_pending_posts_ids' ),
+					'permission_callback' => array( $this, 'permission_only_admins' ),
+					'args'                => array(
+						'privateKey' => array(
+							'type'              => 'string',
+							'required'          => true,
+							'sanitize_callback' => 'sanitize_text_field',
+							'validate_callback' => array( $this, 'validate_pending_posts_ids_request' ),
+						),
+						'ids' => array(
+							'type'     => 'string',
+							'required' => true,
+						),
+						'lang' => array(
+							'type'     => 'string',
+							'required' => true,
+						),
+					),
+				)
+			);
+
+			register_rest_route(
+				$this->base_name,
 				'/(?P<slug>[\w-]+)/bulk-translate-entries',
 				array(
 					'methods'             => 'POST',
@@ -179,6 +205,10 @@ if ( ! class_exists( 'Bulk_Translation_Route' ) ) :
 
 		public function validate_automl_wpml_create_post_nonce( $value, $request, $param ) {
 			return wp_verify_nonce( $value, 'automl_wpml_create_translate_post_nonce' ) ? true : new \WP_Error( 'rest_invalid_param', __( 'You are not authorized to perform this action.', 'automl-ai-translation-for-wpml' ), array( 'status' => 403 ) );
+		}
+
+		public function validate_pending_posts_ids_request( $value, $request, $param ) {
+			return wp_verify_nonce( $value, 'automl_wpml_pending_posts_ids_nonce' ) ? true : new \WP_Error( 'rest_invalid_param', __( 'Invalid security token sent.', 'automl-ai-translation-for-wpml' ), array( 'status' => 403 ) );
 		}
 
 		/**
@@ -293,6 +323,65 @@ if ( ! class_exists( 'Bulk_Translation_Route' ) ) :
                 )
             );
         }
+
+		public function get_pending_posts_ids( $params ) {
+			if ( ! is_user_logged_in() ) {
+				wp_send_json_error( 'You are not authorized to perform this action.' );
+			}
+			if ( ! current_user_can( 'edit_posts' ) ) {
+				wp_send_json_error( 'You are not authorized to perform this action.' );
+			}
+
+			if ( ! wp_verify_nonce( $params['privateKey'], 'automl_wpml_pending_posts_ids_nonce' ) ) {
+				wp_send_json_error( 'You are not authorized to perform this action.' );
+			}
+
+			if ( ! isset( $params['lang'] ) || empty( $params['lang'] ) ) {
+				wp_send_json_error( 'Empty target language Select at least one language' );
+			}
+			
+			if ( ! isset( $params['ids'] ) || empty( $params['ids'] ) ) {
+				wp_send_json_error( 'Empty post IDs Select at least one post to translate' );
+			}
+
+			$post_ids        = json_decode( $params['ids'] );
+			$post_ids        = array_map( 'absint', $post_ids );
+			$target_language = json_decode( $params['lang'] );
+			$target_language = array_map( 'sanitize_text_field', $target_language );
+
+			$active_languages = apply_filters( 'wpml_active_languages', null, null );
+
+			$active_languages_slugs = array_column( $active_languages, 'code' );
+			$valid_target_languages = array_intersect( $target_language, $active_languages_slugs );
+
+			$pending_posts_ids = array();
+
+			foreach ( $post_ids as $post_id ) {
+				$automl_wpml_post_element_type = apply_filters( 'wpml_element_type', get_post_type( $post_id ) );
+				$automl_wpml_trid = apply_filters( 'wpml_element_trid', null, $post_id);
+
+				$automl_wpml_translations = apply_filters( 'wpml_get_element_translations', null, $automl_wpml_trid, $automl_wpml_post_element_type );
+				
+				$parent_post_set=false;
+
+				foreach ( $automl_wpml_translations as $automl_wpml_translation ) {
+					if ( $automl_wpml_translation->element_id && array_key_exists( $automl_wpml_translation->element_id, $pending_posts_ids ) ) {
+						$parent_post_set = true;
+						break;
+					}
+				}
+
+				if ( ! $parent_post_set ) {
+					$automl_wpml_post_translated_languages = array_column( $automl_wpml_translations, 'language_code' );
+
+					$untranslated_languages = array_diff( $valid_target_languages, $automl_wpml_post_translated_languages );
+
+					$pending_posts_ids[ $post_id ] = array('languages' => array_values($untranslated_languages), 'title' => get_the_title( $post_id ));
+				}
+			}
+
+			wp_send_json_success( $pending_posts_ids );
+		}
 
 		public function bulk_translate_entries( $params ) {
 			// Check if the user is logged in and has the necessary capabilities
