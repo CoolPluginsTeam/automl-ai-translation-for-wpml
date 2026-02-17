@@ -8,6 +8,7 @@ import AIService from '../components/translate-provider/ai-services';
 import { store } from '../redux-store/store';
 import DOMPurify from 'dompurify';
 import LoopCallback from '../components/loop-callback';
+import { updatePendingPosts, updateCountInfo, updateTranslatePostInfo } from '../redux-store/features/actions';
 
 const StatusModal = ({ postIds, selectedLanguages, prefix, onDestory }) => {
 
@@ -31,33 +32,76 @@ const StatusModal = ({ postIds, selectedLanguages, prefix, onDestory }) => {
 
     useEffect(() => {
         let postFound=false;
+        const postIdExist = new Array();
 
-        const translatePosts = async () => {
-            const batchSize = 3;
+        const translatePosts = async (pendingPostsInfo) => {
 
-            const sendRequest = async (ids) => {
-                const response = await bulkTranslateEntries({ ids, langs: selectedLanguages, storeDispatch });
-                setIsLoading(false);
-    
+            const processPostIds = async (postId) => {
+
+                const response = await bulkTranslateEntries({ ids: [postId], langs: pendingPostsInfo[postId].languages, storeDispatch });
+        
                 if (!response.success && false === response.success && response.message && !postFound) {
                     setEmptyPostMessage(response.message);
                     return;
                 }
-                
+                    
                 postFound = true;
-                initBulkTranslate(response.postKeys, response.nonce, storeDispatch, prefix, updateDestoryHandler);
+                await initBulkTranslate(response.postKeys, response.nonce, storeDispatch, prefix, updateDestoryHandler);
             }
 
-            const splitedPostIds = postIds.reduce((acc, curr, index) => {
-                const batchIndex = Math.floor(index / batchSize);
-                acc[batchIndex] = [...(acc[batchIndex] || []), curr];
-                return acc;
-            }, []);
-
-
-            LoopCallback({ callback: sendRequest, loop: splitedPostIds, index: 0 });
+            LoopCallback({ callback: processPostIds, loop: Object.keys(pendingPostsInfo), index: 0 });
         }
-        translatePosts();
+
+        const getPendingPostsIdsResponse = async () => {
+            const sendRequest = async () => {
+                const response = await fetch(automl_wpml_bulk_translate_object.bulkTranslateRouteUrl + '/automl_wpmlp/pending-posts-ids', {
+                    method: 'POST',
+                    body: new URLSearchParams({ ids: JSON.stringify(postIds), lang: JSON.stringify(selectedLanguages), privateKey: automl_wpml_bulk_translate_object.pendingPostsIdsKey }),
+                    headers: {
+                        'X-WP-Nonce': automl_wpml_bulk_translate_object.nonce,
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                        'Accept': 'application/json'
+                    }
+                });
+
+                const responseData = await response.json();
+
+                if(responseData && responseData.success && responseData.data){
+                    
+                    Object.keys(responseData.data).forEach(postId => {
+                        const langauges=responseData.data[postId].languages;
+                        const parentPostTitle=responseData.data[postId].title;
+                        
+                        if(langauges && langauges.length > 0){
+                            langauges.forEach(lang => {
+                                const flagUrl = automl_wpml_bulk_translate_object.languageObject[lang].flag;
+                                const languageName = automl_wpml_bulk_translate_object.languageObject[lang].name;
+
+                                let firstPostLanguage = false;
+                                if(!postIdExist.includes(postId)){
+                                    postIdExist.push(postId);
+                                    firstPostLanguage = true;
+                                }
+
+                                storeDispatch(updatePendingPosts([postId + '_' + lang]));
+                                storeDispatch(updateTranslatePostInfo({ [postId + '_' + lang]: { parentPostId: postId, targetPostId: null, targetLanguage: lang, postLink: null, status: 'in-queue', parentPostTitle, firstPostLanguage, flagUrl, languageName, messageClass: 'warning' } }));
+                            });
+
+                            storeDispatch(updateCountInfo({ totalPosts: store.getState().countInfo.totalPosts + langauges.length }));
+                        }
+                        
+                    });
+
+                    setIsLoading(false);
+                    translatePosts(responseData.data);
+                }else{
+                    setEmptyPostMessage(response.message);
+                }
+            }
+            await sendRequest();
+        }
+
+        getPendingPostsIdsResponse();
     }, []);
 
     const handleErrorModal = (data) => {
@@ -98,7 +142,7 @@ const StatusModal = ({ postIds, selectedLanguages, prefix, onDestory }) => {
             const runLoop = (items, index) => {
                 const status = translatePostInfo[items[index]].status;
 
-                if (status === 'running' || status === 'in-progress' || status === 'pending') {
+                if (status === 'running' || status === 'in-progress' || status === 'pending' || status === 'in-queue') {
                     running = true;
                     bulkStatus !== 'running' && updateBulkStatus('running');
                     return;
@@ -132,6 +176,8 @@ const StatusModal = ({ postIds, selectedLanguages, prefix, onDestory }) => {
 
     const getBulkStatus = () => {
         switch (bulkStatus) {
+            case 'in-queue':
+                return __('In Queue', 'automl-ai-translation-for-wpml');
             case 'running':
                 return __('In Progress', 'automl-ai-translation-for-wpml');
             case 'pending':
@@ -226,7 +272,7 @@ const StatusModal = ({ postIds, selectedLanguages, prefix, onDestory }) => {
         }
 
         for (let i = 0; i < targetLangsArr.length; i++) {
-            if (!translatePostInfo[postId + '_' + targetLangsArr[i]] || ['pending', 'in-progress', 'running'].includes(translatePostInfo[postId + '_' + targetLangsArr[i]].status)) {
+            if (!translatePostInfo[postId + '_' + targetLangsArr[i]] || ['pending', 'in-progress', 'running', 'in-queue'].includes(translatePostInfo[postId + '_' + targetLangsArr[i]].status)) {
                 allPostStatus = false;
                 break;
             }
@@ -379,6 +425,7 @@ const StatusModal = ({ postIds, selectedLanguages, prefix, onDestory }) => {
                                                                 <span className={`${prefix}-status ${info.messageClass} ${info.status}`}>
                                                                     {info.status === 'pending' && __('Pending', 'automl-ai-translation-for-wpml')}
                                                                     {info.status === 'completed' && __('Completed', 'automl-ai-translation-for-wpml')}
+                                                                    {info.status === 'in-queue' && __('In Queue', 'automl-ai-translation-for-wpml')}
                                                                     {workingStatus && <div className={`${prefix}-progress-bar-circular`} data-id={info.parentPostId + '_' + info.targetLanguage}>
                                                                         <svg className={`${prefix}-circle`} viewBox="0 0 36 36">
                                                                             <path className={`${prefix}-bg`} d="M18 2.0845
@@ -400,7 +447,7 @@ const StatusModal = ({ postIds, selectedLanguages, prefix, onDestory }) => {
                                                                         <a href={info.postLink} target="_blank" rel="noopener noreferrer">{info.targetPostTitle}</a> :
                                                                         (info.status === 'in-progress' ?
                                                                             <div className={`${prefix}-${info.messageClass}-text`}>{__('In Progress', 'automl-ai-translation-for-wpml')}<span></span></div> :
-                                                                            <div className={`${prefix}-progress-skeleton short`}></div>)
+                                                                                <div className={`${prefix}-progress-skeleton short`}></div>)
                                                                     }
                                                                 </>
                                                             </td>

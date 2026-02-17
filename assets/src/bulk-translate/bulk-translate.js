@@ -417,7 +417,6 @@ const bulkTranslateEntries = async ({ ids, langs, storeDispatch }) => {
                     }
 
                     storeDispatch(updateParentPostsInfo({ postId, data: { editorType: editor_type, originalContent, languages: targetLang, sourceLanguage, charactersCount, wordsCount, stringsCount } }));
-                    storeDispatch(updateCountInfo({ totalPosts: store.getState().countInfo.totalPosts + targetLang.length }));
             } else {
                 console.log(`All target languages for post ${postId} already exist. Skipping translation.`);
             }
