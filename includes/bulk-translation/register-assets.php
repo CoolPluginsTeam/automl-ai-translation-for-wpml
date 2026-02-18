@@ -81,7 +81,6 @@ class Register_Assets {
 
         $available_ai_services = array();
 
-		if ( $needs_ai_services ) {
             // Build from saved credentials so button shows "Add API Key" when key is missing/empty.
             $credentials = get_option( 'wp_ai_client_provider_credentials', array() );
             if ( is_array( $credentials ) ) {
@@ -91,7 +90,6 @@ class Register_Assets {
                     }
                 }
             }
-        }
 
         $extra_data = array();
 
