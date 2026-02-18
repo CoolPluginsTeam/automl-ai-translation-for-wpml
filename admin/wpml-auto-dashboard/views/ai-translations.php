@@ -65,7 +65,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<div class="play-btn-container">
 						<a href="<?php echo esc_url( $automl_wpml_ai_translation['url'] ); ?>" target="_blank">
 							<img src="<?php echo esc_url( WPML_AT_PLUGIN_URL . 'admin/wpml-auto-dashboard/images/' . $automl_wpml_ai_translation['icon'] ); ?>"
-								alt="<?php echo esc_attr( $automl_wpml_ai_translation_item['alt'] ); ?>">
+								alt="<?php echo esc_attr( $automl_wpml_ai_translation['alt'] ); ?>">
 						</a>
 					</div>
 				</div>

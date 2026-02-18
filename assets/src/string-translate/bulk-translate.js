@@ -819,56 +819,12 @@ const bulkTranslateStrings = async ({
     stringFilters,
     selectedStrings = {},
   }) => {
-  const ajaxUrl = automl_wpml_bulk_translate_object.ajax;
   const nonce = automl_wpml_bulk_translate_object.nonce;
-
-  const PAGE_SIZE = 500;
   const stringsByLanguage = {};
   const totalPerLanguage = {};
   const stringKeys = []; // only used for count; we don't put 10k keys in Redux
 
-  const fetchPage = async (lang) => {
-    const formData = new URLSearchParams();
-    formData.append("action", "cp_wpml_google_auto_translate_get_strings");
-    formData.append("nonce", nonce);
-    formData.append("target_lang", lang);
-    formData.append("limit", PAGE_SIZE.toString());
-    formData.append("offset", "0"); // always 0: "give me first 500 untranslated"
 
-    if (stringFilters.status) formData.append("status", stringFilters.status);
-    if (stringFilters.context)
-      formData.append("context", stringFilters.context);
-    if (stringFilters["translation-priority"])
-      formData.append(
-        "translation-priority",
-        stringFilters["translation-priority"],
-      );
-    if (stringFilters.search) formData.append("search", stringFilters.search);
-    if (
-      stringFilters.selected_string_ids &&
-      Array.isArray(stringFilters.selected_string_ids) &&
-      stringFilters.selected_string_ids.length > 0
-    ) {
-      formData.append(
-        "selected_string_ids",
-        JSON.stringify(stringFilters.selected_string_ids),
-      );
-    }
-    const response = await fetch(
-      ajaxUrl + "?action=cp_wpml_google_auto_translate_get_strings",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-          Accept: "application/json",
-        },
-        body: formData,
-      },
-    );
-    const data = await response.json();
-    if (!data.success || !data.data) return { strings: [], total: 0 };
-    return { strings: data.data.strings || [], total: data.data.total || 0 };
-  };
 
   for (const lang of langs) {
     let strings = [];
@@ -880,9 +836,8 @@ const bulkTranslateStrings = async ({
       Array.isArray(stringFilters?.selected_string_ids) &&
       stringFilters.selected_string_ids.length > 0;
   
-    if (hasLocalSelected) {
-      // Build strings array directly from the DOM-provided JSON (no SQL)
-      const rows = stringFilters.selected_string_ids
+        // Always build strings array directly from the DOM-provided JSON (no SQL)
+        const rows = (stringFilters.selected_string_ids || [])
         .map((id) => selectedStrings[String(id)])
         .filter(Boolean);
   
@@ -894,12 +849,6 @@ const bulkTranslateStrings = async ({
         format: "html",
       }));
       total = strings.length;
-    } else {
-      // Fallback to existing server-side fetch (uses filters, pagination, etc.)
-      const result = await fetchPage(lang, 0);
-      strings = result.strings || [];
-      total = result.total || 0;
-    }
   
     if (total === 0 || !strings.length) continue;
   
@@ -956,7 +905,6 @@ const bulkTranslateStrings = async ({
     stringsByLanguage,
     totalPerLanguage,
     nonce,
-    fetchPage,
   };
 };
 /**
@@ -1023,10 +971,9 @@ const initBulkTranslateStrings = async (
   prefix,
   updateDestoryHandler,
   totalPerLanguage = {},
-  fetchPage = null,
 ) => {
   const pendingPosts = store.getState().pendingPosts;
-  if (pendingPosts.length < 1 || !fetchPage) return;
+  if (pendingPosts.length < 1) return;
 
   let modalClosed = false;
   updateDestoryHandler(() => {
@@ -1205,9 +1152,6 @@ const initBulkTranslateStrings = async (
         storeDispatch(updateCompletedPosts([langKey]));
         return;
       }
-
-      const next = await fetchPage(lang, offset);
-      strings = next.strings || [];
     }
 
     storeDispatch(unsetPendingPost(langKey));
