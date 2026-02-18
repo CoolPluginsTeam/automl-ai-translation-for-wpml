@@ -46,8 +46,8 @@ if ( ! current_user_can( 'manage_options' ) ) {
 					$automl_wpml_current_models       = get_option( 'wpml_at_ai_translation_models', array() );
 					$automl_wpml_current_openai_model = isset( $automl_wpml_current_models['openai'] ) ? $automl_wpml_current_models['openai'] : '';
 					$automl_wpml_current_google_model = isset( $automl_wpml_current_models['google'] ) ? $automl_wpml_current_models['google'] : '';
-					$automl_wpml_openai_api_key = get_option( 'wp_ai_client_provider_credentials', array() )['openai'];
-					$automl_wpml_google_api_key = get_option( 'wp_ai_client_provider_credentials', array() )['google'];
+					$automl_wpml_openai_api_key = isset( $automl_wpml_ai_credentials['openai'] ) ? $automl_wpml_ai_credentials['openai'] : '';
+					$automl_wpml_google_api_key = isset( $automl_wpml_ai_credentials['google'] ) ? $automl_wpml_ai_credentials['google'] : '';
                     if ( empty( $automl_wpml_current_openai_model ) && !empty( $automl_wpml_openai_api_key ) ) {
 						$automl_wpml_current_openai_model = 'gpt-4o-mini';
 						update_option( 'wpml_at_ai_translation_models', array( 'openai' => $automl_wpml_current_openai_model ) );
