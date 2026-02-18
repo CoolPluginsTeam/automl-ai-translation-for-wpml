@@ -39,17 +39,18 @@ const initBulkTranslate = async (postKeys = [], nonce, storeDispatch, prefix, up
                 return;
             }
 
-            if (!['block', 'elementor'].includes(editorType)) {
+            if (!['block', 'Elementor'].includes(editorType)) {
                 for (const lang of languages) {
                     storeDispatch(unsetPendingPost(postId + '_' + lang));
                     storeDispatch(updateProgressStatus(100 / pendingPosts.length));
                     storeDispatch(updateTranslatePostInfo({ [postId + '_' + lang]: { status: 'error', messageClass: 'error', errorMessage: __('This post editor type is not supported for translation', 'automl-ai-translation-for-wpml') } }));
                 }
+            }else{
+                const source = { title: title, content: JSON.parse(JSON.stringify(content)), post_name: post_name, excerpt: excerpt };
+                
+                await translateContent({ sourceLang: sourceLanguage, targetLangs: languages, totalPosts: pendingPosts.length, storeDispatch, prefix, postId, source, editorType, createTranslatePostNonce: nonce, updateDestoryHandler });
             }
 
-            const source = { title: title, content: JSON.parse(JSON.stringify(content)), post_name: post_name, excerpt: excerpt };
-            
-            await translateContent({ sourceLang: sourceLanguage, targetLangs: languages, totalPosts: pendingPosts.length, storeDispatch, prefix, postId, source, editorType, createTranslatePostNonce: nonce, updateDestoryHandler });
         }
 
         index++;
