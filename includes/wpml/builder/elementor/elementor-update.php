@@ -13,7 +13,7 @@ use WPML_String_Registration_Factory;
 use WPML_Elementor_Register_Strings;
 use WPML_Elementor_Update_Translation;
 use WPML_Page_Builders_Integration;
-
+use AUTOML_WPML\Includes\Wpml\Builder\Content_Update_Base;
 /**
  * Elementor_Update
  *

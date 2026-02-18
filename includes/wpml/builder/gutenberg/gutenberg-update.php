@@ -16,10 +16,10 @@ use WPML\PB\TranslateLinks as WPML_TranslateLinks;
 use WPML\PB\Gutenberg\StringsInBlock\Collection as StringsInBlockCollection;
 use WPML\PB\Gutenberg\StringsInBlock\HTML as StringsInBlockHTML;
 use WPML\PB\Gutenberg\StringsInBlock\Attributes as StringsInBlockAttributes;
+use AUTOML_WPML\Includes\Wpml\Builder\Content_Update_Base;
 use WP_Block_Type_Registry;
 
 use function WPML\Container\make;
-
 /**
  * Gutenberg_Update
  *
