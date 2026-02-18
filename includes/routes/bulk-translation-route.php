@@ -446,7 +446,7 @@ if ( ! class_exists( 'Bulk_Translation_Route' ) ) :
 					'post_link'      => html_entity_decode( get_edit_post_link( $post_id ) ),
 				);
 
-				$automl_wpml_content_translation['posts'][ $post_id ]['editor_type'] = $this->get_editor_type( $post_id, $editor_type );
+				$automl_wpml_content_translation['posts'][ $post_id ]['editor_type'] = strtolower($this->get_editor_type( $post_id, $editor_type ));
 
 				if ( isset( $translatable_strings['contents'] ) && ! empty( $translatable_strings['contents'] ) ) {
 					$automl_wpml_content_translation['posts'][ $post_id ]['content'] = $translatable_strings['contents'];
