@@ -1,0 +1,111 @@
+{
+    "uagb/buttons-child": {
+        "attributes": {
+            "label": "Click Here"
+        }
+    },
+    "uagb/info-box": {
+        "attributes": {
+            "ctaText": "Read More",
+            "headingDesc": "Click here to change this text. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut elit tellus, luctus nec ullamcorper mattis, pulvinar dapibus leo.",
+            "infoBoxTitle": "Info Box",
+            "prefixTitle": "Prefix",
+            "tempHeadingDesc": "Click here to change this text. Lorem ipsum dolor …tus nec ullamcorper mattis, pulvinar dapibus leo."
+        }
+    },
+    "uagb/call-to-action": {
+        "attributes": {
+            "ctaTitle": "Call To Action",
+            "description": "Click here to change this text. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut elit tellus, luctus nec ullamcorper mattis, pulvinar dapibus leo.",
+            "tempDesc": "Click here to change this text. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut elit tellus, luctus nec ullamcorper mattis, pulvinar dapibus leo.",
+            "ctaText": "Read More"
+        }
+    },
+    "uagb/blockquote": {
+        "attributes": {
+            "author": "Author Name",
+            "descriptionText": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut elit tellus, luctus nec ullamcorper mattis, pulvinar dapibus leo."
+        }
+    },
+    "uagb/counter": {
+        "attributes": {
+            "heading": "Add Your Title Here…"
+        }
+    },
+    "uagb/icon-list-child": {
+        "attributes": {
+            "label": "List item"
+        }
+    },
+    "uagb/modal": {
+        "attributes": {
+            "buttonText": "Click Here"
+        }
+    },
+    "uagb/restaurant-menu-child": {
+        "attributes": {
+            "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+            "title": "Menu Item"
+        }
+    },
+    "uagb/container": {
+        "attributes": {
+            "description": "Price List-Child"
+        }
+    },
+    "uagb/team": {
+        "attributes": {
+            "description_text": "Click here to change this text. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut elit tellus, luctus nec ullamcorper mattis, pulvinar dapibus leo.",
+            "prefix": "Designation",
+            "title": "John Doe"
+        }
+    },
+    "uagb/testimonial": {
+        "attributes": {
+            "test_block": [
+                {
+                    "company": "Company Name",
+                    "description": "I have been working with these guys for years now! With lots of hard work and timely communication, they made sure they delivered the best to me. Highly recommended!",
+                    "name": "John Doe "
+                },
+                {
+                    "company": "Company Name",
+                    "description": "I have been working with these guys for years now! With lots of hard work and timely communication, they made sure they delivered the best to me. Highly recommended!",
+                    "name": "John Doe "
+                },
+                {
+                    "company": "Company Name",
+                    "description": "I have been working with these guys for years now! With lots of hard work and timely communication, they made sure they delivered the best to me. Highly recommended!",
+                    "name": "John Doe "
+                }
+            ]
+        }
+    },
+    "uagb/review": {
+        "attributes": {
+            "summaryDescription": "Whether you’re a beginner, marketer, web designer or developer, Spectra includes all the tools and resources you can trust to succeed online.",
+            "summaryTitle": "Summary",
+            "rAuthor": "– Brainstorm Force",
+            "rContent": "Whether you’re a beginner, marketer, web designer …ls and resources you can trust to succeed online.",
+            "rTitle": "Spectra: Gutenberg Blocks"
+        }
+    },
+    "uagb/how-to-step": {
+        "attributes": {
+            "description": "Click here to change this text. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut elit tellus, luctus nec ullamcorper mattis, pulvinar dapibus leo.",
+            "name": "Step"
+        }
+    },
+    "uagb/how-to": {
+        "attributes": {
+            "currencyType": " USD",
+            "headingDesc": "So to get started, you will just need to drag-n-drop the How-to Schema block in the Gutenberg editor. The How-to Schema block can be used on pages that contain a How-to in their title and describe steps to achieve certain requirements.",
+            "headingTitle": "How To Configure How-To Schema In Spectra?",
+            "timeNeeded": "Total Time Needed :",
+            "estCost": "Total Cost:",
+            "stepsTitle": "Steps to configure the How-to Schema:",
+            "materialTitle": "Things Needed?",
+            "toolsTitle": "Required Tools:"
+        }
+    }
+}
