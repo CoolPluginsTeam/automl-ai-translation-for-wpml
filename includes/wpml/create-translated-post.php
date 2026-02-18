@@ -218,7 +218,7 @@ class Create_Translated_Post {
     }
 
 	private function string_has_html( string $string ): bool {
-		return $string !== strip_tags( $string );
+		return $string !== wp_strip_all_tags( $string );
 	}
 
 	private function filter_translate_strings( array $translate_strings ): void {

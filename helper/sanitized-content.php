@@ -54,7 +54,7 @@ class Sanitized_Content {
 	 * @return bool True if the string has HTML, false otherwise.
 	 */
 	private function string_has_html( string $string ): bool {
-		return strip_tags( $string ) !== $string;
+		return wp_strip_all_tags( $string ) !== $string;
 	}
 
 	/**
