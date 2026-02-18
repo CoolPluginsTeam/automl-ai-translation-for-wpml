@@ -89,6 +89,9 @@ if ( ! current_user_can( 'manage_options' ) ) {
 									$automl_wpml_openai_models = array();
 								}
 							}
+						}else{
+							$automl_wpml_cache_key = 'automl_wpml_openai_models';
+							delete_transient( $automl_wpml_cache_key );
 						}
 
 						// Google / Gemini models (cached 1 hour to avoid API request on every refresh).
@@ -113,6 +116,9 @@ if ( ! current_user_can( 'manage_options' ) ) {
 									$automl_wpml_google_models = array();
 								}
 							}
+						}else{
+							$automl_wpml_cache_key = 'automl_wpml_google_models';
+							delete_transient( $automl_wpml_cache_key );
 						}
 					}
 
