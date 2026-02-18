@@ -7,8 +7,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 use AUTOML_WPML\Includes\Wpml\Get_Package_Content;
-use AUTOML_WPML\Includes\Wpml\Builder\Elementor_Widgets_Update;
-use AUTOML_WPML\Includes\Wpml\Builder\Gutenberg_Blocks_Update;
+use AUTOML_WPML\Includes\Wpml\Builder\Elementor\Elementor_Update;
+use AUTOML_WPML\Includes\Wpml\Builder\Gutenberg\Gutenberg_Update;
 use AUTOML_WPML\Includes\Wpml\Builder\Content_Update_Base;
 use AUTOML_WPML\Helper\Helper;
 use AUTOML_WPML\Helper\Sanitized_Content;
@@ -199,7 +199,7 @@ class Create_Translated_Post {
                 define('DOING_AUTOML_WPML_ELEMENTOR_CONTENT_UPDATE', true);
             }
 
-            $automl_wpml_content_update = new Elementor_Widgets_Update( $this->post_id, $this->translated_post_id, $this->translate_strings, $this->target_language, $nonce );
+            $automl_wpml_content_update = new Elementor_Update( $this->post_id, $this->translated_post_id, $this->translate_strings, $this->target_language, $nonce );
         }
 
 		if($this->editor_type === 'Gutenberg'){
@@ -209,7 +209,7 @@ class Create_Translated_Post {
                 define('DOING_AUTOML_WPML_GUTENBERG_CONTENT_UPDATE', true);
             }
 
-            $automl_wpml_content_update = new Gutenberg_Blocks_Update( $this->post_id, $this->translated_post_id, $this->translate_strings, $this->target_language, $nonce );
+            $automl_wpml_content_update = new Gutenberg_Update( $this->post_id, $this->translated_post_id, $this->translate_strings, $this->target_language, $nonce );
         }
 
 		if(isset($automl_wpml_content_update) && $automl_wpml_content_update instanceof Content_Update_Base){

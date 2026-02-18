@@ -1,6 +1,6 @@
 <?php
 
-namespace AUTOML_WPML\Includes\Wpml\Builder;
+namespace AUTOML_WPML\Includes\Wpml\Builder\Elementor;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -15,11 +15,11 @@ use WPML_Elementor_Update_Translation;
 use WPML_Page_Builders_Integration;
 
 /**
- * Elementor_Widgets_Update
+ * Elementor_Update
  *
  * @package AUTOML_WPML\Includes\Wpml
  */
-class Elementor_Widgets_Update extends Content_Update_Base {
+class Elementor_Update extends Content_Update_Base {
     /**
      * @var WPML_Page_Builders_Integration
      */

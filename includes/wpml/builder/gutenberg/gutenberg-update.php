@@ -1,6 +1,6 @@
 <?php
 
-namespace AUTOML_WPML\Includes\Wpml\Builder;
+namespace AUTOML_WPML\Includes\Wpml\Builder\Gutenberg;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -21,11 +21,11 @@ use WP_Block_Type_Registry;
 use function WPML\Container\make;
 
 /**
- * Gutenberg_Blocks_Update
+ * Gutenberg_Update
  *
  * @package AUTOML_WPML\Includes\Wpml
  */
-class Gutenberg_Blocks_Update extends Content_Update_Base {
+class Gutenberg_Update extends Content_Update_Base {
     /**
      * @var WPML_Gutenberg_Integration
      */
