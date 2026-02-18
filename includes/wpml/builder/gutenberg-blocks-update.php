@@ -16,6 +16,7 @@ use WPML\PB\TranslateLinks as WPML_TranslateLinks;
 use WPML\PB\Gutenberg\StringsInBlock\Collection as StringsInBlockCollection;
 use WPML\PB\Gutenberg\StringsInBlock\HTML as StringsInBlockHTML;
 use WPML\PB\Gutenberg\StringsInBlock\Attributes as StringsInBlockAttributes;
+use WP_Block_Type_Registry;
 
 use function WPML\Container\make;
 
@@ -29,6 +30,16 @@ class Gutenberg_Blocks_Update extends Content_Update_Base {
      * @var WPML_Gutenberg_Integration
      */
     private $gutenberg_builder_factory;
+
+    /**
+     * @var Object Array of custom blocks config
+     */
+    private $custom_blocks_config;
+
+    /**
+     * @var Array of block default attributes value
+     */
+    private $block_default_attributes_value;
 
     /**
      * Editor Type
@@ -80,13 +91,15 @@ class Gutenberg_Blocks_Update extends Content_Update_Base {
 
     public function update_gutenberg_config( $config, $option_name ) {
         if($this->is_content_update()){
-            $custom_block_config=$this->get_block_parse_rules();
+            if(!isset($this->custom_blocks_config) || empty($this->custom_blocks_config)){
+                $this->custom_blocks_config = $this->get_block_parse_rules();
+            }
     
-            if(!empty($custom_block_config)){
-                $this->set_custom_block_config($config,$custom_block_config);
+            if(!empty($this->custom_blocks_config)){
+                $this->set_custom_block_config($config,$this->custom_blocks_config);
             }
         }
-        
+
         return $config;
     }
 
@@ -123,6 +136,41 @@ class Gutenberg_Blocks_Update extends Content_Update_Base {
         $block_translation_rules = json_decode($block_rules);
 
         return $block_translation_rules;
+    }
+
+    private function get_block_default_attributes_value()
+    {
+        $response = wp_remote_get( esc_url_raw( WPML_AT_PLUGIN_URL . 'includes/blocks-config/attr-default-value.json' ), array(
+            'timeout' => 15,
+        ) );
+
+        if ( is_wp_error( $response ) || 200 !== (int) wp_remote_retrieve_response_code( $response ) ) {
+            global $wp_filesystem;
+
+            // Initialize the WordPress filesystem
+            if ( ! function_exists( 'WP_Filesystem' ) ) {
+                require_once ABSPATH . 'wp-admin/includes/file.php';
+            }
+
+            WP_Filesystem();
+
+            $local_path = WPML_AT_PLUGIN_DIR . 'includes/blocks-config/attr-default-value.json';
+            if($wp_filesystem->exists($local_path) && $wp_filesystem->is_readable( $local_path )){
+                $block_default_attributes_value = $wp_filesystem->get_contents( $local_path );
+            }else{
+                $block_default_attributes_value = array();
+            }
+        } else {
+            $block_default_attributes_value = wp_remote_retrieve_body( $response );
+        }
+
+        if(empty($block_default_attributes_value)){
+            return array();
+        }
+
+        $block_default_attributes_value = json_decode($block_default_attributes_value, true);
+
+        return $block_default_attributes_value;
     }
 
     private function set_custom_block_config( array &$config, $custom_block_config ): void {
@@ -231,17 +279,77 @@ class Gutenberg_Blocks_Update extends Content_Update_Base {
             $this->parse_array_children( $reference["*"]['children'], $child_values[0] );
             return;
         }
-    }            
+    }       
+    
+    private function update_block_data(&$block, $custom_config): void {
+        if(!isset($block['blockName'])) return;
+
+        $block_name = $block['blockName'];
+
+        if(isset($custom_config[$block_name])){
+            $this->set_block_default_attributes_value($block, $custom_config);
+        }
+            
+        if(isset($block['innerBlocks']) && !empty($block['innerBlocks'])){
+            foreach($block['innerBlocks'] as &$inner_block){
+                $this->update_block_data($inner_block, $custom_config);
+            }
+        }
+    }
+
+    private function set_block_default_attributes_value(&$block, $custom_config): void {
+        if(isset($custom_config[$block['blockName']])){
+            if(!isset($this->block_default_attributes_value)){
+                $this->block_default_attributes_value = $this->fetch_block_default_attributes();
+            }
+
+            if(isset($this->block_default_attributes_value[$block['blockName']]['attributes'])){
+                $automl_block_default_attrs = $this->block_default_attributes_value[$block['blockName']]['attributes'];
+
+                foreach($automl_block_default_attrs as $attr_key => $attr_value){
+                    if(!isset($block['attrs'][$attr_key])){
+                        $block['attrs'][$attr_key] = $attr_value;
+                    }
+                }
+            }
+        }
+    }
+
+    private function fetch_block_default_attributes(): array {
+        return (array) $this->get_block_default_attributes_value();
+    }
 
     protected function update_builder_translation(): void {
-
         if(!$this->gutenberg_builder_factory instanceof WPML_Gutenberg_Integration){
             wp_send_json_error( 'Gutenberg builder factory not found.' );
             exit;
         }
+
+        if(!isset($this->custom_blocks_config) || empty($this->custom_blocks_config)){
+            $this->custom_blocks_config = $this->get_block_parse_rules();
+        }
+
+        $custom_blocks_config=(array) $this->custom_blocks_config;
         
         $source_post=get_post($this->post_id);
         $source_content=$source_post->post_content;
+        $parse_blocks = parse_blocks($source_content);
+
+        
+        foreach($parse_blocks as &$block){
+            $block_name = $block['blockName'];
+            if(isset($custom_blocks_config[$block_name])){
+                $this->update_block_data($block, $custom_blocks_config);
+            }
+
+            if(isset($block['innerBlocks']) && !empty($block['innerBlocks'])){
+                foreach($block['innerBlocks'] as &$inner_block){
+                    $this->update_block_data($inner_block, $custom_blocks_config);
+                }
+            }
+        }
+
+        $source_content = serialize_blocks($parse_blocks);
 
         $updated_content=$this->gutenberg_builder_factory->replace_strings_in_blocks($source_content, $this->translate_strings, $this->target_language);
         
