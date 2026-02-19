@@ -279,7 +279,8 @@ class Update_Block_Config {
         $block_name = $block['blockName'];
         
         if(isset($custom_config[$block_name])){
-            $this->update_block_attributes_in_package($block, $custom_config, $translation_package, $attr_translations);
+            $attrs = isset($block['attrs']) ? $block['attrs'] : [];
+            $this->update_block_attributes_in_package($block, $attrs, $custom_config, $translation_package, $attr_translations);
         }
             
         if(isset($block['innerBlocks']) && !empty($block['innerBlocks'])){
@@ -289,7 +290,7 @@ class Update_Block_Config {
         }
     }
 
-    private function update_block_attributes_in_package(&$block, $custom_config, $translation_package, &$attr_translations): void {
+    private function update_block_attributes_in_package(&$block, $block_attrs, $custom_config, $translation_package, &$attr_translations): void {
         if(isset($custom_config[$block['blockName']])){
             if(!isset($this->block_default_attributes_value) || empty($this->block_default_attributes_value)){
                 $this->block_default_attributes_value = $this->fetch_block_default_attributes();
@@ -301,14 +302,23 @@ class Update_Block_Config {
                 foreach($automl_block_default_attrs as $attr_key => $attr_value){
                     if(isset($attr_value) && !empty($attr_value)){
                         if(is_string($attr_value)){
+                            if(isset($block_attrs[$attr_key])){
+                                $attr_value = $block_attrs[$attr_key];
+
+                                if(!is_string($attr_value)){
+                                    continue;
+                                }
+                            }
+
                             $string_id=md5($block['blockName'].$attr_value);
 
                             if(!isset($translation_package[$string_id])){
                                 $attr_translations[$string_id] = array();
                                 $this->update_package_strings($attr_translations[$string_id], wp_kses_post($attr_value), $string_id, null, wp_kses_post($attr_value), 'content', 'base64', 1);
-                            }else if (is_array($attr_value)){
-                                $this->update_array_attributes_in_package($block, $attr_value, $translation_package, $attr_translations);
                             }
+                        }else if (is_array($attr_value)){
+                            $current_attr=isset($block_attrs[$attr_key]) ? $block_attrs[$attr_key] : [];
+                            $this->update_array_attributes_in_package($block, $current_attr, $attr_value, $translation_package, $attr_translations);
                         }
                     }
                 }
@@ -316,18 +326,27 @@ class Update_Block_Config {
         }
     }
 
-    private function update_array_attributes_in_package(&$block, $attr_value, $translation_package, &$attr_translations): void {
+    private function update_array_attributes_in_package(&$block, $block_attrs, $attr_value, $translation_package, &$attr_translations): void {
         foreach($attr_value as $attr_key => $attr_value){
             if(isset($attr_value) && !empty($attr_value)){
                 if(is_string($attr_value)){
                     $string_id=md5($block['blockName'].$attr_value);
 
+                    if(isset($block_attrs[$attr_key])){
+                        $attr_value = $block_attrs[$attr_key];
+
+                        if(!is_string($attr_value)){
+                            continue;
+                        }
+                    }
+
                     if(!isset($translation_package[$string_id])){
                         $attr_translations[$string_id] = array();
                         $this->update_package_strings($attr_translations[$string_id], wp_kses_post($attr_value), $string_id, null, wp_kses_post($attr_value), 'content', 'base64', 1);
-                    }else if (is_array($attr_value)){
-                        $this->update_array_attributes_in_package($block, $attr_value, $translation_package, $attr_translations);
                     }
+                }else if (is_array($attr_value)){
+                    $current_attr=isset($block_attrs[$attr_key]) ? $block_attrs[$attr_key] : [];
+                    $this->update_array_attributes_in_package($block, $current_attr, $attr_value, $translation_package, $attr_translations);
                 }
             }
         }

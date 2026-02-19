@@ -39,6 +39,13 @@ class Sanitized_Content {
 	private $sanitized_html;
 
 	/**
+	 * The allowed styles.
+	 *
+	 * @var array
+	 */
+	private $allowed_styles;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param string $html The source HTML to sanitize.
@@ -110,7 +117,7 @@ class Sanitized_Content {
 				// Block unsafe attributes.
 				if ( in_array(
 					$attr,
-					array( 'onclick', 'onload', 'onerror', 'onmouseover', 'style' ),
+					array( 'onclick', 'onload', 'onerror', 'onmouseover' ),
 					true
 				) ) {
 					continue;
@@ -206,12 +213,63 @@ class Sanitized_Content {
 		return $this->sanitized_html;
 	}
 
+	private function extract_allowed_styles_from_string( string $html ): array {
+
+		$allowed_styles = array();
+	
+		if ( empty( $html ) ) {
+			return $allowed_styles;
+		}
+	
+		// 1. Get all style="..." attributes
+		preg_match_all( '/style\s*=\s*["\']([^"\']*)["\']/i', $html, $matches );
+	
+		if ( empty( $matches[1] ) ) {
+			return $allowed_styles;
+		}
+	
+		foreach ( $matches[1] as $style_string ) {
+	
+			// 2. Split CSS declarations
+			$declarations = explode( ';', $style_string );
+	
+			foreach ( $declarations as $declaration ) {
+	
+				if ( strpos( $declaration, ':' ) === false ) {
+					continue;
+				}
+	
+				// 3. Extract property name before colon
+				list( $property ) = explode( ':', $declaration, 2 );
+	
+				$property = strtolower( trim( $property ) );
+	
+				if ( ! empty( $property ) ) {
+					$allowed_styles[] = sanitize_text_field(wp_unslash($property));
+				}
+			}
+		}
+	
+		// 4. Remove duplicates & reindex
+		$allowed_styles = array_values( array_unique( $allowed_styles ) );
+	
+		return $allowed_styles;
+	}	
+
 	/**
 	 * Sanitizes the HTML.
 	 *
 	 * @return void
 	 */
 	private function sanitize_html(): void {
+
+		if(!isset($this->allowed_styles) || empty($this->allowed_styles)){
+			$this->allowed_styles = $this->extract_allowed_styles_from_string( $this->source_html );
+		}
+
+		// Add the filter to allow the flex styles
+		add_filter( 'safe_style_css', array( $this, 'automl_wpml_allow_flex_styles' ), 10, 1 );
+
 		// Extract allowed tags + attributes from source HTML.
 		$allowed_html_tags = $this->extract_allowed_html_from_string( $this->source_html );
 
@@ -221,5 +279,15 @@ class Sanitized_Content {
 		$this->sanitized_html = wp_kses( $this->translated_html, $allowed_html_tags );
 
 		$this->sanitized_html = $this->normalize_boolean_attributes_conditionally( $this->sanitized_html, $boolean_attrs_to_fix );
+
+		remove_filter( 'safe_style_css', array( $this, 'automl_wpml_allow_flex_styles' ), 10 );
+	}
+
+	public function automl_wpml_allow_flex_styles( array $styles ): array {
+		if(isset($this->allowed_styles) && !empty($this->allowed_styles)){
+			$styles = array_merge($styles, $this->allowed_styles);
+		}
+
+		return $styles;
 	}
 }
