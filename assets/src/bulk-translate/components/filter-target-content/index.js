@@ -348,14 +348,23 @@ const FilterTargetContent = (props, storeUpdateContent) => {
 
                         const hasClosingTag = new RegExp(`<\\/${tagName}>\\s*$`, "i").test(trimmed);
 
-                        if (childNodes.length > 0) {
+                        if (childNodes.length > 0 && !skipTags.includes(tagName)) {
                             replaceInnerTextWithSpan(element);
                         }
 
-                        let filterHtml = `${OpenSpanPlaceholder}${LessThanSymbol}${tagName}${removeInnerSpanPlaceholder(attrs)}${GreaterThanSymbol}${CloseSpanPlaceholder}${setEntityPlaceholder(element.innerHTML)}`;
+                        let filterHtml='';
+                        if(!skipTags.includes(tagName)) {
+                            filterHtml = `${OpenSpanPlaceholder}${LessThanSymbol}${tagName}${removeInnerSpanPlaceholder(attrs)}${GreaterThanSymbol}${CloseSpanPlaceholder}${setEntityPlaceholder(element.innerHTML)}`;
+    
+                            if (hasClosingTag) {
+                                filterHtml += `${OpenSpanPlaceholder}${LessThanSymbol}/${tagName}${GreaterThanSymbol}${CloseSpanPlaceholder}`;
+                            }
+                        }else{
+                            filterHtml = element.outerHTML.replace(/[<>]/g, (match) => {
+                                return match === '<' ? LessThanSymbol : GreaterThanSymbol;
+                            });
 
-                        if (hasClosingTag) {
-                            filterHtml += `${OpenSpanPlaceholder}${LessThanSymbol}/${tagName}${GreaterThanSymbol}${CloseSpanPlaceholder}`;
+                            filterHtml = `${OpenSpanPlaceholder}${removeInnerSpanPlaceholder(filterHtml)}${CloseSpanPlaceholder}`;
                         }
 
                         textNode = document.createTextNode(filterHtml);

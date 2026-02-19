@@ -86,13 +86,14 @@ export const updateContent = async ({ source, postId, sourceLang, lang, editorTy
 
     const service = store.getState().serviceProvider;
 
+    
     const deepCloneSource = JSON.parse(JSON.stringify(source));
-
+    
     const updateContent = await updateFilterContent({ source: deepCloneSource, postId, lang, editorType, service });
-
+    
     const bulkTranslateRouteUrl = automl_wpml_bulk_translate_object.bulkTranslateRouteUrl;
     const nonce = automl_wpml_bulk_translate_object.nonce;
-
+    
     storeDispatch(updateTranslatePostInfo({ [postId + '_' + lang]: { status: 'in-progress', messageClass: 'in-progress' } }));
 
     let endPoint = 'create-translate-post';

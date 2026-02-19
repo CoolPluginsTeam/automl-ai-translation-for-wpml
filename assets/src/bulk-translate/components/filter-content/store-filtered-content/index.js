@@ -16,11 +16,9 @@ const storeFilteredContent = async ({content, service, postId, storeDispatch, fi
     const getStringContent=async (content, contentKey) =>{
         let stringContent=content;
         if(filterHtmlContent){
-
-            let reactElement=filterContent({content, service, contentKey});
-            
+            let reactElement=filterContent({content, service, contentKey, skipTags:['script', 'style']});
             stringContent=await extractInnerContent(reactElement);
-            
+
             reactElement=null;
         }
 

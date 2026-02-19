@@ -422,11 +422,16 @@ class ChromeAiTranslator {
     }
 
     stringTranslationBatch = async (originalString, index) => {
-        const translatedString = await this.translator.translate(originalString[index].nodeValue); // Translate the string
-
-        if (translatedString && '' !== translatedString) {
-            originalString[index].nodeValue = translatedString; // Set the translated string
+        if(['`', '`', '`','!','#','$','%','^','&','*','(',')','-','_','+','=','[',']','{','}','|','\\',':',';','"','\'','<','>','?','/'].includes(originalString[index].nodeValue)) {
+            originalString[index].nodeValue=originalString[index].nodeValue;
+        }else{
+            const translatedString = await this.translator.translate(originalString[index].nodeValue); // Translate the string
+    
+            if (translatedString && '' !== translatedString) {
+                originalString[index].nodeValue = translatedString; // Set the translated string
+            }
         }
+        
 
         if (index < originalString.length - 1) {
             await this.stringTranslationBatch(originalString, index + 1);
