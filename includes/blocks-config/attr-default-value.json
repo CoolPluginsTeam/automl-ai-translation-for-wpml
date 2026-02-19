@@ -90,7 +90,18 @@
             "summaryTitle": "Summary",
             "rAuthor": "– Brainstorm Force",
             "rContent": "Whether you’re a beginner, marketer, web designer or developer, Spectra includes all the tools and resources you can trust to succeed online.",
-            "rTitle": "Spectra: Gutenberg Blocks"
+            "rTitle": "Spectra: Gutenberg Blocks",
+            "parts": [
+                {
+                    "label": "Feature #1"
+                },
+                {
+                    "label": "Feature #2"
+                },
+                {
+                    "label": "Feature #3"
+                }
+            ]
         }
     },
     "uagb/how-to-step": {
