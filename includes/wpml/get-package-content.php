@@ -10,6 +10,7 @@ use DOMDocument;
 use DOMXPath;
 use WPML_Package;
 use AUTOML_WPML\Helper\Helper;
+use AUTOML_WPML\Includes\Wpml\Builder\Gutenberg\Update_Block_Config;
 
 /**
  * Get_Package_Content
@@ -23,6 +24,7 @@ class Get_Package_Content {
 	private $package;
 	private $package_factory;
 	private $translation_package = array();
+	private $editor_type;
 
 	public function __construct($post_id, $source_lang = null) {
 		if(!$this->is_bulk_translation() && !$this->is_create_post()) {
@@ -31,6 +33,7 @@ class Get_Package_Content {
 
 		$this->post_id = $post_id;
 		$this->source_lang = $source_lang;
+		Update_Block_Config::get_instance();
 
 		$automl_wpml_file_exists = $this->include_required_files();
 
@@ -134,6 +137,10 @@ class Get_Package_Content {
 				continue;
 			}
 
+			if(!isset($this->editor_type) || empty($this->editor_type)){
+				$this->editor_type = $package->kind;
+			}
+
 			$strings = $package->get_package_strings();
 
 			if($strings && is_array($strings) && !empty($strings) && !isset($translation_package['contents'])) {
@@ -163,7 +170,21 @@ class Get_Package_Content {
 	}
 
 	public function get_translatable_strings() {
+		if($this->editor_type === 'Gutenberg'){
+			$custom_block_attributes_translations=$this->update_translation_package_strings();
+
+			if(isset($custom_block_attributes_translations) && is_array($custom_block_attributes_translations)){
+				$this->translation_package['contents']=array_merge($this->translation_package['contents'], $custom_block_attributes_translations);
+			}
+		}
+
 		return $this->translation_package;
+	}
+
+	private function update_translation_package_strings() {
+		if($this->editor_type === 'Gutenberg' && isset($this->translation_package['contents']) && is_array($this->translation_package['contents'])){
+			return Update_Block_Config::get_instance()->get_custom_attributes_translations($this->post_id, $this->translation_package['contents']);
+		}
 	}
 
 	private function extract_translatable_strings($package) {
