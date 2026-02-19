@@ -4,13 +4,21 @@
             "label": "Click Here"
         }
     },
+    "uagb/countdown": {
+        "attributes": {
+            "labelDays": "DAYS",
+            "labelHours": "HOURS",
+            "labelMinutes": "MINUTES",
+            "labelSeconds": "SECONDS"
+        }
+    },
     "uagb/info-box": {
         "attributes": {
             "ctaText": "Read More",
             "headingDesc": "Click here to change this text. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut elit tellus, luctus nec ullamcorper mattis, pulvinar dapibus leo.",
             "infoBoxTitle": "Info Box",
             "prefixTitle": "Prefix",
-            "tempHeadingDesc": "Click here to change this text. Lorem ipsum dolor …tus nec ullamcorper mattis, pulvinar dapibus leo."
+            "tempHeadingDesc": "Click here to change this text. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut elit tellus, luctus nec ullamcorper mattis, pulvinar dapibus leo."
         }
     },
     "uagb/call-to-action": {
@@ -35,11 +43,6 @@
     "uagb/icon-list-child": {
         "attributes": {
             "label": "List item"
-        }
-    },
-    "uagb/modal": {
-        "attributes": {
-            "buttonText": "Click Here"
         }
     },
     "uagb/restaurant-menu-child": {
@@ -86,7 +89,7 @@
             "summaryDescription": "Whether you’re a beginner, marketer, web designer or developer, Spectra includes all the tools and resources you can trust to succeed online.",
             "summaryTitle": "Summary",
             "rAuthor": "– Brainstorm Force",
-            "rContent": "Whether you’re a beginner, marketer, web designer …ls and resources you can trust to succeed online.",
+            "rContent": "Whether you’re a beginner, marketer, web designer or developer, Spectra includes all the tools and resources you can trust to succeed online.",
             "rTitle": "Spectra: Gutenberg Blocks"
         }
     },
@@ -105,7 +108,8 @@
             "estCost": "Total Cost:",
             "stepsTitle": "Steps to configure the How-to Schema:",
             "materialTitle": "Things Needed?",
-            "toolsTitle": "Required Tools:"
+            "toolsTitle": "Required Tools:",
+            "timeIn": " Minutes"
         }
     }
 }

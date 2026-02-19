@@ -24,6 +24,14 @@
             "label": true
         }
     },
+    "uagb/countdown": {
+        "attributes": {
+            "labelDays": true,
+            "labelHours": true,
+            "labelMinutes": true,
+            "labelSeconds": true
+        }
+    },
     "uagb/info-box": {
         "attributes": {
             "infoBoxTitle": true,
@@ -122,11 +130,6 @@
             "prefix": true
         }
     },
-    "uagb/modal": {
-        "attributes": {
-            "buttonText": true
-        }
-    },
     "uagb/restaurant-menu-child": {
         "attributes": {
             "description": true,
@@ -195,6 +198,7 @@
     },
     "uagb/how-to": {
         "attributes": {
+            "currencyType": true,
             "headingDesc": true,
             "headingTitle": true,
             "timeNeeded": true,
@@ -211,7 +215,8 @@
             ],
             "stepsTitle": true,
             "materialTitle": true,
-            "toolsTitle": true
+            "toolsTitle": true,
+            "timeIn": true
         }
     },
     "essential-blocks/accordion-item": {
