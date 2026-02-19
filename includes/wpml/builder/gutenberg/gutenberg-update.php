@@ -17,6 +17,7 @@ use WPML\PB\Gutenberg\StringsInBlock\Collection as StringsInBlockCollection;
 use WPML\PB\Gutenberg\StringsInBlock\HTML as StringsInBlockHTML;
 use WPML\PB\Gutenberg\StringsInBlock\Attributes as StringsInBlockAttributes;
 use AUTOML_WPML\Includes\Wpml\Builder\Content_Update_Base;
+use AUTOML_WPML\Includes\Wpml\Builder\Gutenberg\Update_Block_Config;
 use WP_Block_Type_Registry;
 
 use function WPML\Container\make;
@@ -47,7 +48,6 @@ class Gutenberg_Update extends Content_Update_Base {
     protected $editor_type = 'Gutenberg';
 
     public function __construct(int $post_id, int $translated_post_id, array $translate_strings, string $target_language, string $nonce) {
-        add_filter('option_wpml-gutenberg-config', array($this, 'update_gutenberg_config'), 10, 2);
         parent::__construct($post_id, $translated_post_id, $translate_strings, $target_language, $nonce);
     }
 
@@ -89,198 +89,6 @@ class Gutenberg_Update extends Content_Update_Base {
 		return new StringsInBlockCollection( $string_parsers );
 	}
 
-    public function update_gutenberg_config( $config, $option_name ) {
-        if($this->is_content_update()){
-            if(!isset($this->custom_blocks_config) || empty($this->custom_blocks_config)){
-                $this->custom_blocks_config = $this->get_block_parse_rules();
-            }
-    
-            if(!empty($this->custom_blocks_config)){
-                $this->set_custom_block_config($config,$this->custom_blocks_config);
-            }
-        }
-
-        return $config;
-    }
-
-    private function get_block_parse_rules()
-    {
-        $response = wp_remote_get( esc_url_raw( WPML_AT_PLUGIN_URL . 'includes/blocks-config/blocks-config.json' ), array(
-            'timeout' => 15,
-        ) );
-
-        if ( is_wp_error( $response ) || 200 !== (int) wp_remote_retrieve_response_code( $response ) ) {
-            global $wp_filesystem;
-
-            // Initialize the WordPress filesystem
-            if ( ! function_exists( 'WP_Filesystem' ) ) {
-                require_once ABSPATH . 'wp-admin/includes/file.php';
-            }
-
-            WP_Filesystem();
-
-            $local_path = WPML_AT_PLUGIN_DIR . 'includes/blocks-config/blocks-config.json';
-            if($wp_filesystem->exists($local_path) && $wp_filesystem->is_readable( $local_path )){
-                $block_rules = $wp_filesystem->get_contents( $local_path );
-            }else{
-                $block_rules = array();
-            }
-        } else {
-            $block_rules = wp_remote_retrieve_body( $response );
-        }
-
-        if(empty($block_rules)){
-            return array();
-        }
-
-        $block_translation_rules = json_decode($block_rules);
-
-        return $block_translation_rules;
-    }
-
-    private function get_block_default_attributes_value()
-    {
-        $response = wp_remote_get( esc_url_raw( WPML_AT_PLUGIN_URL . 'includes/blocks-config/attr-default-value.json' ), array(
-            'timeout' => 15,
-        ) );
-
-        if ( is_wp_error( $response ) || 200 !== (int) wp_remote_retrieve_response_code( $response ) ) {
-            global $wp_filesystem;
-
-            // Initialize the WordPress filesystem
-            if ( ! function_exists( 'WP_Filesystem' ) ) {
-                require_once ABSPATH . 'wp-admin/includes/file.php';
-            }
-
-            WP_Filesystem();
-
-            $local_path = WPML_AT_PLUGIN_DIR . 'includes/blocks-config/attr-default-value.json';
-            if($wp_filesystem->exists($local_path) && $wp_filesystem->is_readable( $local_path )){
-                $block_default_attributes_value = $wp_filesystem->get_contents( $local_path );
-            }else{
-                $block_default_attributes_value = array();
-            }
-        } else {
-            $block_default_attributes_value = wp_remote_retrieve_body( $response );
-        }
-
-        if(empty($block_default_attributes_value)){
-            return array();
-        }
-
-        $block_default_attributes_value = json_decode($block_default_attributes_value, true);
-
-        return $block_default_attributes_value;
-    }
-
-    private function set_custom_block_config( array &$config, $custom_block_config ): void {
-
-        if ( empty( $custom_block_config ) ) {
-            return;
-        }
-    
-        foreach ( (array) $custom_block_config as $block_name => $block_config ) {
-    
-            // Skip if block not present in base config
-            if ( ! isset( $config[ $block_name ] ) ) {
-                continue;
-            }
-    
-            // Ensure attributes exist
-            if ( empty( $block_config->attributes ) ) {
-                continue;
-            }
-    
-            $this->set_block_config_attributes(
-                $config,
-                $block_name,
-                (array) $block_config->attributes
-            );
-        }
-    }
-    
-    private function set_block_config_attributes( array &$config, string $block_name, array $attributes ): void {
-        // Ensure base keys exist
-        if ( ! isset( $config[ $block_name ]['key'] ) ) {
-            $config[ $block_name ]['key'] = [];
-        }
-
-
-        foreach ( $attributes as $attr_key => $attr_value ) {
-    
-            // Skip if attribute already exists
-            if ( isset( $config[ $block_name ]['key'][ $attr_key ] ) ) {
-                continue;
-            }
-    
-            /**
-             * CASE 1 — SIMPLE ATTRIBUTE (true)
-             */
-            if ( $attr_value === true ) {
-                $config[ $block_name ]['key'][ $attr_key ] = [];
-                continue;
-            }
-    
-            /**
-             * CASE 2 — OBJECT ATTRIBUTE
-             */
-            if ( is_object( $attr_value ) ) {
-                $this->parse_object_children( $config[ $block_name ]['key'][ $attr_key ], $attr_value );
-                continue;
-            }
-    
-            /**
-             * CASE 3 — ARRAY ATTRIBUTE
-             */
-            if ( is_array( $attr_value ) ) {
-                if(!isset($config[ $block_name ]['key'][ $attr_key ])){
-                    $config[ $block_name ]['key'][ $attr_key ] = ['*' => ['children' => []]];
-                }
-                    
-                if(!isset($config[ $block_name ]['key'][ $attr_key ]['*'])) $config[ $block_name ]['key'][ $attr_key ]['*'] = ['children' => []];
-
-                $this->parse_array_children( $config[ $block_name ]['key'][ $attr_key ]['*']['children'], $attr_value[0] );
-            }
-        }
-    }
-
-    private function parse_object_children( &$reference, $object ): void {    
-        foreach ( (array) $object as $child_key => $child_value ) {
-    
-            // simple true value
-            if ( $child_value === true ) {
-                $reference[ $child_key ]= [];
-                continue;
-            }
-    
-            // nested object
-            if ( is_object( $child_value ) ) {
-                $this->parse_object_children( $reference[ $child_key ], $child_value );
-                continue;
-            }
-    
-            // nested array
-            if ( is_array( $child_value ) ) {
-                if(!isset($reference[$child_key]['*'])) $reference[$child_key]['*'] = ['children' => []];
-                    $this->parse_array_children( $reference[ $child_key ]["*"]['children'], $child_value[0] );
-            }
-        }
-    }
-
-    private function parse_array_children( &$reference, $child_values ): void {
-
-        if ( is_object( $child_values ) ) {
-            $this->parse_object_children( $reference, $child_values );
-            return;
-        }
-    
-        if ( is_array( $child_values ) ) {
-            if(!isset($reference['*'])) $reference['*'] = ['children' => []];
-            $this->parse_array_children( $reference["*"]['children'], $child_values[0] );
-            return;
-        }
-    }       
-    
     private function update_block_data(&$block, $custom_config): void {
         if(!isset($block['blockName'])) return;
 
@@ -300,7 +108,7 @@ class Gutenberg_Update extends Content_Update_Base {
     private function set_block_default_attributes_value(&$block, $custom_config): void {
         if(isset($custom_config[$block['blockName']])){
             if(!isset($this->block_default_attributes_value)){
-                $this->block_default_attributes_value = $this->fetch_block_default_attributes();
+                $this->block_default_attributes_value = Update_Block_Config::get_instance()->fetch_block_default_attributes();
             }
 
             if(isset($this->block_default_attributes_value[$block['blockName']]['attributes'])){
@@ -315,10 +123,6 @@ class Gutenberg_Update extends Content_Update_Base {
         }
     }
 
-    private function fetch_block_default_attributes(): array {
-        return (array) $this->get_block_default_attributes_value();
-    }
-
     protected function update_builder_translation(): void {
         if(!$this->gutenberg_builder_factory instanceof WPML_Gutenberg_Integration){
             wp_send_json_error( 'Gutenberg builder factory not found.' );
@@ -326,7 +130,7 @@ class Gutenberg_Update extends Content_Update_Base {
         }
 
         if(!isset($this->custom_blocks_config) || empty($this->custom_blocks_config)){
-            $this->custom_blocks_config = $this->get_block_parse_rules();
+            $this->custom_blocks_config = Update_Block_Config::get_instance()->get_custom_blocks_config();
         }
 
         $custom_blocks_config=(array) $this->custom_blocks_config;
@@ -335,7 +139,6 @@ class Gutenberg_Update extends Content_Update_Base {
         $source_content=$source_post->post_content;
         $parse_blocks = parse_blocks($source_content);
 
-        
         foreach($parse_blocks as &$block){
             $block_name = $block['blockName'];
             if(isset($custom_blocks_config[$block_name])){
@@ -352,7 +155,8 @@ class Gutenberg_Update extends Content_Update_Base {
         $source_content = serialize_blocks($parse_blocks);
 
         $updated_content=$this->gutenberg_builder_factory->replace_strings_in_blocks($source_content, $this->translate_strings, $this->target_language);
-        
+
+
         wpml_update_escaped_post( [ 'ID' => $this->translated_post_id, 'post_content' => $updated_content ], $this->target_language );
     }
 }
