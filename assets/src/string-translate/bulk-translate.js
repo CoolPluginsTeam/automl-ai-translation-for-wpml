@@ -814,11 +814,12 @@ const bulkTranslateEntries = async ({ ids, langs, storeDispatch }) => {
  * Fetches first page only; initBulkTranslateStrings will fetch further pages in a pipeline (no 10k in memory).
  */
 const bulkTranslateStrings = async ({
-    langs,
-    storeDispatch,
-    stringFilters,
-    selectedStrings = {},
-  }) => {
+  langs,
+  storeDispatch,
+  stringFilters,
+  selectedStrings = {},
+  stringLanguageStatus = {},
+}) => {
   const nonce = automl_wpml_bulk_translate_object.nonce;
   const stringsByLanguage = {};
   const totalPerLanguage = {};
@@ -836,19 +837,24 @@ const bulkTranslateStrings = async ({
       Array.isArray(stringFilters?.selected_string_ids) &&
       stringFilters.selected_string_ids.length > 0;
   
-        // Always build strings array directly from the DOM-provided JSON (no SQL)
-        const rows = (stringFilters.selected_string_ids || [])
-        .map((id) => selectedStrings[String(id)])
-        .filter(Boolean);
-  
-      strings = rows.map((row) => ({
-        text: row.value || "",
-        html: row.value || "",
-        field_key: String(row.string_id),
-        field_name: row.name || String(row.string_id),
-        format: "html",
-      }));
-      total = strings.length;
+             // Build rows from selected strings, then filter out already-translated for this language
+             const rows = (stringFilters.selected_string_ids || [])
+             .map((id) => selectedStrings[String(id)])
+             .filter(Boolean);
+   
+           const rowsToTranslate = rows.filter((row) => {
+             const stringId = String(row.string_id);
+             return stringLanguageStatus[stringId]?.[lang] !== "edit";
+           });
+   
+           strings = rowsToTranslate.map((row) => ({
+             text: row.value || "",
+             html: row.value || "",
+             field_key: String(row.string_id),
+             field_name: row.name || String(row.string_id),
+             format: "html",
+           }));
+           total = strings.length;
   
     if (total === 0 || !strings.length) continue;
   

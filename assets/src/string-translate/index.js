@@ -133,27 +133,7 @@ import LocalAITranslate from "./components/translate-provider/local-ai/local-ai-
         let stringFilters = {};
       
         if (isStringTranslationPage) {
-          // Collect filter values from String Translation page
-          const statusSelect = document.querySelector(
-            'select[name="icl_st_filter_status"]',
-          );
-          const contextSelect = document.querySelector(
-            'select[name="icl_st_filter_context"]',
-          );
-          const prioritySelect = document.querySelector(
-            'select[name="icl-st-filter-translation-priority"]',
-          );
-          const searchInput = document.querySelector(
-            "input#icl_st_filter_search",
-          );
-          const searchTranslationCheckbox = document.querySelector(
-            "input#search_translation:not([disabled])",
-          );
-          const exactMatchCheckbox = document.querySelector(
-            "input#icl_st_filter_search_em:not([disabled])",
-          );
-      
-          const stringTable =
+  const stringTable =
   document.querySelector("#icl_string_translations") ||
   document.querySelector("table.js-wpml-st-table");
 
@@ -175,56 +155,50 @@ const checked = stringTable
 const effectiveSelection =
   checked && checked.length > 0 ? checked : allCheckboxes;
 
-const selectedStringIds = [];
-const selectedStringsMap = {};
-
-Array.from(effectiveSelection).forEach((el) => {
-  const id = el.value;
-  if (!id) return;
-
-  selectedStringIds.push(id);
-
-  // Read the JSON from the row's data-string attribute
-  const row = el.closest('tr[data-string]');
-  if (row && row.dataset.string) {
-    try {
-      const parsed = JSON.parse(row.dataset.string);
-      // Store by string_id so we can use it later in bulk-translate.js
-      selectedStringsMap[String(parsed.string_id)] = parsed;
-    } catch (err) {
-      // If parsing fails, we still have the ID in selectedStringIds
+  const selectedStringIds = [];
+  const selectedStringsMap = {};
+  const stringLanguageStatus = {};
+  
+  Array.from(effectiveSelection).forEach((el) => {
+    const id = el.value;
+    if (!id) return;
+  
+    selectedStringIds.push(id);
+  
+    const row = el.closest('tr[data-string]');
+    if (!row) return;
+  
+    if (row.dataset.string) {
+      try {
+        const parsed = JSON.parse(row.dataset.string);
+        selectedStringsMap[String(parsed.string_id)] = parsed;
+      } catch (err) {}
     }
-  }
-});
+  
+    const langCell = row.querySelector('.wpml-col-languages, .languages-status');
+    if (langCell) {
+      stringLanguageStatus[id] = {};
+      langCell.querySelectorAll('i[id]').forEach((icon) => {
+        const idAttr = icon.getAttribute('id') || '';
+        const dash = idAttr.indexOf('-');
+        if (dash > 0) {
+          const lang = idAttr.slice(dash + 1);
+          stringLanguageStatus[id][lang] = icon.classList.contains('otgs-ico-edit') ? 'edit' : 'add';
+        }
+      });
+    }
+  });
       
-          // Get filter values - use empty string if not found
-          const statusValue = statusSelect ? statusSelect.value || "" : "";
-          const contextValue = contextSelect ? contextSelect.value || "" : "";
-          const priorityValue = prioritySelect ? prioritySelect.value || "" : "";
-          const searchValue = searchInput ? searchInput.value || "" : "";
-          const searchTranslationValue =
-            searchTranslationCheckbox && searchTranslationCheckbox.checked
-              ? "1"
-              : "";
-          const exactMatchValue =
-            exactMatchCheckbox && exactMatchCheckbox.checked ? "1" : "";
-      
-          stringFilters = {
-            status: statusValue,
-            context: contextValue,
-            "translation-priority": priorityValue,
-            search: searchValue,
-            search_translation: searchTranslationValue,
-            exact_match: exactMatchValue,
-          };
-          if (selectedStringIds.length > 0) {
-            stringFilters.selected_string_ids = selectedStringIds;
-          }
-      
-          // Store filters + full row data globally for use in StatusModal/bulk-translate
-          window.wpmlStringFilters = stringFilters;
-          window.wpmlSelectedStrings = selectedStringsMap;
-          window.wpmlIsStringTranslationPage = true;
+  stringFilters =
+  selectedStringIds.length > 0
+    ? { selected_string_ids: selectedStringIds }
+    : {};
+
+// Store selection + row data globally for use in StatusModal/bulk-translate
+window.wpmlStringFilters = stringFilters;
+                   window.wpmlSelectedStrings = selectedStringsMap;
+                   window.wpmlStringLanguageStatus = stringLanguageStatus;
+                   window.wpmlIsStringTranslationPage = true;
       
           // For strings, we don't need postIds
           postIds = [];

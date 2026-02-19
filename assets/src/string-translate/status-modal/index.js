@@ -55,17 +55,19 @@ const StatusModal = ({ postIds, selectedLanguages, prefix, onDestory }) => {
     const translateContent = async () => {
       const isStringTranslationPage =
         window.wpmlIsStringTranslationPage || false;
-      const stringFilters = window.wpmlStringFilters || {};
-      const selectedStrings = window.wpmlSelectedStrings || {};
-      if (isStringTranslationPage) {
-        // String translation flow
-        const { bulkTranslateStrings } = await import("../bulk-translate");
-        const response = await bulkTranslateStrings({
-          langs: selectedLanguages,
-          storeDispatch,
-          stringFilters: stringFilters,
-          selectedStrings: selectedStrings,
-        });
+        const stringFilters = window.wpmlStringFilters || {};
+        const selectedStrings = window.wpmlSelectedStrings || {};
+        const stringLanguageStatus = window.wpmlStringLanguageStatus || {};
+        if (isStringTranslationPage) {
+          // String translation flow
+          const { bulkTranslateStrings } = await import("../bulk-translate");
+          const response = await bulkTranslateStrings({
+            langs: selectedLanguages,
+            storeDispatch,
+            stringFilters: stringFilters,
+            selectedStrings: selectedStrings,
+            stringLanguageStatus: stringLanguageStatus,
+          });
         setIsLoading(false);
         if (!response.success) {
           setEmptyPostMessage(
