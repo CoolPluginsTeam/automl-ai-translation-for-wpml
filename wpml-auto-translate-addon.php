@@ -147,6 +147,7 @@ final class WPML_Auto_Translate_Addon {
 		$files = array(
 			'helper/helper.php',
 			'helper/sanitized-content.php',
+			'includes/wpml/builder/gutenberg/update-block-config.php',
 			'includes/wpml/get-package-content.php',
 			'includes/wpml/builder/content-update-base.php',
 			'includes/wpml/builder/elementor/elementor-update.php',

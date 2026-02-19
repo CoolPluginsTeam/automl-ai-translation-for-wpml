@@ -1,0 +1,380 @@
+<?php
+
+namespace AUTOML_WPML\Includes\Wpml\Builder\Gutenberg;
+
+if ( ! defined( 'ABSPATH' ) ) exit;
+
+if(class_exists(Update_Block_Config::class)) return;
+
+/**
+ * Update_Block_Config
+ *
+ * @package AUTOML_WPML\Includes\Wpml\Builder\Gutenberg
+ */
+class Update_Block_Config {
+
+    /**
+     * @var Object Array of custom blocks config
+     */
+    private $custom_blocks_config = null;
+
+    /**
+     * @var Object Array of update block config
+     */
+    private $update_block_config = null;
+
+    /**
+     * @var self
+     */
+    private static $instance = null;
+
+    /**
+     * @var array Array of block default attributes value
+     */
+    private $block_default_attributes_value = array();
+
+    public static function get_instance() {
+        if ( null === self::$instance ) {
+            self::$instance = new self();
+        }
+        return self::$instance;
+    }
+
+    public function __construct() { 
+        add_filter('option_wpml-gutenberg-config', array($this, 'update_gutenberg_config'), 10, 2);
+    }
+
+    public function update_gutenberg_config( $config, $option_name ) {
+        if($this->is_content_update() && !isset($this->update_block_config)){
+
+            if(!isset($this->custom_blocks_config) || empty($this->custom_blocks_config)){
+                $this->custom_blocks_config = $this->get_block_parse_rules();
+            }
+    
+            if(!empty($this->custom_blocks_config)){
+                $this->set_custom_block_config($config,$this->custom_blocks_config);
+
+                $this->update_block_config = $config;
+            }
+        }
+
+        if(isset($this->update_block_config) && !empty($this->update_block_config)){
+            return $this->update_block_config;
+        }
+
+        return $config;
+    }
+
+    private function get_block_parse_rules()
+    {
+        $response = wp_remote_get( esc_url_raw( WPML_AT_PLUGIN_URL . 'includes/blocks-config/blocks-config.json' ), array(
+            'timeout' => 15,
+        ) );
+
+        if ( is_wp_error( $response ) || 200 !== (int) wp_remote_retrieve_response_code( $response ) ) {
+            global $wp_filesystem;
+
+            // Initialize the WordPress filesystem
+            if ( ! function_exists( 'WP_Filesystem' ) ) {
+                require_once ABSPATH . 'wp-admin/includes/file.php';
+            }
+
+            WP_Filesystem();
+
+            $local_path = WPML_AT_PLUGIN_DIR . 'includes/blocks-config/blocks-config.json';
+            if($wp_filesystem->exists($local_path) && $wp_filesystem->is_readable( $local_path )){
+                $block_rules = $wp_filesystem->get_contents( $local_path );
+            }else{
+                $block_rules = array();
+            }
+        } else {
+            $block_rules = wp_remote_retrieve_body( $response );
+        }
+
+        if(empty($block_rules)){
+            return array();
+        }
+
+        $block_translation_rules = json_decode($block_rules);
+
+        return $block_translation_rules;
+    }
+
+    private function get_block_default_attributes_value(): array
+    {
+        $response = wp_remote_get( esc_url_raw( WPML_AT_PLUGIN_URL . 'includes/blocks-config/attr-default-value.json' ), array(
+            'timeout' => 15,
+        ) );
+
+        if ( is_wp_error( $response ) || 200 !== (int) wp_remote_retrieve_response_code( $response ) ) {
+            global $wp_filesystem;
+
+            // Initialize the WordPress filesystem
+            if ( ! function_exists( 'WP_Filesystem' ) ) {
+                require_once ABSPATH . 'wp-admin/includes/file.php';
+            }
+
+            WP_Filesystem();
+
+            $local_path = WPML_AT_PLUGIN_DIR . 'includes/blocks-config/attr-default-value.json';
+            if($wp_filesystem->exists($local_path) && $wp_filesystem->is_readable( $local_path )){
+                $block_default_attributes_value = $wp_filesystem->get_contents( $local_path );
+            }else{
+                $block_default_attributes_value = array();
+            }
+        } else {
+            $block_default_attributes_value = wp_remote_retrieve_body( $response );
+        }
+
+        if(empty($block_default_attributes_value)){
+            return array();
+        }
+
+        $block_default_attributes_value = json_decode($block_default_attributes_value, true);
+
+        return $block_default_attributes_value;
+    }
+
+    private function set_custom_block_config( array &$config, $custom_block_config ): void {
+
+        if ( empty( $custom_block_config ) ) {
+            return;
+        }
+    
+        foreach ( (array) $custom_block_config as $block_name => $block_config ) {
+    
+            // Skip if block not present in base config
+            if ( ! isset( $config[ $block_name ] ) ) {
+                $this->set_block_config_attributes($config, $block_name, (array) $block_config->attributes);
+                continue;
+            }
+    
+            // Ensure attributes exist
+            if ( empty( $block_config->attributes ) ) {
+                continue;
+            }
+    
+            $this->set_block_config_attributes(
+                $config,
+                $block_name,
+                (array) $block_config->attributes
+            );
+        }
+    }
+    
+    private function set_block_config_attributes( array &$config, string $block_name, array $attributes ): void {
+        // Ensure base keys exist
+        if ( ! isset( $config[ $block_name ]['key'] ) ) {
+            $config[ $block_name ]['key'] = [];
+        }
+
+
+        foreach ( $attributes as $attr_key => $attr_value ) {
+    
+            // Skip if attribute already exists
+            if ( isset( $config[ $block_name ]['key'][ $attr_key ] ) ) {
+                continue;
+            }
+    
+            /**
+             * CASE 1 — SIMPLE ATTRIBUTE (true)
+             */
+            if ( $attr_value === true ) {
+                $config[ $block_name ]['key'][ $attr_key ] = [];
+                continue;
+            }
+    
+            /**
+             * CASE 2 — OBJECT ATTRIBUTE
+             */
+            if ( is_object( $attr_value ) ) {
+                $this->parse_object_children( $config[ $block_name ]['key'][ $attr_key ], $attr_value );
+                continue;
+            }
+    
+            /**
+             * CASE 3 — ARRAY ATTRIBUTE
+             */
+            if ( is_array( $attr_value ) ) {
+                if(!isset($config[ $block_name ]['key'][ $attr_key ])){
+                    $config[ $block_name ]['key'][ $attr_key ] = ['*' => ['children' => []]];
+                }
+                    
+                if(!isset($config[ $block_name ]['key'][ $attr_key ]['*'])) $config[ $block_name ]['key'][ $attr_key ]['*'] = ['children' => []];
+
+                $this->parse_array_children( $config[ $block_name ]['key'][ $attr_key ]['*']['children'], $attr_value[0] );
+            }
+        }
+    }
+
+    private function parse_object_children( &$reference, $object ): void {    
+        foreach ( (array) $object as $child_key => $child_value ) {
+    
+            // simple true value
+            if ( $child_value === true ) {
+                $reference[ $child_key ]= [];
+                continue;
+            }
+    
+            // nested object
+            if ( is_object( $child_value ) ) {
+                $this->parse_object_children( $reference[ $child_key ], $child_value );
+                continue;
+            }
+    
+            // nested array
+            if ( is_array( $child_value ) ) {
+                if(!isset($reference[$child_key]['*'])) $reference[$child_key]['*'] = ['children' => []];
+                    $this->parse_array_children( $reference[ $child_key ]["*"]['children'], $child_value[0] );
+            }
+        }
+    }
+
+    private function parse_array_children( &$reference, $child_values ): void {
+
+        if ( is_object( $child_values ) ) {
+            $this->parse_object_children( $reference, $child_values );
+            return;
+        }
+    
+        if ( is_array( $child_values ) ) {
+            if(!isset($reference['*'])) $reference['*'] = ['children' => []];
+            $this->parse_array_children( $reference["*"]['children'], $child_values[0] );
+            return;
+        }
+    }
+
+    public function is_content_update() {
+        return ( defined( 'DOING_AUTOML_WPML_GUTENBERG_CONTENT_UPDATE' ) && true === constant( 'DOING_AUTOML_WPML_GUTENBERG_CONTENT_UPDATE' ) ) || ( defined( 'DOING_AUTOML_WPML_BULK_POST_TRANSLATION' ) && true === constant( 'DOING_AUTOML_WPML_BULK_POST_TRANSLATION' ) );
+    }
+
+    public function get_update_block_config() {
+        if(isset($this->update_block_config)){
+            return $this->update_block_config;
+        }
+
+        return null;
+    }
+
+    public function get_custom_blocks_config() {
+
+        if(!isset($this->custom_blocks_config) || empty($this->custom_blocks_config)){
+            $this->custom_blocks_config = $this->get_block_parse_rules();
+        }
+
+        return (array) $this->custom_blocks_config;
+    }
+
+    public function fetch_block_default_attributes(): array {
+        if(!isset($this->block_default_attributes_value) || empty($this->block_default_attributes_value)){
+            $this->block_default_attributes_value = $this->get_block_default_attributes_value();
+        }
+
+        return (array) $this->block_default_attributes_value;
+    }
+
+    private function set_block_translatables_attributes(&$block, $custom_config, $translation_package, &$attr_translations): void {
+        if(!isset($block['blockName'])) return;
+        
+        $block_name = $block['blockName'];
+        
+        if(isset($custom_config[$block_name])){
+            $this->update_block_attributes_in_package($block, $custom_config, $translation_package, $attr_translations);
+        }
+            
+        if(isset($block['innerBlocks']) && !empty($block['innerBlocks'])){
+            foreach($block['innerBlocks'] as &$inner_block){
+                $this->set_block_translatables_attributes($inner_block, $custom_config, $translation_package, $attr_translations);
+            }
+        }
+    }
+
+    private function update_block_attributes_in_package(&$block, $custom_config, $translation_package, &$attr_translations): void {
+        if(isset($custom_config[$block['blockName']])){
+            if(!isset($this->block_default_attributes_value) || empty($this->block_default_attributes_value)){
+                $this->block_default_attributes_value = $this->fetch_block_default_attributes();
+            }
+
+            if(isset($this->block_default_attributes_value[$block['blockName']]['attributes'])){
+                $automl_block_default_attrs = $this->block_default_attributes_value[$block['blockName']]['attributes'];
+
+                foreach($automl_block_default_attrs as $attr_key => $attr_value){
+                    if(isset($attr_value) && !empty($attr_value)){
+                        if(is_string($attr_value)){
+                            $string_id=md5($block['blockName'].$attr_value);
+
+                            if(!isset($translation_package[$string_id])){
+                                $attr_translations[$string_id] = array();
+                                $this->update_package_strings($attr_translations[$string_id], wp_kses_post($attr_value), $string_id, null, wp_kses_post($attr_value), 'content', 'base64', 1);
+                            }else if (is_array($attr_value)){
+                                $this->update_array_attributes_in_package($block, $attr_value, $translation_package, $attr_translations);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private function update_array_attributes_in_package(&$block, $attr_value, $translation_package, &$attr_translations): void {
+        foreach($attr_value as $attr_key => $attr_value){
+            if(isset($attr_value) && !empty($attr_value)){
+                if(is_string($attr_value)){
+                    $string_id=md5($block['blockName'].$attr_value);
+
+                    if(!isset($translation_package[$string_id])){
+                        $attr_translations[$string_id] = array();
+                        $this->update_package_strings($attr_translations[$string_id], wp_kses_post($attr_value), $string_id, null, wp_kses_post($attr_value), 'content', 'base64', 1);
+                    }else if (is_array($attr_value)){
+                        $this->update_array_attributes_in_package($block, $attr_value, $translation_package, $attr_translations);
+                    }
+                }
+            }
+        }
+    }
+
+    private function update_package_strings(array &$append_data, $html, $field_key, $field_name, $text, $type, $format, $translate): void {
+        if(defined('DOING_AUTOML_WPML_BULK_POST_TRANSLATION') && true === constant('DOING_AUTOML_WPML_BULK_POST_TRANSLATION')){
+            $this->set_content_data($append_data, 'html', $html);
+        }else{
+            $this->set_content_data($append_data, 'html', $html);
+            $this->set_content_data($append_data, 'field_key', $field_key);
+            $this->set_content_data($append_data, 'field_name', $field_name);
+            $this->set_content_data($append_data, 'text', $text);
+            $this->set_content_data($append_data, 'type', $type);
+            $this->set_content_data($append_data, 'format', $format);
+            $this->set_content_data($append_data, 'translate', $translate);
+        }
+    }
+
+    private function set_content_data(&$append_data, $key, $value){
+		if(isset($value) && !empty($value)) {
+			$append_data[$key] = $value;
+		}
+	}
+
+    final public function get_custom_attributes_translations(int $post_id, array $translation_package): array {
+        $attr_translations=array();
+
+        $custom_blocks_config=Update_Block_Config::get_instance()->get_custom_blocks_config();
+
+        $source_post=get_post($post_id);
+        $source_content=$source_post->post_content;
+        $parse_blocks = parse_blocks($source_content);
+
+        foreach($parse_blocks as &$block){
+            $block_name = $block['blockName'];
+            if(isset($custom_blocks_config[$block_name])){
+                $this->set_block_translatables_attributes($block, $custom_blocks_config, $translation_package, $attr_translations);
+            }
+
+            if(isset($block['innerBlocks']) && !empty($block['innerBlocks'])){
+                foreach($block['innerBlocks'] as &$inner_block){
+                    $this->set_block_translatables_attributes($inner_block, $custom_blocks_config, $translation_package, $attr_translations);
+                }
+            }
+        }
+
+        return $attr_translations;
+    }
+}
