@@ -17,7 +17,7 @@ const AiTranslation = ({ onBack, onContinue }) => {
 	const [saving, setSaving] = React.useState( false );
 	const [message, setMessage] = React.useState( null );
 	const [isError, setIsError] = React.useState( false );   
-	const handleSave = async () => {
+    const handleSave = async () => {
 		setSaving( true );
 		setMessage( null );
 		setIsError( false );
@@ -38,9 +38,11 @@ const AiTranslation = ({ onBack, onContinue }) => {
 			} );
 			setMessage( __( 'API keys saved.', 'automl-ai-translation-for-wpml' ) );
 			setIsError( false );
+			return true;
 		} catch ( err ) {
 			setMessage( err?.message || __( 'Failed to save. Please try again.', 'automl-ai-translation-for-wpml' ) );
 			setIsError( true );
+			return false;
 		} finally {
 			setSaving( false );
 		}
@@ -87,36 +89,28 @@ const AiTranslation = ({ onBack, onContinue }) => {
 					</p>
 				) }
 
-				<p style={{ marginBottom: 16 }}>
-					<button
-						type="button"
-						className="button button-secondary"
-						onClick={ handleSave }
-						disabled={ saving }
-					>
-						{ saving ? __( 'Saving…', 'automl-ai-translation-for-wpml' ) : __( 'Save API keys', 'automl-ai-translation-for-wpml' ) }
-					</button>
-				</p>
-
 				<p style={{ fontSize: 14, marginBottom: 24 }}>
 					{ __( 'You can also add or change keys and models later in WPML Auto Translate → Settings.', 'automl-ai-translation-for-wpml' ) }
 				</p>
 			</div>
 			<div className="wpml-at-wizard-footer" style={{ display: 'flex', justifyContent: 'space-between', marginTop: 24 }}>
 				<SetupBackButton onClick={ onBack } />
-				<SetupContinueButton
-	onClick={ async () => {
-		try {
-			await apiFetch( {
-				path: 'automl-bulk-translate/wizard-complete',
-				method: 'POST',
-				headers: { 'X-WP-Nonce': getNonce() },
-			} );
-		} catch ( e ) {}
-		window.location.href = dashboardUrl;
-	} }
-	label={ __( 'Finish setup', 'automl-ai-translation-for-wpml' ) }
-/>
+                <SetupContinueButton
+					onClick={ async () => {
+						const saved = await handleSave();
+						if ( ! saved ) return;
+						try {
+							await apiFetch( {
+								path: 'automl-bulk-translate/wizard-complete',
+								method: 'POST',
+								headers: { 'X-WP-Nonce': getNonce() },
+							} );
+						} catch ( e ) {}
+						window.location.href = dashboardUrl;
+					} }
+					label={ __( 'Finish setup', 'automl-ai-translation-for-wpml' ) }
+					disabled={ saving }
+				/>
 			</div>
 		</div>
 	);

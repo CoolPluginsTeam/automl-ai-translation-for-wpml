@@ -763,6 +763,11 @@ $prefix: automl-wpml-bulk-translate;
                     padding-right: .5rem;
 
                     input[name="languages"]:disabled {
+                        & ~ label {
+                            opacity: 0.5;
+                            pointer-events: none;
+                        }
+
                         &~img {
                             opacity: 0.5;
                         }

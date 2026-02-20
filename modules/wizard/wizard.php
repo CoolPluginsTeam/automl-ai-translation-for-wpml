@@ -31,8 +31,8 @@ class WPML_AT_Wizard {
 	 *
 	 * @return void
 	 */
-	public function add_admin_menu() {
-		if ( get_option( 'wpml_at_setup_complete' ) ) {
+    public function add_admin_menu() {
+		if ( get_option( 'wpml_at_setup_complete' ) && $this->is_wizard_language_set() ) {
 			return;
 		}
 		$parent_slug = 'sitepress-multilingual-cms/menu/languages.php';
@@ -99,8 +99,8 @@ class WPML_AT_Wizard {
 	 *
 	 * @return void
 	 */
-	public function maybe_show_wizard_notice() {
-		if ( get_option( 'wpml_at_setup_complete' ) ) {
+    public function maybe_show_wizard_notice() {
+		if ( get_option( 'wpml_at_setup_complete' ) && $this->is_wizard_language_set() ) {
 			return;
 		}
 		if ( ! current_user_can( 'manage_options' ) ) {
@@ -140,6 +140,15 @@ class WPML_AT_Wizard {
 	public function is_wizard() {
 		return isset( $_GET['page'] ) && 'wpml_at_wizard' === sanitize_key( $_GET['page'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	}
+    	/**
+	 * Whether a translation language has been selected in the wizard.
+	 *
+	 * @return bool
+	 */
+	private function is_wizard_language_set() {
+		$opt = get_option( 'wpml_at_wizard_selected_language', array() );
+		return is_array( $opt ) && ! empty( $opt['code'] );
+	}
 
 	/**
 	 * Display the wizard page.
@@ -151,7 +160,7 @@ class WPML_AT_Wizard {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_die( esc_html__( 'Sorry, you are not allowed to manage options for this site.', 'automl-ai-translation-for-wpml' ) );
 		}
-		if ( get_option( 'wpml_at_setup_complete' ) ) {
+        if ( get_option( 'wpml_at_setup_complete' ) && $this->is_wizard_language_set() ) {
 			wp_safe_redirect( add_query_arg( array( 'page' => 'wpml-auto-dashboard' ), admin_url( 'admin.php' ) ) );
 			exit;
 		}

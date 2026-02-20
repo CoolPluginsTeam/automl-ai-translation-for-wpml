@@ -839,7 +839,10 @@
 #automl-wpml-bulk-translate-wrapper #automl-wpml-bulk-translate-container .automl-wpml-bulk-translate-body .automl-wpml-bulk-translate-languages .automl-wpml-bulk-translate-language input[name="languages"]:disabled ~ span {
   opacity: 0.5;
 }
-
+#automl-wpml-bulk-translate-wrapper #automl-wpml-bulk-translate-container .automl-wpml-bulk-translate-body .automl-wpml-bulk-translate-languages .automl-wpml-bulk-translate-language input[name="languages"]:disabled ~ label {
+  opacity: 0.5;
+  pointer-events: none;
+}
 #automl-wpml-bulk-translate-wrapper #automl-wpml-bulk-translate-container .automl-wpml-bulk-translate-body .automl-wpml-bulk-translate-select-all-languages {
   padding: 1rem 25px;
 }

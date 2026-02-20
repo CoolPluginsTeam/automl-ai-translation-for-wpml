@@ -1,39 +1,35 @@
-
-/* Page wrapper – same as Linguator .lmat-styles */
+/* Page wrapper – Linguator-style */
 .wpml-at-wizard-styles,
 .wpml-at-wizard-styles.lmat-styles {
 	margin: 0;
 	padding: 0;
-	background-color: #F3F4F6;
-	font-family: 'Poppins', 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+	background-color: #f6f7f7;
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
 	min-height: 100vh;
 }
 
-/* React root – same as Linguator #lmat-setup */
 #wpml-at-setup {
 	min-width: 100%;
 	min-height: 100vh;
-	background-color: #F3F4F6;
+	background-color: #f6f7f7;
 }
 
-/* Inner body – same as Linguator .setup-body */
 .wpml-at-wizard-styles .setup-body {
-	background-color: #F3F4F6;
+	background-color: #f6f7f7;
 	overflow: hidden;
 }
 
-/* Main content wrapper */
 .wpml-at-wizard-wrap {
 	margin: 0;
 	padding: 0;
-	background-color: #F3F4F6;
+	background-color: #f6f7f7;
 	min-height: 100vh;
 }
 
-/* Page title (h1) – centered like Linguator */
+/* Page title – centered, Linguator-style */
 .wpml-at-wizard-wrap h1 {
-	background-color: #F3F4F6;
-	color: #1d2327;
+	background-color: #f6f7f7;
+	color: #333333;
 	margin: 0;
 	padding-top: 30px;
 	text-align: center;
@@ -41,13 +37,13 @@
 	font-weight: 600;
 }
 
-/* Cards – same as Linguator (white, shadow, max-width 600px, p-10, min-height) */
+/* Content card – white, rounded, subtle shadow */
 .wpml-at-wizard-card {
 	max-width: 600px;
 	margin: 12px auto;
-    padding: 4px;
-	background-color: #fff;
-	box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+	padding: 40px;
+	background-color: #ffffff;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 	border-radius: 8px;
 	display: flex;
 	flex-direction: column;
@@ -57,30 +53,90 @@
 	margin: 0 0 0.5rem;
 	font-size: 1.25rem;
 	font-weight: 600;
-	color: #1d2327;
+	color: #333333;
 }
 
 .wpml-at-wizard-card .wpml-at-wizard-intro,
 .wpml-at-wizard-card p {
-	color: #6b7280;
+	color: #333333;
 	font-size: 0.875rem;
 	line-height: 1.5;
 	margin-bottom: 0.5rem;
 }
 
-/* Step indicator – same feel as Linguator progress steps */
+/* Progress – Linguator-style: numbered circles + connecting lines */
 .wpml-at-wizard-progress-wrap {
 	padding-bottom: 40px;
-	background-color: #F3F4F6;
+	background-color: #f6f7f7;
 }
 
 .wpml-at-wizard-steps {
 	display: flex;
-	gap: 1rem;
-	flex-wrap: wrap;
+	align-items: center;
 	justify-content: center;
+	flex-wrap: wrap;
+	gap: 0;
 	margin-bottom: 24px;
 	font-size: 0.875rem;
+}
+
+.wpml-at-wizard-step-item {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.wpml-at-wizard-step-circle {
+	width: 28px;
+	height: 28px;
+	border-radius: 50%;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	font-weight: 600;
+	font-size: 0.875rem;
+	flex-shrink: 0;
+}
+
+.wpml-at-wizard-step-circle.active {
+	background-color: #2196f3;
+	color: #fff;
+	border: none;
+}
+
+.wpml-at-wizard-step-circle.past {
+	background-color: #4caf50;
+	color: #fff;
+	border: none;
+}
+
+.wpml-at-wizard-step-circle.inactive {
+	background-color: #fff;
+	color: #bbbbbb;
+	border: 1px solid #d1d5db;
+}
+
+.wpml-at-wizard-step-label.active {
+	color: #2196f3;
+	font-weight: 600;
+}
+
+.wpml-at-wizard-step-label.past {
+	color: #4caf50;
+	font-weight: 500;
+}
+
+.wpml-at-wizard-step-label.inactive {
+	color: #bbbbbb;
+	font-weight: 400;
+}
+
+.wpml-at-wizard-step-connector {
+	width: 40px;
+	height: 2px;
+	background-color: #e0e0e0;
+	flex-shrink: 0;
+	margin: 0 4px;
 }
 
 /* Footer (Back / Continue) */
@@ -97,16 +153,35 @@
 	margin-right: 0.5em;
 }
 
-/* Buttons – match admin primary */
-.wpml-at-wizard-card .button-primary {
-	background: #2271b1;
-	border-color: #2271b1;
-	color: #fff;
+/* Back = outline; Continue = green (Linguator-style) */
+.wpml-at-wizard-card .button:not(.button-primary) {
+	background: #fff;
+	border: 1px solid #2271b1;
+	color: #2271b1;
+	border-radius: 6px;
+	padding: 8px 16px;
 }
 
-.wpml-at-wizard-card .button-primary:hover {
-	background: #135e96;
-	border-color: #135e96;
+.wpml-at-wizard-card .button:not(.button-primary):hover {
+	background: #f0f6fc;
+	color: #2271b1;
+}
+
+.wpml-at-wizard-card .button-primary,
+.wpml-at-wizard-card .wpml-at-wizard-continue {
+	background: #4caf50;
+	border-color: #4caf50;
+	color: #fff;
+	border-radius: 6px;
+	padding: 8px 20px;
+	font-weight: 600;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.wpml-at-wizard-card .button-primary:hover,
+.wpml-at-wizard-card .wpml-at-wizard-continue:hover {
+	background: #43a047;
+	border-color: #43a047;
 	color: #fff;
 }
 
@@ -115,7 +190,22 @@
 	font-size: 1rem;
 }
 
-/* Ready / final step table (if you add it later) */
+/* Select / input – Linguator-style */
+.wpml-at-wizard-select,
+.wpml-at-wizard-card input[type="text"],
+.wpml-at-wizard-card input[type="password"],
+.wpml-at-wizard-card select {
+	width: 100%;
+	max-width: 400px;
+	padding: 8px 12px;
+	font-size: 1rem;
+	border: 1px solid #d1d5db;
+	border-radius: 6px;
+	background: #fff;
+	color: #333;
+}
+
+/* Ready table (if used) */
 .ready-table {
 	width: 100%;
 	border-collapse: collapse;

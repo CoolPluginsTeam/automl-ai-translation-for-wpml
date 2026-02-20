@@ -17,6 +17,7 @@ const App = ({ onDestory, prefix, postIds }) => {
   const dispatch = useDispatch();
   const { languageObject = {}, selected_language_object = {} } = automl_wpml_bulk_translate_object || {};
   const wizardSelectedCode = Object.keys(selected_language_object)[0] || '';
+  const wizardLanguagesUrl = (automl_wpml_bulk_translate_object?.admin_url || '').replace(/\/?$/, '') + '/admin.php?page=wpml_at_wizard&step=languages';
   const emptyPostIdsErrorMessage = sprintf(
     __(
       "Please select at least one %s for translation.",
@@ -218,6 +219,7 @@ const App = ({ onDestory, prefix, postIds }) => {
             <>
               <div className={`${prefix}-body`}>
                 <SelectLanguageNotice />
+                {wizardSelectedCode ? (
                 <div className={`${prefix}-languages`}>
                   {(() => {
                     const defaultSlug = automl_wpml_bulk_translate_object.default_language_slug;
@@ -273,6 +275,16 @@ const App = ({ onDestory, prefix, postIds }) => {
                     });
                   })()}
                 </div>
+                ) : (
+                <div className={`${prefix}-wizard-language-notice`} style={{ padding: '12px 16px', marginTop: 8, background: '#f0f6fc', border: '1px solid #c3c4c7', borderRadius: 4 }}>
+                  <p style={{ margin: '0 0 8px', fontSize: 14 }}>
+                    {__('Please select a translation language first.', 'automl-ai-translation-for-wpml')}
+                  </p>
+                  <a href={wizardLanguagesUrl} style={{ fontSize: 14 }}>
+                    {__('Select language in Setup Wizard (Languages step)', 'automl-ai-translation-for-wpml')}
+                  </a>
+                </div>
+                )}
               </div>
               <div className={`${prefix}-footer`}>
                 <button

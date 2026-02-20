@@ -1,11 +1,12 @@
 import { __ } from '@wordpress/i18n';
 
-export default function SetupContinueButton({ onClick, label }) {
+export default function SetupContinueButton({ onClick, label, disabled }) {
 	return (
 		<button
 			type="button"
-			className="button button-primary"
+			className="button button-primary wpml-at-wizard-continue"
 			onClick={ onClick }
+			disabled={ disabled }
 			style={{ minWidth: 100 }}
 		>
 			{ label || __( 'Continue', 'automl-ai-translation-for-wpml' ) }

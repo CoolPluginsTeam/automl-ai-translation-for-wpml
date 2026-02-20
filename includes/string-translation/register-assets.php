@@ -55,8 +55,12 @@ class Register_Assets {
 			}
 			$default_language = WPML_AT_Helper::get_default_language();
 			$selected_lang_object = array();
-
-			$selected_lang_object[$selected_language['code']] = array('name' => $selected_language['name'], 'flag' => $selected_language['flag_url']);
+			if ( ! empty( $selected_language['code'] ) ) {
+				$selected_lang_object[ $selected_language['code'] ] = array(
+					'name' => isset( $selected_language['name'] ) ? $selected_language['name'] : '',
+					'flag' => isset( $selected_language['flag_url'] ) ? $selected_language['flag_url'] : '',
+				);
+			}
 			wp_localize_script(
 				'cp-wpml-auto-translate-admin',
 				'CP_WPML_AUTO_TRANSLATE',

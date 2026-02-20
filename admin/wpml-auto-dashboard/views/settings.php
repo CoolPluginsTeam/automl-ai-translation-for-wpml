@@ -6,6 +6,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 if ( ! current_user_can( 'manage_options' ) ) {
 	wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'automl-ai-translation-for-wpml' ) );
 }
+$automl_wpml_wizard_lang    = get_option( 'wpml_at_wizard_selected_language', array() );
+$automl_wpml_wizard_language_set = is_array( $automl_wpml_wizard_lang ) && ! empty( $automl_wpml_wizard_lang['code'] );
 ?>
 <div class="wpml-auto-dashboard-settings">
 	<div class="wpml-auto-dashboard-settings-container">
@@ -21,6 +23,21 @@ if ( ! current_user_can( 'manage_options' ) ) {
 			);
 			?>
 		</p>
+		<?php if ( ! $automl_wpml_wizard_language_set ) : ?>
+			<div class="notice notice-warning" style="margin: 1rem 0;">
+				<p>
+					<strong>
+						<?php esc_html_e( 'Please select a translation language first.', 'automl-ai-translation-for-wpml' ); ?>
+					</strong>
+					<?php esc_html_e( 'Complete the Setup Wizard and choose a language in the Languages step. Until then, API key settings are disabled.', 'automl-ai-translation-for-wpml' ); ?>
+				</p>
+				<p>
+					<a href="<?php echo esc_url( add_query_arg( array( 'page' => 'wpml_at_wizard&step=languages' ), admin_url( 'admin.php' ) ) ); ?>" class="button button-primary">
+						<?php esc_html_e( 'Open Setup Wizard', 'automl-ai-translation-for-wpml' ); ?>
+					</a>
+				</p>
+			</div>
+		<?php endif; ?>
 
 		<div class="wpml-auto-dashboard-api-settings-container">
 			<div class="wpml-auto-dashboard-api-settings">
@@ -158,6 +175,7 @@ if ( ! current_user_can( 'manage_options' ) ) {
                                 value="<?php echo isset( $automl_wpml_ai_credentials[ $automl_wpml_api_key ] ) ? esc_attr( $automl_wpml_ai_credentials[ $automl_wpml_api_key ] ) : ''; ?>"
                                 placeholder="<?php echo esc_attr( $automl_wpml_settings['placeholder'] ); ?>"
                                 autocomplete="new-password"
+								<?php echo $automl_wpml_wizard_language_set ? '' : ' disabled="disabled"'; ?>
                             />
 							</div>
 
@@ -174,6 +192,7 @@ if ( ! current_user_can( 'manage_options' ) ) {
 										id="wpml_selected_openai_model"
 										name="wpml_at_ai_translation_models[openai]"
 										class="wpml-openai-model-select"
+										<?php echo $automl_wpml_wizard_language_set ? '' : ' disabled="disabled"'; ?>
 									>
 										<option value=""><?php esc_html_e( 'Select model...', 'automl-ai-translation-for-wpml' ); ?></option>
 										<?php foreach ( $automl_wpml_openai_models as $automl_wpml_model_id ) : ?>
@@ -196,6 +215,7 @@ if ( ! current_user_can( 'manage_options' ) ) {
 										id="wpml_selected_google_model"
 										name="wpml_at_ai_translation_models[google]"
 										class="wpml-google-model-select"
+										<?php echo $automl_wpml_wizard_language_set ? '' : ' disabled="disabled"'; ?>
 									>
 										<option value=""><?php esc_html_e( 'Select model...', 'automl-ai-translation-for-wpml' ); ?></option>
 										<?php foreach ( $automl_wpml_google_models as $automl_wpml_model_id ) : ?>
@@ -221,7 +241,7 @@ if ( ! current_user_can( 'manage_options' ) ) {
 						<hr style="margin: 2rem 0px;">
 
 						<div class="wpml-auto-dashboard-save-btn-container">
-							<?php submit_button( __( 'Save (via WP AI Client & WPML Addon)', 'automl-ai-translation-for-wpml' ) ); ?>
+						<?php submit_button( __( 'Save (via WP AI Client & WPML Addon)', 'automl-ai-translation-for-wpml' ), 'primary', 'submit', true, $automl_wpml_wizard_language_set ? array() : array( 'disabled' => 'disabled' ) ); ?>
 						</div>
 					</div><!-- .wpml-auto-dashboard-api-settings-form -->
 				</form>

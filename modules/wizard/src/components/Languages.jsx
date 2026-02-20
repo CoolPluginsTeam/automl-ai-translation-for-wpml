@@ -52,13 +52,13 @@ const Languages = ({ onBack, onContinue }) => {
 				<p className="wpml-at-wizard-intro" style={{ marginBottom: 16 }}>
 					{ __( 'Which languages do you want to translate your site into?', 'automl-ai-translation-for-wpml' ) }
 				</p>
-				<p className="wpml-at-wizard-intro" style={{ marginBottom: 16 }}>
-					{ __( 'Select a language from the list below. Only languages you have added in WPML are shown.', 'automl-ai-translation-for-wpml' ) }
-				</p>
 
 				<label htmlFor="wpml-at-wizard-language-select" style={{ display: 'block', marginBottom: 8, fontWeight: 500 }}>
 					{ __( 'Choose a language', 'automl-ai-translation-for-wpml' ) }
 				</label>
+				<p className="wpml-at-wizard-intro" style={{ marginBottom: 8, fontSize: 13, color: '#6b7280' }}>
+					{ __( 'Please select a language first. This is required to use AI translation and Settings.', 'automl-ai-translation-for-wpml' ) }
+				</p>
 				<select
 					id="wpml-at-wizard-language-select"
 					value={ selectedCode }
@@ -90,9 +90,13 @@ const Languages = ({ onBack, onContinue }) => {
 					</p>
 				) }
 			</div>
-			<div className="wpml-at-wizard-footer" style={{ display: 'flex', justifyContent: 'space-between', marginTop: 24 }}>
+            <div className="wpml-at-wizard-footer" style={{ display: 'flex', justifyContent: 'space-between', marginTop: 24 }}>
 				<SetupBackButton onClick={ onBack } />
-				<SetupContinueButton onClick={ handleContinue } label={ __( 'Continue', 'automl-ai-translation-for-wpml' ) } />
+				<SetupContinueButton
+					onClick={ handleContinue }
+					label={ __( 'Continue', 'automl-ai-translation-for-wpml' ) }
+					disabled={ ! selectedCode }
+				/>
 			</div>
 		</div>
 	);
