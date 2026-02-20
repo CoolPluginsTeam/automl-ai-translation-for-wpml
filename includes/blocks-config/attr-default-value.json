@@ -122,5 +122,37 @@
             "toolsTitle": "Required Tools:",
             "timeIn": " Minutes"
         }
+    },
+    "stackable/table-of-contents": {
+        "attributes": {
+            "heading": "Table of Contents",
+            "description": "Table of Contents",
+            "items": [
+                {
+                    "label": "Item 1",
+                    "url": "#item-1"
+                }
+            ]
+        }
+    },
+    "stackable/posts": {
+        "attributes": {
+            "readmoreText": "!#readmoreText!#"
+        }
+    },
+    "stackable/progress-bar":{
+        "attributes": {
+            "text": "Design"
+        }
+    },
+    "themeisle-blocks/circle-counter": {
+        "attributes": {
+            "title": "Skill"
+        }
+    },
+    "themeisle-blocks/progress-bar": {
+        "attributes": {
+            "title": "Skill"
+        }
     }
 }
