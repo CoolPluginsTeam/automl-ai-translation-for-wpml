@@ -335,6 +335,11 @@ class Get_Package_Content {
 	}
 
 	private function set_content_strings(&$append_data, $field_key, $field_name, $text, $html, $type, $format,$translate=0 ) {
+
+		if(strpos($text, '!#readmoreText!#') !== false || strpos($html, 'class="wp-block-themeisle-blocks-countdown"') !== false) {
+			return;
+		}
+
 		if($this->is_bulk_translation()) {
 			if($translate == 1) {
 				$this->set_content_data($append_data, 'html', $html);
