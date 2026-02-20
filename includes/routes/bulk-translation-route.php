@@ -429,33 +429,6 @@ if ( ! class_exists( 'Bulk_Translation_Route' ) ) :
 					continue;
 				}
 
-				$source_lang          = WPML_AT_Helper::get_post_source_language( $post_id, get_post_type( $post_id ) );
-				$get_package_content  = new Get_Package_Content( $post_id, $source_lang );
-				$translatable_strings = $get_package_content->get_translatable_strings();
-
-				if ( ! isset( $automl_wpml_content_translation['posts'] ) ) {
-					$automl_wpml_content_translation['posts']                    = array();
-					$automl_wpml_content_translation['CreateTranslatePostNonce'] = wp_create_nonce( 'automl_wpml_create_translate_post_nonce' );
-				}
-
-				$editor_type = has_blocks( $post_data->post_content ) ? 'block' : 'classic';
-
-				$automl_wpml_content_translation['posts'][ $post_id ] = array(
-					'sourceLanguage' => $source_lang,
-					'title'          => $post_data->post_title,
-					'post_link'      => html_entity_decode( get_edit_post_link( $post_id ) ),
-				);
-
-				$automl_wpml_content_translation['posts'][ $post_id ]['editor_type'] = $this->get_editor_type( $post_id, $editor_type );
-
-				if ( isset( $translatable_strings['contents'] ) && ! empty( $translatable_strings['contents'] ) ) {
-					$automl_wpml_content_translation['posts'][ $post_id ]['content'] = $translatable_strings['contents'];
-				}
-
-				if ( isset( $translatable_strings['title'] ) && ! empty( $translatable_strings['title'] ) ) {
-					$automl_wpml_content_translation['posts'][ $post_id ]['title'] = $translatable_strings['title'];
-				}
-
 				$automl_wpml_post_element_type = apply_filters( 'wpml_element_type', get_post_type( $post_id ) );
 
 				// Get the translation group ID (trid) of the post
@@ -468,8 +441,40 @@ if ( ! class_exists( 'Bulk_Translation_Route' ) ) :
 
 				$untranslated_languages = array_diff( $valid_target_languages, $automl_wpml_post_translated_languages );
 
+				if ( ! isset( $automl_wpml_content_translation['posts'] ) ) {
+					$automl_wpml_content_translation['posts'] = array();
+				}
+
 				if ( count( $untranslated_languages ) > 0 ) {
 					$automl_wpml_content_translation['posts'][ $post_id ]['languages'] = array_values($untranslated_languages);
+				}
+
+				if(!isset($automl_wpml_content_translation['posts'][ $post_id ]['languages']) || empty($automl_wpml_content_translation['posts'][ $post_id ]['languages'])) {
+					continue;
+				}
+
+				if(!isset($automl_wpml_content_translation['CreateTranslatePostNonce'])) {
+				$automl_wpml_content_translation['CreateTranslatePostNonce'] = wp_create_nonce( 'automl_wpml_create_translate_post_nonce' );
+				}
+
+				$source_lang          = WPML_AT_Helper::get_post_source_language( $post_id, get_post_type( $post_id ) );
+				$get_package_content  = new Get_Package_Content( $post_id, $source_lang );
+				$translatable_strings = $get_package_content->get_translatable_strings();
+
+				$editor_type = has_blocks( $post_data->post_content ) ? 'block' : 'classic';
+
+				$automl_wpml_content_translation['posts'][ $post_id ]['sourceLanguage'] = $source_lang;
+				$automl_wpml_content_translation['posts'][ $post_id ]['title']          = $post_data->post_title;
+				$automl_wpml_content_translation['posts'][ $post_id ]['post_link']      = html_entity_decode( get_edit_post_link( $post_id ) );
+
+				$automl_wpml_content_translation['posts'][ $post_id ]['editor_type'] = $this->get_editor_type( $post_id, $editor_type );
+
+				if ( isset( $translatable_strings['contents'] ) && ! empty( $translatable_strings['contents'] ) ) {
+					$automl_wpml_content_translation['posts'][ $post_id ]['content'] = $translatable_strings['contents'];
+				}
+
+				if ( isset( $translatable_strings['title'] ) && ! empty( $translatable_strings['title'] ) ) {
+					$automl_wpml_content_translation['posts'][ $post_id ]['title'] = $translatable_strings['title'];
 				}
 			}
 
@@ -529,6 +534,7 @@ if ( ! class_exists( 'Bulk_Translation_Route' ) ) :
 			$post_title     = html_entity_decode( get_the_title( $translated_post_id ) );
 			$post_edit_link = html_entity_decode( get_edit_post_link( $translated_post_id ) );
 				
+			// wp_delete_post($translated_post_id, true);
 			wp_send_json_success(
 				array(
 					'post_id'                     => $translated_post_id,
