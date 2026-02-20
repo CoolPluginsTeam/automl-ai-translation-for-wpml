@@ -1,0 +1,9 @@
+{
+    "stackable/progress-bar": true,
+    "themeisle-blocks/circle-counter": true,
+    "themeisle-blocks/form-input": true,
+    "themeisle-blocks/form-textarea": true,
+    "themeisle-blocks/form-email": true,
+    "themeisle-blocks/icon-list-item": true,
+    "themeisle-blocks/progress-bar": true
+}

@@ -19,6 +19,7 @@ use WPML\PB\Gutenberg\StringsInBlock\Attributes as StringsInBlockAttributes;
 use AUTOML_WPML\Includes\Wpml\Builder\Content_Update_Base;
 use AUTOML_WPML\Includes\Wpml\Builder\Gutenberg\Update_Block_Config;
 use WP_Block_Type_Registry;
+use WP_HTML_Tag_Processor;
 
 use function WPML\Container\make;
 /**
@@ -123,6 +124,57 @@ class Gutenberg_Update extends Content_Update_Base {
         }
     }
 
+    function get_all_attr_matches( $html, $attr_name ) {
+
+        $results = [];
+    
+        if ( empty( $html ) || empty( $attr_name ) ) {
+            return $results;
+        }
+    
+        // Regex:  attr="value"  OR  attr='value'
+        $pattern = '/\b(' . preg_quote($attr_name, '/') . ')\s*=\s*("|\')(.*?)\2/i';
+    
+        if ( preg_match_all( $pattern, $html, $matches, PREG_SET_ORDER ) ) {
+            foreach ( $matches as $match ) {
+                $results[] = [$match[1],$match[3]];
+            }
+        }
+    
+        return $results;
+    }
+
+    private function decode_aria_label_entities_only( &$block, $custom_blocks_config) {
+        $xpath = isset($custom_blocks_config[$block['blockName']]->xpath) ? $custom_blocks_config[$block['blockName']]->xpath : [];
+
+        if(!isset($block['innerContent']) && empty($block['innerContent'])) return;
+
+        foreach($xpath as $xpath_item){
+            $xpath_item = (array) $xpath_item;
+            if(isset($xpath_item['value'])){
+                $target_attr=explode('/@', $xpath_item['value'])[1];
+
+                foreach($block['innerContent'] as &$inner_content){
+                    $attr_matches=$this->get_all_attr_matches($inner_content, $target_attr);
+                    foreach($attr_matches as $attr_data){
+                        $attr_name=$attr_data[0];
+                        $attr_value=$attr_data[1];
+
+                        if(!isset($this->translate_strings[md5($block['b/lockName'].$attr_value)])){
+                            $decoded_attr_value=html_entity_decode($attr_value);
+                            $inner_content=str_replace($attr_name.'="'.$attr_value.'"', $attr_name.'="'.$decoded_attr_value.'"', $inner_content);
+                        }
+                        
+                    }
+                }
+
+                $block['innerHTML']=implode('', $block['innerContent']);
+            }
+        }
+
+        return $block;
+    }
+
     protected function update_builder_translation(): void {
         if(!$this->gutenberg_builder_factory instanceof WPML_Gutenberg_Integration){
             wp_send_json_error( 'Gutenberg builder factory not found.' );
@@ -156,7 +208,24 @@ class Gutenberg_Update extends Content_Update_Base {
 
         $updated_content=$this->gutenberg_builder_factory->replace_strings_in_blocks($source_content, $this->translate_strings, $this->target_language);
 
+        $updated_content=$this->decode_tags_attributes_in_blocks(parse_blocks($updated_content), $custom_blocks_config);
 
+        $updated_content=serialize_blocks($updated_content);
+        
         wpml_update_escaped_post( [ 'ID' => $this->translated_post_id, 'post_content' => $updated_content ], $this->target_language );
+    }
+
+    private function decode_tags_attributes_in_blocks(&$blocks, $custom_blocks_config) {
+        foreach($blocks as &$block){
+            if(isset($block['blockName']) && isset($custom_blocks_config[$block['blockName']]) && isset($custom_blocks_config[$block['blockName']]->xpath)){
+                $this->decode_aria_label_entities_only($block, $custom_blocks_config);
+            }
+
+            if(isset($block['innerBlocks']) && !empty($block['innerBlocks'])){
+                $this->decode_tags_attributes_in_blocks($block['innerBlocks'], $custom_blocks_config);
+            }
+        }
+
+        return $blocks;
     }
 }

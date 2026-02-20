@@ -608,6 +608,11 @@
             "text": true
         }
     },
+    "themeisle-blocks/icon-list-item":{
+        "attributes": {
+            "content": true
+        }
+    },
     "themeisle-blocks/tabs-item": {
         "attributes": {
             "title": true
@@ -776,12 +781,19 @@
     "stackable/progress-bar": {
         "attributes": {
             "text": true
-        }
+        },
+        "xpath": ["//*[contains(@class,'stk-progress-bar__text')]",{"value": "//*[contains(@class,'stk-progress-bar')]/@aria-label", "label": "Aria Label"},{"value": "//*[contains(@class,'stk-progress-bar')]/@aria-valuetext", "label": "Aria Value Text"}]
     },
     "stackable/table-of-contents": {
         "attributes": {
             "titleText": true,
-            "text": true
+            "text": true,
+            "headings": [
+                {
+                    "content": true,
+                    "customContent": true
+                }
+            ]
         }
     },
     "stackable/timeline": {

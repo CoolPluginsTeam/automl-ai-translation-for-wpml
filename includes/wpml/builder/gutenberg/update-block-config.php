@@ -19,6 +19,11 @@ class Update_Block_Config {
     private $custom_blocks_config = null;
 
     /**
+     * @var Object Array of block default support child block
+     */
+    private $block_default_support_child_block = null;
+
+    /**
      * @var Object Array of update block config
      */
     private $update_block_config = null;
@@ -45,10 +50,15 @@ class Update_Block_Config {
     }
 
     public function update_gutenberg_config( $config, $option_name ) {
+
         if($this->is_content_update() && !isset($this->update_block_config)){
 
             if(!isset($this->custom_blocks_config) || empty($this->custom_blocks_config)){
                 $this->custom_blocks_config = $this->get_block_parse_rules();
+            }
+
+            if(!isset($this->block_default_support_child_block) || empty($this->block_default_support_child_block)){
+                $this->block_default_support_child_block = $this->get_block_default_support_child_block();
             }
     
             if(!empty($this->custom_blocks_config)){
@@ -100,6 +110,41 @@ class Update_Block_Config {
         return $block_translation_rules;
     }
 
+    private function get_block_default_support_child_block(): array
+    {
+        $response = wp_remote_get( esc_url_raw( WPML_AT_PLUGIN_URL . 'includes/blocks-config/default-support-child-block.json' ), array(
+            'timeout' => 15,
+        ) );
+        
+        if ( is_wp_error( $response ) || 200 !== (int) wp_remote_retrieve_response_code( $response ) ) {
+            global $wp_filesystem;
+
+            // Initialize the WordPress filesystem
+            if ( ! function_exists( 'WP_Filesystem' ) ) {
+                require_once ABSPATH . 'wp-admin/includes/file.php';
+            }
+
+            WP_Filesystem();
+
+            $local_path = WPML_AT_PLUGIN_DIR . 'includes/blocks-config/default-support-child-block.json';
+            if($wp_filesystem->exists($local_path) && $wp_filesystem->is_readable( $local_path )){
+                $block_default_support_child_block = $wp_filesystem->get_contents( $local_path );
+            }else{
+                $block_default_support_child_block = array();
+            }
+        } else {
+            $block_default_support_child_block = wp_remote_retrieve_body( $response );
+        }
+
+        if(empty($block_default_support_child_block)){
+            return array();
+        }
+
+        $block_default_support_child_block = json_decode($block_default_support_child_block, true);
+
+        return $block_default_support_child_block;
+    }
+
     private function get_block_default_attributes_value(): array
     {
         $response = wp_remote_get( esc_url_raw( WPML_AT_PLUGIN_URL . 'includes/blocks-config/attr-default-value.json' ), array(
@@ -136,75 +181,90 @@ class Update_Block_Config {
     }
 
     private function set_custom_block_config( array &$config, $custom_block_config ): void {
-
         if ( empty( $custom_block_config ) ) {
             return;
         }
+
+        $custom_block_config = (array) $custom_block_config;
     
-        foreach ( (array) $custom_block_config as $block_name => $block_config ) {
+        foreach ( $custom_block_config as $block_name => $block_config ) {
     
             // Skip if block not present in base config
             if ( ! isset( $config[ $block_name ] ) ) {
-                $this->set_block_config_attributes($config, $block_name, (array) $block_config->attributes);
+                if(isset($this->block_default_support_child_block[$block_name])){
+                    if(true === $this->block_default_support_child_block[$block_name]){
+                        $this->set_block_custom_config($config, $block_name, (array) $block_config);
+                    }else if($this->block_default_support_child_block[$block_name]['parent'] && isset($config[$this->block_default_support_child_block[$block_name]['parent']])){
+                        $this->set_block_custom_config($config, $block_name, (array) $block_config);
+                    }
+                }
                 continue;
             }
     
-            // Ensure attributes exist
-            if ( empty( $block_config->attributes ) ) {
-                continue;
-            }
-    
-            $this->set_block_config_attributes(
+            $this->set_block_custom_config(
                 $config,
                 $block_name,
-                (array) $block_config->attributes
+                (array) $block_config
             );
         }
     }
     
-    private function set_block_config_attributes( array &$config, string $block_name, array $attributes ): void {
-        // Ensure base keys exist
-        if ( ! isset( $config[ $block_name ]['key'] ) ) {
-            $config[ $block_name ]['key'] = [];
+    private function set_block_custom_config( array &$config, string $block_name, array $block_config ): void {
+
+        $attributes = isset($block_config['attributes']) ? (array) $block_config['attributes'] : [];
+        $xpath = isset($block_config['xpath']) ? json_decode(json_encode($block_config['xpath']), true) : [];
+
+        if($xpath && !empty($xpath)){
+            if(!isset($config[ $block_name ]['xpath'])) $config[ $block_name ]['xpath'] = [];
+
+            foreach($xpath as $xpath_item){
+                $config[ $block_name ]['xpath'][] = $xpath_item;
+            }
         }
 
+        if($attributes && !empty($attributes)){
+            // Ensure base keys exist
+            if ( ! isset( $config[ $block_name ]['key'] ) ) {
+                $config[ $block_name ]['key'] = [];
+            }
 
-        foreach ( $attributes as $attr_key => $attr_value ) {
-    
-            // Skip if attribute already exists
-            if ( isset( $config[ $block_name ]['key'][ $attr_key ] ) ) {
-                continue;
-            }
-    
-            /**
-             * CASE 1 — SIMPLE ATTRIBUTE (true)
-             */
-            if ( $attr_value === true ) {
-                $config[ $block_name ]['key'][ $attr_key ] = [];
-                continue;
-            }
-    
-            /**
-             * CASE 2 — OBJECT ATTRIBUTE
-             */
-            if ( is_object( $attr_value ) ) {
-                $this->parse_object_children( $config[ $block_name ]['key'][ $attr_key ], $attr_value );
-                continue;
-            }
-    
-            /**
-             * CASE 3 — ARRAY ATTRIBUTE
-             */
-            if ( is_array( $attr_value ) ) {
-                if(!isset($config[ $block_name ]['key'][ $attr_key ])){
-                    $config[ $block_name ]['key'][ $attr_key ] = ['*' => ['children' => []]];
+            foreach ( $attributes as $attr_key => $attr_value ) {
+                // Skip if attribute already exists
+                if ( isset( $config[ $block_name ]['key'][ $attr_key ] ) ) {
+                    continue;
                 }
-                    
-                if(!isset($config[ $block_name ]['key'][ $attr_key ]['*'])) $config[ $block_name ]['key'][ $attr_key ]['*'] = ['children' => []];
-
-                $this->parse_array_children( $config[ $block_name ]['key'][ $attr_key ]['*']['children'], $attr_value[0] );
+        
+                /**
+                 * CASE 1 — SIMPLE ATTRIBUTE (true)
+                 */
+                if ( $attr_value === true ) {
+                    $config[ $block_name ]['key'][ $attr_key ] = [];
+                    continue;
+                }
+        
+                /**
+                 * CASE 2 — OBJECT ATTRIBUTE
+                 */
+                if ( is_object( $attr_value ) ) {
+                    $this->parse_object_children( $config[ $block_name ]['key'][ $attr_key ], $attr_value );
+                    continue;
+                }
+        
+                /**
+                 * CASE 3 — ARRAY ATTRIBUTE
+                 */
+                if ( is_array( $attr_value ) ) {
+                    if(!isset($config[ $block_name ]['key'][ $attr_key ])){
+                        $config[ $block_name ]['key'][ $attr_key ] = ['*' => ['children' => []]];
+                    }
+                        
+                    if(!isset($config[ $block_name ]['key'][ $attr_key ]['*'])) $config[ $block_name ]['key'][ $attr_key ]['*'] = ['children' => []];
+    
+                    $this->parse_array_children( $config[ $block_name ]['key'][ $attr_key ]['*']['children'], $attr_value[0] );
+                }
             }
         }
+
     }
 
     private function parse_object_children( &$reference, $object ): void {    
@@ -258,7 +318,7 @@ class Update_Block_Config {
 
     public function get_custom_blocks_config() {
 
-        if(!isset($this->custom_blocks_config) || empty($this->custom_blocks_config)){
+        if(!isset($this->custom_blocks_config) || empty($this->custom_blocks_config) ){
             $this->custom_blocks_config = $this->get_block_parse_rules();
         }
 
@@ -296,10 +356,16 @@ class Update_Block_Config {
                 $this->block_default_attributes_value = $this->fetch_block_default_attributes();
             }
 
-            if(isset($this->block_default_attributes_value[$block['blockName']]['attributes'])){
-                $automl_block_default_attrs = $this->block_default_attributes_value[$block['blockName']]['attributes'];
+            if(isset($custom_config[$block['blockName']]->attributes)){
+                $automl_block_default_attrs = $custom_config[$block['blockName']]->attributes;
 
                 foreach($automl_block_default_attrs as $attr_key => $attr_value){
+                    $attr_value = isset($this->block_default_attributes_value[$block['blockName']]['attributes'][$attr_key]) ? $this->block_default_attributes_value[$block['blockName']]['attributes'][$attr_key] : (isset($block_attrs[$attr_key]) ? $block_attrs[$attr_key] : null);
+
+                    if(is_null($attr_value)){
+                        continue;
+                    }
+
                     if(isset($attr_value) && !empty($attr_value)){
                         if(is_string($attr_value)){
                             if(isset($block_attrs[$attr_key])){
