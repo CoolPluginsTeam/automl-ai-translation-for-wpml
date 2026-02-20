@@ -163,6 +163,7 @@ final class WPML_Auto_Translate_Addon {
 			'includes/routes/bulk-translation-route.php',
 			'admin/class-wpml-auto-dashboard.php',
 			'admin/cpt_dashboard/cpt_dashboard.php',
+			'modules/wizard/load.php',
 		);
 
 		foreach ( $files as $file ) {
@@ -240,6 +241,8 @@ final class WPML_Auto_Translate_Addon {
 function wpml_auto_translate_addon() {
 	return WPML_Auto_Translate_Addon::get_instance();
 }
+
+register_activation_hook( __FILE__, array( \AUTOML_WPML\Modules\Wizard\WPML_AT_Wizard::class, 'start_wizard' ) );
 
 // Start the plugin.
 wpml_auto_translate_addon();

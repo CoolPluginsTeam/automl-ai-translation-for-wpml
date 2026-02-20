@@ -46,8 +46,10 @@ const App = ({
 }) => {
   const dispatch = (0,react_redux__WEBPACK_IMPORTED_MODULE_3__.useDispatch)();
   const {
-    languageObject = {}
+    languageObject = {},
+    selected_language_object = {}
   } = automl_wpml_bulk_translate_object || {};
+  const wizardSelectedCode = Object.keys(selected_language_object)[0] || '';
   const emptyPostIdsErrorMessage = (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.sprintf)((0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Please select at least one %s for translation.", "automl-ai-translation-for-wpml"), automl_wpml_bulk_translate_object.post_label);
   const [selectedLanguages, setSelectedLanguages] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)([]);
   // Don't show error for string translation page even if postIds is empty
@@ -183,43 +185,42 @@ const App = ({
           className: `${prefix}-body`,
           children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_11__.jsx)(SelectLanguageNotice, {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_11__.jsx)("div", {
             className: `${prefix}-languages`,
-            children: Object.keys(languageObject).map(language => {
-              return automl_wpml_bulk_translate_object.default_language_slug && automl_wpml_bulk_translate_object.default_language_slug === language ? null : /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_11__.jsx)("div", {
-                className: `${prefix}-language`,
-                children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_11__.jsxs)("div", {
-                  title: !postIds.length && !isStringTranslationPage ? emptyPostIdsErrorMessage : languageObject[language].name,
-                  children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_11__.jsx)("input", {
-                    type: "checkbox",
-                    name: "languages",
-                    id: language,
-                    value: language,
-                    onChange: e => handleLanguageChange(e),
-                    disabled: !postIds.length && !isStringTranslationPage,
-                    checked: selectedLanguages.includes(language)
-                  }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_11__.jsxs)("label", {
-                    htmlFor: language,
-                    className: `${prefix}-language-label`,
-                    title: languageObject[language].name,
-                    children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_11__.jsx)("img", {
-                      src: languageObject[language].flag,
-                      alt: languageObject[language].name
-                    }), "\xA0 ", languageObject[language].name]
+            children: (() => {
+              const defaultSlug = automl_wpml_bulk_translate_object.default_language_slug;
+              const allCodes = Object.keys(languageObject).filter(lang => !defaultSlug || defaultSlug !== lang);
+              const selectedFirst = wizardSelectedCode && allCodes.includes(wizardSelectedCode) ? [wizardSelectedCode, ...allCodes.filter(l => l !== wizardSelectedCode)] : allCodes;
+              return selectedFirst.map((language, index) => {
+                if (!languageObject[language]) return null;
+                const showHr = wizardSelectedCode && index === 1;
+                return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_11__.jsxs)((react__WEBPACK_IMPORTED_MODULE_0___default().Fragment), {
+                  children: [showHr && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_11__.jsx)("hr", {
+                    className: `${prefix}-languages-divider`
+                  }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_11__.jsx)("div", {
+                    className: `${prefix}-language`,
+                    children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_11__.jsxs)("div", {
+                      title: !postIds.length && !isStringTranslationPage ? emptyPostIdsErrorMessage : languageObject[language].name,
+                      children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_11__.jsx)("input", {
+                        type: "checkbox",
+                        name: "languages",
+                        id: language,
+                        value: language,
+                        onChange: e => handleLanguageChange(e),
+                        disabled: !postIds.length && !isStringTranslationPage || wizardSelectedCode && language !== wizardSelectedCode,
+                        checked: selectedLanguages.includes(language)
+                      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_11__.jsxs)("label", {
+                        htmlFor: language,
+                        className: `${prefix}-language-label`,
+                        title: languageObject[language].name,
+                        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_11__.jsx)("img", {
+                          src: languageObject[language].flag,
+                          alt: languageObject[language].name
+                        }), "\xA0 ", languageObject[language].name]
+                      })]
+                    })
                   })]
-                })
-              }, language);
-            })
-          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_11__.jsxs)("div", {
-            className: `${prefix}-select-all-languages`,
-            children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_11__.jsx)("input", {
-              type: "checkbox",
-              name: "select-all-languages",
-              id: "select-all-languages",
-              onChange: e => handleSelectAllLanguages(e),
-              checked: selectedLanguages.length === Object.keys(targetLanguages).length
-            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_11__.jsx)("label", {
-              htmlFor: "select-all-languages",
-              children: selectedLanguages.length === Object.keys(targetLanguages).length ? (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Unselect All", "automl-ai-translation-for-wpml") : (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Select All", "automl-ai-translation-for-wpml")
-            })]
+                }, language);
+              });
+            })()
           })]
         }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_11__.jsxs)("div", {
           className: `${prefix}-footer`,

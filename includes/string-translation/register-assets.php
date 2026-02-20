@@ -47,20 +47,23 @@ class Register_Assets {
 			}
 			}
 
+			$selected_language = get_option( 'wpml_at_wizard_selected_language', array() );
 			$languages = WPML_AT_Helper::get_wpml_languages();
-			$default_language = WPML_AT_Helper::get_default_language();
 			$lang_object = array();
-
 			foreach ($languages as $lang) {
 				$lang_object[$lang['code']] = array('name' => $lang['name'], 'flag' => $lang['flag_url']);
 			}
+			$default_language = WPML_AT_Helper::get_default_language();
+			$selected_lang_object = array();
+
+			$selected_lang_object[$selected_language['code']] = array('name' => $selected_language['name'], 'flag' => $selected_language['flag_url']);
 			wp_localize_script(
 				'cp-wpml-auto-translate-admin',
 				'CP_WPML_AUTO_TRANSLATE',
 				array(
 					'ajax'      => esc_url(admin_url('admin-ajax.php')),
 					'nonce'     => wp_create_nonce('cp_wpml_auto_translate_nonce'),
-					'languages' => $languages,
+					'languages' => $selected_language,
 					'admin_url' => esc_url(admin_url()),
 					'i18n'      => array(
 						'errorPageId'      => esc_html__('Could not detect page ID for this row.', 'automl-ai-translation-for-wpml'),
@@ -102,6 +105,7 @@ class Register_Assets {
 					array(
 						'taxonomy_page'          => '',
 						'languageObject'         => $lang_object,
+						'selected_language_object' => $selected_lang_object,
 						'ajax'                   => esc_url( admin_url( 'admin-ajax.php' ) ),
 						'nonce'                  => wp_create_nonce( 'cp_wpml_auto_translate_nonce' ),
 						'default_language_slug'  => $default_language,

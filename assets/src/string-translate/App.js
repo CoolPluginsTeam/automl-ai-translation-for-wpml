@@ -15,7 +15,8 @@ import Notice from "./components/notice";
 
 const App = ({ onDestory, prefix, postIds }) => {
   const dispatch = useDispatch();
-  const { languageObject = {} } = automl_wpml_bulk_translate_object || {};
+  const { languageObject = {}, selected_language_object = {} } = automl_wpml_bulk_translate_object || {};
+  const wizardSelectedCode = Object.keys(selected_language_object)[0] || '';
   const emptyPostIdsErrorMessage = sprintf(
     __(
       "Please select at least one %s for translation.",
@@ -218,62 +219,59 @@ const App = ({ onDestory, prefix, postIds }) => {
               <div className={`${prefix}-body`}>
                 <SelectLanguageNotice />
                 <div className={`${prefix}-languages`}>
-                  {Object.keys(languageObject).map((language) => {
-                    return automl_wpml_bulk_translate_object.default_language_slug &&
-                      automl_wpml_bulk_translate_object.default_language_slug ===
-                        language ? null : (
-                      <div key={language} className={`${prefix}-language`}>
-                        <div
-                          title={
-                            !postIds.length && !isStringTranslationPage
-                              ? emptyPostIdsErrorMessage
-                              : languageObject[language].name
-                          }
-                        >
-                          <input
-                            type="checkbox"
-                            name="languages"
-                            id={language}
-                            value={language}
-                            onChange={(e) => handleLanguageChange(e)}
-                            disabled={
-                              !postIds.length && !isStringTranslationPage
-                            }
-                            checked={selectedLanguages.includes(language)}
-                          />
-                          <label
-                            htmlFor={language}
-                            className={`${prefix}-language-label`}
-                            title={languageObject[language].name}
-                          >
-                            <img
-                              src={languageObject[language].flag}
-                              alt={languageObject[language].name}
-                            />
-                            &nbsp; {languageObject[language].name}
-                          </label>
-                        </div>
-                      </div>
+                  {(() => {
+                    const defaultSlug = automl_wpml_bulk_translate_object.default_language_slug;
+                    const allCodes = Object.keys(languageObject).filter(
+                      (lang) => !defaultSlug || defaultSlug !== lang
                     );
-                  })}
-                </div>
-                <div className={`${prefix}-select-all-languages`}>
-                  <input
-                    type="checkbox"
-                    name="select-all-languages"
-                    id="select-all-languages"
-                    onChange={(e) => handleSelectAllLanguages(e)}
-                    checked={
-                      selectedLanguages.length ===
-                      Object.keys(targetLanguages).length
-                    }
-                  />
-                  <label htmlFor="select-all-languages">
-                    {selectedLanguages.length ===
-                    Object.keys(targetLanguages).length
-                      ? __("Unselect All", "automl-ai-translation-for-wpml")
-                      : __("Select All", "automl-ai-translation-for-wpml")}
-                  </label>
+                    const selectedFirst = wizardSelectedCode && allCodes.includes(wizardSelectedCode)
+                      ? [wizardSelectedCode, ...allCodes.filter((l) => l !== wizardSelectedCode)]
+                      : allCodes;
+                    return selectedFirst.map((language, index) => {
+                      if (!languageObject[language]) return null;
+                      const showHr = wizardSelectedCode && index === 1;
+                      return (
+                        <React.Fragment key={language}>
+                          {showHr && (
+                            <hr className={`${prefix}-languages-divider`} />
+                          )}
+                          <div className={`${prefix}-language`}>
+                            <div
+                              title={
+                                !postIds.length && !isStringTranslationPage
+                                  ? emptyPostIdsErrorMessage
+                                  : languageObject[language].name
+                              }
+                            >
+                              <input
+                                type="checkbox"
+                                name="languages"
+                                id={language}
+                                value={language}
+                                onChange={(e) => handleLanguageChange(e)}
+                                disabled={
+                                  (!postIds.length && !isStringTranslationPage) ||
+                                  (wizardSelectedCode && language !== wizardSelectedCode)
+                                }
+                                checked={selectedLanguages.includes(language)}
+                              />
+                              <label
+                                htmlFor={language}
+                                className={`${prefix}-language-label`}
+                                title={languageObject[language].name}
+                              >
+                                <img
+                                  src={languageObject[language].flag}
+                                  alt={languageObject[language].name}
+                                />
+                                &nbsp; {languageObject[language].name}
+                              </label>
+                            </div>
+                          </div>
+                        </React.Fragment>
+                      );
+                    });
+                  })()}
                 </div>
               </div>
               <div className={`${prefix}-footer`}>

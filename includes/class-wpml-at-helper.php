@@ -155,5 +155,20 @@ class WPML_AT_Helper {
 
 		return 0;
 	}
+
+		/**
+	 * Get the single target language code allowed by the setup wizard, if any.
+	 * When the wizard has been completed with a language selection, only that language
+	 * is allowed for string/bulk translation; backend must reject other languages.
+	 *
+	 * @return string|null Language code (e.g. 'fr') or null if wizard has not restricted language.
+	 */
+	public static function get_wizard_allowed_language_code() {
+		$option = get_option( 'wpml_at_wizard_selected_language', array() );
+		if ( ! is_array( $option ) || empty( $option['code'] ) ) {
+			return null;
+		}
+		return sanitize_text_field( $option['code'] );
+	}
 }
 
