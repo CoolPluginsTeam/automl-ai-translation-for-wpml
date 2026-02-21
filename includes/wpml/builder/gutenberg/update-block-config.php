@@ -380,18 +380,19 @@ class Update_Block_Config {
                             $string_exists=false;
                             
                             foreach($translated_strings_texts as $translated_string_text){
-                                if(strpos($translated_string_text, $attr_value) !== false){
+                                $trimmed_value=preg_replace('/\s+/', '', $attr_value);
+                                if(strpos($translated_string_text, $trimmed_value) !== false || strpos($translated_string_text, $attr_value) !== false){
                                     $string_exists=true;
                                     break;
                                 }
                             }
-
+                            
                             if(!$string_exists){
                                 continue;
                             }
-
+                            
                             $string_id=md5($block['blockName'].$attr_value);
-
+    
                             if(!isset($translation_package[$string_id])){
                                 $attr_translations[$string_id] = array();
                                 $this->update_package_strings($attr_translations[$string_id], wp_kses_post($attr_value), $string_id, null, wp_kses_post($attr_value), 'content', 'base64', 1);
@@ -407,7 +408,8 @@ class Update_Block_Config {
                                         $string_exists=false;
                             
                                         foreach($translated_strings_texts as $translated_string_text){
-                                            if(strpos($translated_string_text, $attr_attr_value) !== false){
+                                            $trimmed_value=preg_replace('/\s+/', '', $attr_attr_value);
+                                            if(strpos($translated_string_text, $trimmed_value) !== false || strpos($translated_string_text, $attr_attr_value) !== false){
                                                 $string_exists=true;
                                                 break;
                                             }
@@ -446,7 +448,8 @@ class Update_Block_Config {
                     $string_exists=false;
                             
                     foreach($translated_strings_texts as $translated_string_text){
-                        if(strpos($translated_string_text, $attr_value) !== false){
+                        $trimmed_value=preg_replace('/\s+/', '', $attr_value);
+                            if(strpos($translated_string_text, $trimmed_value) !== false || strpos($translated_string_text, $attr_value) !== false){
                             $string_exists=true;
                             break;
                         }
@@ -485,6 +488,7 @@ class Update_Block_Config {
     private function update_package_strings(array &$append_data, $html, $field_key, $field_name, $text, $type, $format, $translate): void {
         if(defined('DOING_AUTOML_WPML_BULK_POST_TRANSLATION') && true === constant('DOING_AUTOML_WPML_BULK_POST_TRANSLATION')){
             $this->set_content_data($append_data, 'html', $html);
+            $this->set_content_data($append_data, 'text', $text);
         }else{
             $this->set_content_data($append_data, 'html', $html);
             $this->set_content_data($append_data, 'field_key', $field_key);

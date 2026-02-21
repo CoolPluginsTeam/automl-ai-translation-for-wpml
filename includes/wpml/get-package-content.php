@@ -187,7 +187,7 @@ class Get_Package_Content {
 			if(!is_array($this->translated_strings_texts)) {
 				$this->translated_strings_texts = array();
 			}
-			
+
 			return Update_Block_Config::get_instance()->get_custom_attributes_translations($this->post_id, $this->translation_package['contents'], $this->translated_strings_texts);
 		}
 	}
@@ -356,6 +356,7 @@ class Get_Package_Content {
 		if($this->is_bulk_translation()) {
 			if($translate == 1) {
 				$this->set_content_data($append_data, 'html', $html);
+				$this->set_content_data($append_data, 'text', $text);
 			}
 			return;
 		}else{

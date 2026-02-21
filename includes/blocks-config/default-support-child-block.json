@@ -6,5 +6,11 @@
     "themeisle-blocks/form-textarea": true,
     "themeisle-blocks/form-email": true,
     "themeisle-blocks/icon-list-item": true,
-    "themeisle-blocks/progress-bar": true
+    "themeisle-blocks/progress-bar": true,
+    "uagb/call-to-action": true,
+    "uagb/counter": true,
+    "uagb/countdown": true,
+    "uagb/how-to-step": true,
+    "uagb/how-to": true,
+    "uagb/review": true
 }
