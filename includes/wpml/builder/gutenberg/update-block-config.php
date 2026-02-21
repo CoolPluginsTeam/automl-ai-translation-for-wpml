@@ -333,24 +333,25 @@ class Update_Block_Config {
         return (array) $this->block_default_attributes_value;
     }
 
-    private function set_block_translatables_attributes(&$block, $custom_config, $translation_package, &$attr_translations): void {
+    private function set_block_translatables_attributes(&$block, $custom_config, $translation_package, &$attr_translations, $translated_strings_texts): void {
         if(!isset($block['blockName'])) return;
         
         $block_name = $block['blockName'];
         
         if(isset($custom_config[$block_name])){
             $attrs = isset($block['attrs']) ? $block['attrs'] : [];
-            $this->update_block_attributes_in_package($block, $attrs, $custom_config, $translation_package, $attr_translations);
+            $this->update_block_attributes_in_package($block, $attrs, $custom_config, $translation_package, $attr_translations, $translated_strings_texts);
         }
             
         if(isset($block['innerBlocks']) && !empty($block['innerBlocks'])){
             foreach($block['innerBlocks'] as &$inner_block){
-                $this->set_block_translatables_attributes($inner_block, $custom_config, $translation_package, $attr_translations);
+                $this->set_block_translatables_attributes($inner_block, $custom_config, $translation_package, $attr_translations, $translated_strings_texts);
             }
         }
     }
 
-    private function update_block_attributes_in_package(&$block, $block_attrs, $custom_config, $translation_package, &$attr_translations): void {
+    private function update_block_attributes_in_package(&$block, $block_attrs, $custom_config, $translation_package, &$attr_translations, $translated_strings_texts): void {
+
         if(isset($custom_config[$block['blockName']])){
             if(!isset($this->block_default_attributes_value) || empty($this->block_default_attributes_value)){
                 $this->block_default_attributes_value = $this->fetch_block_default_attributes();
@@ -376,6 +377,19 @@ class Update_Block_Config {
                                 }
                             }
 
+                            $string_exists=false;
+                            
+                            foreach($translated_strings_texts as $translated_string_text){
+                                if(strpos($translated_string_text, $attr_value) !== false){
+                                    $string_exists=true;
+                                    break;
+                                }
+                            }
+
+                            if(!$string_exists){
+                                continue;
+                            }
+
                             $string_id=md5($block['blockName'].$attr_value);
 
                             if(!isset($translation_package[$string_id])){
@@ -384,7 +398,35 @@ class Update_Block_Config {
                             }
                         }else if (is_array($attr_value)){
                             $current_attr=isset($block_attrs[$attr_key]) ? $block_attrs[$attr_key] : [];
-                            $this->update_array_attributes_in_package($block, $current_attr, $attr_value, $translation_package, $attr_translations);
+                            $current_config=isset($custom_config[$block['blockName']]->attributes->$attr_key) ? (array) $custom_config[$block['blockName']]->attributes->$attr_key : [];
+
+                            if(!empty($current_config)){
+                                foreach($attr_value as $attr_key => $attr_attr_value){
+                                    if(is_string($attr_attr_value)){
+
+                                        $string_exists=false;
+                            
+                                        foreach($translated_strings_texts as $translated_string_text){
+                                            if(strpos($translated_string_text, $attr_attr_value) !== false){
+                                                $string_exists=true;
+                                                break;
+                                            }
+                                        }
+
+                                        if(!$string_exists){
+                                            continue;
+                                        }
+
+                                        $string_id=md5($block['blockName'].$attr_attr_value);
+                                        if(!isset($translation_package[$string_id])){
+                                            $attr_translations[$string_id] = array();
+                                            $this->update_package_strings($attr_translations[$string_id], wp_kses_post($attr_attr_value), $string_id, null, wp_kses_post($attr_attr_value), 'content', 'base64', 1);
+                                        }
+                                    }else if (is_array($attr_attr_value)){
+                                        $this->update_array_attributes_in_package($block, $current_attr, $attr_attr_value, $current_config, $translation_package, $attr_translations, $translated_strings_texts);
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -392,10 +434,28 @@ class Update_Block_Config {
         }
     }
 
-    private function update_array_attributes_in_package(&$block, $block_attrs, $attr_value, $translation_package, &$attr_translations): void {
-        foreach($attr_value as $attr_key => $attr_value){
+    private function update_array_attributes_in_package(&$block, $block_attrs, $attr_values, $current_config, $translation_package, &$attr_translations, $translated_strings_texts): void {
+        foreach($attr_values as $attr_key => $attr_value){
+            if(!isset($current_config[$attr_key]) && !isset($current_config[0]->$attr_key)){
+                continue;
+            }
+
             if(isset($attr_value) && !empty($attr_value)){
                 if(is_string($attr_value)){
+
+                    $string_exists=false;
+                            
+                    foreach($translated_strings_texts as $translated_string_text){
+                        if(strpos($translated_string_text, $attr_value) !== false){
+                            $string_exists=true;
+                            break;
+                        }
+                    }
+
+                    if(!$string_exists){
+                        continue;
+                    }
+
                     $string_id=md5($block['blockName'].$attr_value);
 
                     if(isset($block_attrs[$attr_key])){
@@ -411,8 +471,12 @@ class Update_Block_Config {
                         $this->update_package_strings($attr_translations[$string_id], wp_kses_post($attr_value), $string_id, null, wp_kses_post($attr_value), 'content', 'base64', 1);
                     }
                 }else if (is_array($attr_value)){
+
                     $current_attr=isset($block_attrs[$attr_key]) ? $block_attrs[$attr_key] : [];
-                    $this->update_array_attributes_in_package($block, $current_attr, $attr_value, $translation_package, $attr_translations);
+                    $current_config=isset($current_config[$attr_key]) ? (array) $current_config[$attr_key] : (isset($current_config[0][$attr_key]) ? (array) $current_config[0][$attr_key] : []);
+                    if(!empty($current_config)){
+                        $this->update_array_attributes_in_package($block, $current_attr, $attr_value, $current_config, $translation_package, $attr_translations);
+                    }
                 }
             }
         }
@@ -438,7 +502,7 @@ class Update_Block_Config {
 		}
 	}
 
-    final public function get_custom_attributes_translations(int $post_id, array $translation_package): array {
+    final public function get_custom_attributes_translations(int $post_id, array $translation_package, array $translated_strings_texts): array {
         $attr_translations=array();
 
         $custom_blocks_config=Update_Block_Config::get_instance()->get_custom_blocks_config();
@@ -450,12 +514,12 @@ class Update_Block_Config {
         foreach($parse_blocks as &$block){
             $block_name = $block['blockName'];
             if(isset($custom_blocks_config[$block_name])){
-                $this->set_block_translatables_attributes($block, $custom_blocks_config, $translation_package, $attr_translations);
+                $this->set_block_translatables_attributes($block, $custom_blocks_config, $translation_package, $attr_translations, $translated_strings_texts);
             }
 
             if(isset($block['innerBlocks']) && !empty($block['innerBlocks'])){
                 foreach($block['innerBlocks'] as &$inner_block){
-                    $this->set_block_translatables_attributes($inner_block, $custom_blocks_config, $translation_package, $attr_translations);
+                    $this->set_block_translatables_attributes($inner_block, $custom_blocks_config, $translation_package, $attr_translations, $translated_strings_texts);
                 }
             }
         }
