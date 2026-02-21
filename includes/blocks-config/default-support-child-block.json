@@ -1,4 +1,5 @@
 {
+    "stackable/table-of-contents": true,
     "stackable/progress-bar": true,
     "themeisle-blocks/circle-counter": true,
     "themeisle-blocks/form-input": true,
