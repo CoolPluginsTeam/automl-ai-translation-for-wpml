@@ -77,7 +77,7 @@ class Update_Block_Config {
 
     private function get_block_parse_rules()
     {
-        $response = wp_remote_get( esc_url_raw( WPML_AT_PLUGIN_URL . 'includes/blocks-config/blocks-config.json' ), array(
+        $response = wp_remote_get( esc_url_raw( WPML_AT_PLUGIN_URL . 'includes/wpml/builder/gutenberg/blocks-config/blocks-config.json' ), array(
             'timeout' => 15,
         ) );
 
@@ -91,7 +91,7 @@ class Update_Block_Config {
 
             WP_Filesystem();
 
-            $local_path = WPML_AT_PLUGIN_DIR . 'includes/blocks-config/blocks-config.json';
+            $local_path = WPML_AT_PLUGIN_DIR . 'includes/wpml/builder/gutenberg/blocks-config/blocks-config.json';
             if($wp_filesystem->exists($local_path) && $wp_filesystem->is_readable( $local_path )){
                 $block_rules = $wp_filesystem->get_contents( $local_path );
             }else{
@@ -112,7 +112,7 @@ class Update_Block_Config {
 
     private function get_block_default_support_child_block(): array
     {
-        $response = wp_remote_get( esc_url_raw( WPML_AT_PLUGIN_URL . 'includes/blocks-config/default-support-child-block.json' ), array(
+        $response = wp_remote_get( esc_url_raw( WPML_AT_PLUGIN_URL . 'includes/wpml/builder/gutenberg/blocks-config/default-support-child-block.json' ), array(
             'timeout' => 15,
         ) );
         
@@ -126,7 +126,7 @@ class Update_Block_Config {
 
             WP_Filesystem();
 
-            $local_path = WPML_AT_PLUGIN_DIR . 'includes/blocks-config/default-support-child-block.json';
+            $local_path = WPML_AT_PLUGIN_DIR . 'includes/wpml/builder/gutenberg/blocks-config/default-support-child-block.json';
             if($wp_filesystem->exists($local_path) && $wp_filesystem->is_readable( $local_path )){
                 $block_default_support_child_block = $wp_filesystem->get_contents( $local_path );
             }else{
@@ -147,7 +147,7 @@ class Update_Block_Config {
 
     private function get_block_default_attributes_value(): array
     {
-        $response = wp_remote_get( esc_url_raw( WPML_AT_PLUGIN_URL . 'includes/blocks-config/attr-default-value.json' ), array(
+        $response = wp_remote_get( esc_url_raw( WPML_AT_PLUGIN_URL . 'includes/wpml/builder/gutenberg/blocks-config/attr-default-value.json' ), array(
             'timeout' => 15,
         ) );
 
@@ -161,7 +161,7 @@ class Update_Block_Config {
 
             WP_Filesystem();
 
-            $local_path = WPML_AT_PLUGIN_DIR . 'includes/blocks-config/attr-default-value.json';
+            $local_path = WPML_AT_PLUGIN_DIR . 'includes/wpml/builder/gutenberg/blocks-config/attr-default-value.json';
             if($wp_filesystem->exists($local_path) && $wp_filesystem->is_readable( $local_path )){
                 $block_default_attributes_value = $wp_filesystem->get_contents( $local_path );
             }else{
