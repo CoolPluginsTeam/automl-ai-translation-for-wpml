@@ -12,26 +12,27 @@ import Notice from './components/notice';
 
 const App = ({ onDestory, prefix, postIds }) => {
     const dispatch = useDispatch();
-    const { languageObject = {} } = automl_wpml_bulk_translate_object || {};
-    const targetLanguages={...languageObject};
-    delete targetLanguages[automl_wpml_bulk_translate_object.default_language_slug];
-
+    const { languageObject = {}, selected_language_object = {} } = automl_wpml_bulk_translate_object || {};
+    const wizardSelectedCode = Object.keys(selected_language_object)[0] || '';
+    const wizardLanguagesUrl = (automl_wpml_bulk_translate_object?.admin_url || '').replace(/\/?$/, '') + '/admin.php?page=wpml_at_wizard&step=languages';
     const emptyPostIdsErrorMessage = sprintf(__('Please select at least one %s for translation.', 'automl-ai-translation-for-wpml'), automl_wpml_bulk_translate_object.post_label);
     const [selectedLanguages, setSelectedLanguages] = useState([]);
-    const [errorMessage, setErrorMessage] = useState(postIds.length === 0 ? emptyPostIdsErrorMessage : '');
+    const isStringTranslationPage = false;
+    const [errorMessage, setErrorMessage] = useState(postIds.length === 0 && !isStringTranslationPage ? emptyPostIdsErrorMessage : '');
     const [settingModalVisibility, setSettingModalVisibility] = useState(false);
     const [statusModalVisibility, setStatusModalVisibility] = useState(false);
     const translatePostsCount = useSelector(selectCountInfo).totalPosts;
     const [isLoading, setIsLoading] = useState(true);
     const [errorModal, setErrorModal] = useState(false);
     const [localAiModalError, setLocalAiModalError] = useState(false);
+    const targetLanguages = JSON.parse(JSON.stringify(languageObject));
+    delete targetLanguages[automl_wpml_bulk_translate_object.default_language_slug];
 
     const destroyApp = (e) => {
         setStatusModalVisibility(false);
         setSettingModalVisibility(false);
         onDestory(e);
-    }
-
+    };
 
     useEffect(() => {
         const checkStatus = async () => {
@@ -39,10 +40,8 @@ const App = ({ onDestory, prefix, postIds }) => {
             if (status.type === 'browser-not-supported' || status.type === 'translation-api-not-available' || status.type === 'browser-not-supported') {
                 setLocalAiModalError(__(status.html[0].outerHTML, 'automl-ai-translation-for-wpml'));
             }
-
             setIsLoading(false);
-        }
-
+        };
         checkStatus();
     }, [statusModalVisibility]);
 
@@ -58,9 +57,8 @@ const App = ({ onDestory, prefix, postIds }) => {
             setErrorModal(true);
             return;
         }
-
         setSettingModalVisibility((prev) => !prev);
-    }
+    };
 
     const handleLanguageChange = (e) => {
         const { value } = e.target;
@@ -68,168 +66,166 @@ const App = ({ onDestory, prefix, postIds }) => {
         if (checked) {
             setSelectedLanguages([...selectedLanguages, value]);
         } else {
-            setSelectedLanguages(selectedLanguages.filter(language => language !== value));
+            setSelectedLanguages(selectedLanguages.filter((language) => language !== value));
         }
-    }
+    };
 
     const closeErrorModal = (e) => {
         setErrorModal(false);
-    }
-
-    const handleSelectAllLanguages = (e) => {
-        const checked = e.target.checked;
-        if (checked) {
-            setSelectedLanguages(Object.keys(targetLanguages));
-        } else {
-            setSelectedLanguages([]);
-        }
-    }
+    };
 
     const updateProviderHandler = (services) => {
         dispatch(updateServiceProvider(services));
         setSettingModalVisibility(false);
         setStatusModalVisibility(true);
         setIsLoading(true);
-    }
+    };
 
-    const containerCls=()=>{
-        let cls=[];
-        if(statusModalVisibility){
+    const containerCls = () => {
+        let cls = [];
+        if (statusModalVisibility) {
             cls.push(`${prefix}-status-modal-active`);
         }
-
-        if(settingModalVisibility){
+        if (settingModalVisibility) {
             cls.push(`${prefix}-setting-modal-active`);
         }
-
-        if(!translatePostsCount && !settingModalVisibility && statusModalVisibility){
+        if (!translatePostsCount && !settingModalVisibility && statusModalVisibility) {
             cls.push(`${prefix}-empty-posts`);
         }
-
         return cls.join(' ');
-    }
+    };
 
     const SelectLanguageNotice = () => {
-
         const notices = [];
-      
         const noticeLength = notices.length;
-      
         if (notices.length > 0) {
-          return notices.map((notice, index) => <Notice className={notice.className} key={index} lastNotice={index === noticeLength - 1}>{notice.message}</Notice>);
+            return notices.map((notice, index) => <Notice className={notice.className} key={index} lastNotice={index === noticeLength - 1}>{notice.message}</Notice>);
         }
-      
         return;
-    }
+    };
 
-    return <div
-        id={`${prefix}-container`}
-        className={containerCls()}>
-        {settingModalVisibility && <SettingModal
-            prefix={prefix}
-            onDestory={destroyApp}
-            onCloseHandler={settingModalVisibilityHandler}
-            updateProviderHandler={updateProviderHandler} 
-            localAiModalError={localAiModalError}
-        />}
+    return (
+        <div id={`${prefix}-container`} className={containerCls()}>
+            {settingModalVisibility && (
+                <SettingModal
+                    prefix={prefix}
+                    onDestory={destroyApp}
+                    onCloseHandler={settingModalVisibilityHandler}
+                    updateProviderHandler={updateProviderHandler}
+                    localAiModalError={localAiModalError}
+                />
+            )}
 
-        {statusModalVisibility && !settingModalVisibility && (isLoading ?
-            <div
-                className={`${prefix}-skeleton-loader`}></div> :
-            <StatusModal
-                postIds={postIds}
-                selectedLanguages={selectedLanguages}
-                prefix={prefix}
-                onDestory={destroyApp}
-            />)}
-        {!statusModalVisibility && !settingModalVisibility &&
-            <div
-                className={`${prefix}-language-container`}>
-                <div
-                    className={`${prefix}-header`}>
-                    <h2>{__('Step 1: Select Languages', 'automl-ai-translation-for-wpml')}</h2>
-                    <span
-                        className="close"
-                        onClick={destroyApp}
-                        title={__('Close', 'automl-ai-translation-for-wpml')}
-                    >
-                        &times;
-                    </span>
-                </div>
-                {errorMessage && errorMessage !== '' ? (errorModal ? <ErrorModalBox
-                    message={errorMessage}
-                    onClose={closeErrorModal}
-                /> : <div
-                    className={`${prefix}-error-message`}
-                    dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(errorMessage) }}
-                />) :
-                    <>
-                        <div
-                            className={`${prefix}-body`}>
-                            <SelectLanguageNotice />
-                            <div
-                                className={`${prefix}-languages`}>
-                                {Object.keys(languageObject).map((language) => {
-                                    return (automl_wpml_bulk_translate_object.default_language_slug && automl_wpml_bulk_translate_object.default_language_slug === language ? null : <div key={language} className={`${prefix}-language`}>
-                                        <div
-                                            title={!postIds.length ? emptyPostIdsErrorMessage : languageObject[language].name}>
-                                            <input
-                                                type="checkbox"
-                                                name="languages"
-                                                id={language}
-                                                value={language}
-                                                onChange={(e) => handleLanguageChange(e)}
-                                                disabled={!postIds.length}
-                                                checked={selectedLanguages.includes(language)} />
-                                            <label
-                                                htmlFor={language}
-                                                className={`${prefix}-language-label`}
-                                                title={languageObject[language].name}
-                                            >
-                                                <img
-                                                    src={languageObject[language].flag}
-                                                    alt={languageObject[language].name} />
-                                                &nbsp; {languageObject[language].name}
-                                            </label>
-                                        </div>
-                                    </div>)
-                                })}
+            {statusModalVisibility && !settingModalVisibility && (isLoading ? (
+                <div className={`${prefix}-skeleton-loader`}></div>
+            ) : (
+                <StatusModal
+                    postIds={postIds}
+                    selectedLanguages={selectedLanguages}
+                    prefix={prefix}
+                    onDestory={destroyApp}
+                />
+            ))}
+            {!statusModalVisibility && !settingModalVisibility && (
+                <div className={`${prefix}-language-container`}>
+                    <div className={`${prefix}-header`}>
+                        <div className={`${prefix}-modal-header-inner`}>
+                            <span className={`${prefix}-step-label`}>{__('STEP 1 OF 3', 'automl-ai-translation-for-wpml')}</span>
+                            <h2>{__('Select Languages', 'automl-ai-translation-for-wpml')}</h2>
+                        </div>
+                        <button
+                            type="button"
+                            className={`${prefix}-modal-close`}
+                            onClick={destroyApp}
+                            title={__('Close', 'automl-ai-translation-for-wpml')}
+                            aria-label={__('Close', 'automl-ai-translation-for-wpml')}
+                        >
+                            &times;
+                        </button>
+                    </div>
+                    {errorMessage && errorMessage !== '' ? (errorModal ? <ErrorModalBox message={errorMessage} onClose={closeErrorModal} /> : <div className={`${prefix}-error-message`} dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(errorMessage) }} />) : (
+                        <>
+                            <div className={`${prefix}-body`}>
+                                <SelectLanguageNotice />
+                                {wizardSelectedCode ? (
+                                    <div className={`${prefix}-languages`}>
+                                        {(() => {
+                                            const defaultSlug = automl_wpml_bulk_translate_object.default_language_slug;
+                                            const allCodes = Object.keys(languageObject).filter((lang) => !defaultSlug || defaultSlug !== lang);
+                                            const selectedFirst = wizardSelectedCode && allCodes.includes(wizardSelectedCode)
+                                                ? [wizardSelectedCode, ...allCodes.filter((l) => l !== wizardSelectedCode)]
+                                                : allCodes;
+                                            return selectedFirst.map((language) => {
+                                                if (!languageObject[language]) return null;
+                                                const isDisabled = (!postIds.length && !isStringTranslationPage) || (wizardSelectedCode && language !== wizardSelectedCode);
+                                                const isSelected = selectedLanguages.includes(language);
+                                                return (
+                                                    <div
+                                                        key={language}
+                                                        className={`${prefix}-language ${isDisabled ? `${prefix}-language-item--disabled` : ''} ${isSelected ? `${prefix}-language-item--selected` : ''}`}
+                                                        title={!postIds.length && !isStringTranslationPage ? emptyPostIdsErrorMessage : languageObject[language].name}
+                                                        onClick={(e) => {
+                                                            if (e.target.closest('input') || e.target.closest('label')) return;
+                                                            if (isDisabled) return;
+                                                            if (isSelected) setSelectedLanguages(selectedLanguages.filter((l) => l !== language));
+                                                            else setSelectedLanguages([...selectedLanguages, language]);
+                                                        }}
+                                                        role="button"
+                                                        tabIndex={isDisabled ? -1 : 0}
+                                                        onKeyDown={(e) => {
+                                                            if ((e.key === 'Enter' || e.key === ' ') && !isDisabled) {
+                                                                e.preventDefault();
+                                                                if (isSelected) setSelectedLanguages(selectedLanguages.filter((l) => l !== language));
+                                                                else setSelectedLanguages([...selectedLanguages, language]);
+                                                            }
+                                                        }}
+                                                    >
+                                                        <div className={`${prefix}-language-item`}>
+                                                            <input
+                                                                type="checkbox"
+                                                                name="languages"
+                                                                id={language}
+                                                                value={language}
+                                                                onChange={(e) => handleLanguageChange(e)}
+                                                                disabled={isDisabled}
+                                                                checked={isSelected}
+                                                                className={`${prefix}-language-checkbox-input`}
+                                                            />
+                                                            <span className={`${prefix}-check-visual`} aria-hidden="true" />
+                                                            <label htmlFor={language} className={`${prefix}-language-label`} title={languageObject[language].name}>
+                                                                <img src={languageObject[language].flag} alt={languageObject[language].name} />
+                                                                &nbsp; {languageObject[language].name}
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                );
+                                            });
+                                        })()}
+                                    </div>
+                                ) : (
+                                    <div className={`${prefix}-wizard-language-notice`} style={{ padding: '12px 16px', marginTop: 8, background: '#f0f6fc', border: '1px solid #c3c4c7', borderRadius: 4 }}>
+                                        <p style={{ margin: '0 0 8px', fontSize: 14 }}>{__('Please select a translation language first.', 'automl-ai-translation-for-wpml')}</p>
+                                        <a href={wizardLanguagesUrl} style={{ fontSize: 14 }}>{__('Select language in Setup Wizard (Languages step)', 'automl-ai-translation-for-wpml')}</a>
+                                    </div>
+                                )}
                             </div>
-                            <div
-                                className={`${prefix}-select-all-languages`}>
-                                <input
-                                    type="checkbox"
-                                    name="select-all-languages"
-                                    id="select-all-languages"
-                                    onChange={(e) => handleSelectAllLanguages(e)}
-                                    checked={selectedLanguages.length === Object.keys(targetLanguages).length} />
-                                <label
-                                    htmlFor="select-all-languages"
+                            <div className={`${prefix}-footer`}>
+                                <button className={`${prefix}-footer-button button button-primary`} onClick={destroyApp} title={!postIds.length && !isStringTranslationPage ? emptyPostIdsErrorMessage : ''}>{__('Cancel', 'automl-ai-translation-for-wpml')}</button>
+                                <button
+                                    className={`${prefix}-footer-button button button-primary`}
+                                    onClick={settingModalVisibilityHandler}
+                                    disabled={(!postIds.length && !isStringTranslationPage) || !selectedLanguages.length}
+                                    title={!postIds.length && !isStringTranslationPage ? emptyPostIdsErrorMessage : !selectedLanguages.length ? __('Please select at least one language', 'automl-ai-translation-for-wpml') : ''}
                                 >
-                                    {selectedLanguages.length === Object.keys(targetLanguages).length ? __('Unselect All', 'automl-ai-translation-for-wpml') : __('Select All', 'automl-ai-translation-for-wpml')}
-                                </label>
+                                    {__('Next', 'automl-ai-translation-for-wpml')} <span className={`${prefix}-next-arrow`}>&#8594;</span>
+                                </button>
                             </div>
-                        </div>
-                        <div
-                            className={`${prefix}-footer`}>
-                            <button
-                                className={`${prefix}-footer-button button button-primary`}
-                                onClick={destroyApp}
-                                title={!postIds.length ? emptyPostIdsErrorMessage : ''}>
-                                {__('Close', 'automl-ai-translation-for-wpml')}
-                            </button>
-                            <button
-                                className={`${prefix}-footer-button button button-primary`}
-                                onClick={settingModalVisibilityHandler}
-                                disabled={!postIds.length || !selectedLanguages.length}
-                                title={!postIds.length ? emptyPostIdsErrorMessage : (!selectedLanguages.length ? __('Please select at least one language', 'automl-ai-translation-for-wpml') : '')}>
-                                {__('Translate', 'automl-ai-translation-for-wpml')}
-                            </button>
-                        </div>
-                    </>}
-            </div>
-        }
-    </div>
-}
+                        </>
+                    )}
+                </div>
+            )}
+        </div>
+    );
+};
 
 export default App;
