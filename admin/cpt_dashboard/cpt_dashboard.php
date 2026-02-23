@@ -73,8 +73,9 @@ if(!defined('ABSPATH')){
  * }
  */
 
-if(!class_exists('wpml_auto_Dashboard')){
-    class wpml_auto_Dashboard{
+ if(!class_exists('WPML_Auto_Cpt_Dashboard'))
+    {
+        class WPML_Auto_Cpt_Dashboard{
 
         /**
          * Init
