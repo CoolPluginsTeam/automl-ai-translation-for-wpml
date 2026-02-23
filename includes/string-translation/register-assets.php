@@ -62,11 +62,11 @@ class Register_Assets {
 				);
 			}
 			wp_localize_script(
-				'cp-wpml-auto-translate-admin',
-				'CP_WPML_AUTO_TRANSLATE',
+				'automl-wpml-auto-translate-admin',
+				'AUTOML_WPML_AUTO_TRANSLATE',
 				array(
 					'ajax'      => esc_url(admin_url('admin-ajax.php')),
-					'nonce'     => wp_create_nonce('cp_wpml_auto_translate_nonce'),
+					'nonce'     => wp_create_nonce('AUTOML_WPML_AUTO_TRANSLATE_nonce'),
 					'languages' => $selected_language,
 					'admin_url' => esc_url(admin_url()),
 					'i18n'      => array(
@@ -111,7 +111,7 @@ class Register_Assets {
 						'languageObject'         => $lang_object,
 						'selected_language_object' => $selected_lang_object,
 						'ajax'                   => esc_url( admin_url( 'admin-ajax.php' ) ),
-						'nonce'                  => wp_create_nonce( 'cp_wpml_auto_translate_nonce' ),
+						'nonce'                  => wp_create_nonce( 'AUTOML_WPML_AUTO_TRANSLATE_nonce' ),
 						'default_language_slug'  => $default_language,
 						'bulkTranslateRouteUrl' => get_rest_url(null, 'automl-bulk-translate'),
 						'bulkTranslatePrivateKey' => wp_create_nonce('automl_wpml_bulk_translate_entries_nonce'),

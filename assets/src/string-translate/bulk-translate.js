@@ -1186,7 +1186,7 @@ const saveStringTranslations = async (
   const ajaxUrl = automl_wpml_bulk_translate_object.ajax;
 
   const body = {
-    action: "cp_wpml_google_auto_translate_save_string_translations",
+    action: "automl_wpml_google_auto_translate_save_string_translations",
     nonce: nonce,
     target_lang: targetLang,
     translated_strings: translatedStrings,
@@ -1198,7 +1198,7 @@ const saveStringTranslations = async (
   try {
     const response = await fetch(
       ajaxUrl +
-        "?action=cp_wpml_google_auto_translate_save_string_translations",
+        "?action=automl_wpml_google_auto_translate_save_string_translations",
       {
         method: "POST",
         headers: {
