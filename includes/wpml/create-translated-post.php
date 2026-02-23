@@ -120,6 +120,8 @@ class Create_Translated_Post {
 		$this->post_id                 = $post_id;
 		$this->source_language         = $source_language;
 		$this->target_language         = $target_language;
+
+		$this->defined_post_translation_constant();
 		$this->filter_translate_strings( $translate_strings );
 	}
 
@@ -136,12 +138,21 @@ class Create_Translated_Post {
 
 		$this->create_translated_post();
         $this->update_translate_strings();
-
         return $this->translated_post_id;
 	}
 
 	private function is_create_post() {
 		return ( defined( 'DOING_AUTOML_WPML_CREATE_TRANSLATED_POST' ) && true === constant( 'DOING_AUTOML_WPML_CREATE_TRANSLATED_POST' ) );
+	}
+
+	private function defined_post_translation_constant(): void {
+		if($this->editor_type === 'Elementor'){
+			!defined('DOING_AUTOML_WPML_ELEMENTOR_CONTENT_UPDATE') && define('DOING_AUTOML_WPML_ELEMENTOR_CONTENT_UPDATE', true);
+		}
+
+		if($this->editor_type === 'Gutenberg'){
+			!defined('DOING_AUTOML_WPML_GUTENBERG_CONTENT_UPDATE') && define('DOING_AUTOML_WPML_GUTENBERG_CONTENT_UPDATE', true);
+		}
 	}
 
 	private function create_translated_post(): void {
@@ -194,21 +205,11 @@ class Create_Translated_Post {
 
         if($this->editor_type === 'Elementor'){
             $nonce = wp_create_nonce('automl_wpml_elementor_content_update_nonce');
-
-            if(!defined('DOING_AUTOML_WPML_ELEMENTOR_CONTENT_UPDATE')){
-                define('DOING_AUTOML_WPML_ELEMENTOR_CONTENT_UPDATE', true);
-            }
-
             $automl_wpml_content_update = new Elementor_Update( $this->post_id, $this->translated_post_id, $this->translate_strings, $this->target_language, $nonce );
         }
 
 		if($this->editor_type === 'Gutenberg'){
             $nonce = wp_create_nonce('automl_wpml_gutenberg_content_update_nonce');
-
-            if(!defined('DOING_AUTOML_WPML_GUTENBERG_CONTENT_UPDATE')){
-                define('DOING_AUTOML_WPML_GUTENBERG_CONTENT_UPDATE', true);
-            }
-
             $automl_wpml_content_update = new Gutenberg_Update( $this->post_id, $this->translated_post_id, $this->translate_strings, $this->target_language, $nonce );
         }
 

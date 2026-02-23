@@ -13,10 +13,10 @@ const storeFilteredContent = async ({content, service, postId, storeDispatch, fi
         saveSourceString(postId, contentKey, content, targetContent, storeDispatch);
     }
 
-    const getStringContent=async (content, contentKey) =>{
+    const getStringContent=async (content, contentKey, texts) =>{
         let stringContent=content;
         if(filterHtmlContent){
-            let reactElement=filterContent({content, service, contentKey, skipTags:['script', 'style']});
+            let reactElement=filterContent({content, service, contentKey, translatableTexts: texts, skipTags:['script', 'style']});
             stringContent=await extractInnerContent(reactElement);
 
             reactElement=null;
@@ -29,7 +29,7 @@ const storeFilteredContent = async ({content, service, postId, storeDispatch, fi
         if(content[key] && content[key].html && content[key].html !== '') {
             let stringContent = content[key];
             if(filterHtmlContent) {
-                stringContent = await getStringContent(content[key].html, key);
+                stringContent = await getStringContent(content[key].html, key, content[key].text);
             }
 
             storeSourceString('content_atfpp_'+key, content[key].html, stringContent);

@@ -608,6 +608,11 @@
             "text": true
         }
     },
+    "themeisle-blocks/icon-list-item":{
+        "attributes": {
+            "content": true
+        }
+    },
     "themeisle-blocks/tabs-item": {
         "attributes": {
             "title": true
@@ -636,11 +641,6 @@
     "kadence/form": {
         "attributes": {
             "submitLabel": true,
-            "submit": [
-                {
-                    "label": true
-                }
-            ],
             "messages": [
                 {
                     "preError": true,
@@ -776,12 +776,19 @@
     "stackable/progress-bar": {
         "attributes": {
             "text": true
-        }
+        },
+        "xpath": ["//*[contains(@class,'stk-progress-bar__text')]",{"value": "//*[contains(@class,'stk-progress-bar')]/@aria-label", "label": "Aria Label"},{"value": "//*[contains(@class,'stk-progress-bar')]/@aria-valuetext", "label": "Aria Value Text"}]
     },
     "stackable/table-of-contents": {
         "attributes": {
             "titleText": true,
-            "text": true
+            "text": true,
+            "headings": [
+                {
+                    "content": true,
+                    "customContent": true
+                }
+            ]
         }
     },
     "stackable/timeline": {
@@ -801,8 +808,36 @@
     },
     "gutenverse/advanced-heading": {
         "attributes": {
+            "text": true,
             "subText": true,
             "focusText": true
+        }
+    },
+    "gutenverse/animated-text": {
+        "attributes": {
+            "beforeTextAnimated": true,
+            "text": true,
+            "afterTextAnimated": true
+        }
+    },
+    "gutenverse/button": {
+        "attributes": {
+            "content": true
+        }
+    },
+    "gutenverse/chart": {
+        "attributes": {
+            "description": true,
+            "title": true
+        }
+    },
+    "gutenverse/countdown": {
+        "attributes": {
+            "labelDays": true,
+            "labelHours": true,
+            "labelMinutes": true,
+            "labelPosition": true,
+            "labelSeconds": true
         }
     },
     "gutenverse/icon-box": {
@@ -814,6 +849,53 @@
     "gutenverse/image-box": {
         "attributes": {
             "description": true,
+            "title": true
+        }
+    },
+    "gutenverse/feature-list": {
+        "attributes": {
+            "featureList": [
+                {
+                    "content": true,
+                    "title": true
+                }
+            ]
+        }
+    },
+    "gutenverse/fun-fact": {
+        "attributes": {
+            "suffix": true,
+            "title": true
+        }
+    },
+    "gutenverse/gallery": {
+        "xpath": ["//*[contains(@class,'item-title')]",{"value": "//*[contains(@class,'image-list')]/@data-filter", "label": "Data Filter"},{"value": "//*[contains(@class,'image-list')]/@data-title", "label": "Data Title"},{"value": "//*[contains(@class,'gallery-item-wrap')]/@data-control", "label": "Data Control"},{"value": "//*[contains(@class,'main-image')]/@alt", "label": "Alt"}],
+        "attributes": {
+            "images": [
+                {
+                    "title": true
+                }
+            ]
+        }
+    },
+    "gutenverse/portfolio-gallery": {
+        "attributes": {
+            "linkText": true,
+            "images": [
+                {
+                    "subtitle": true,
+                    "title": true
+                }
+            ]
+        }
+    },
+    "gutenverse/progress-bar": {
+        "attributes": {
+            "title": true
+        }
+    },
+    "gutenverse/star-rating": {
+        "attributes": {
             "title": true
         }
     },
@@ -834,7 +916,7 @@
     },
     "gutenverse/testimonials": {
         "attributes": {
-            "testimonialDataRichText": [
+            "testimonialData": [
                 {
                     "description": true,
                     "name": true,

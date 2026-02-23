@@ -25,6 +25,7 @@ class Get_Package_Content {
 	private $package_factory;
 	private $translation_package = array();
 	private $editor_type;
+	private $translated_strings_texts = array();
 
 	public function __construct($post_id, $source_lang = null) {
 		if(!$this->is_bulk_translation() && !$this->is_create_post()) {
@@ -183,7 +184,11 @@ class Get_Package_Content {
 
 	private function update_translation_package_strings() {
 		if($this->editor_type === 'Gutenberg' && isset($this->translation_package['contents']) && is_array($this->translation_package['contents'])){
-			return Update_Block_Config::get_instance()->get_custom_attributes_translations($this->post_id, $this->translation_package['contents']);
+			if(!is_array($this->translated_strings_texts)) {
+				$this->translated_strings_texts = array();
+			}
+
+			return Update_Block_Config::get_instance()->get_custom_attributes_translations($this->post_id, $this->translation_package['contents'], $this->translated_strings_texts);
 		}
 	}
 
@@ -335,9 +340,23 @@ class Get_Package_Content {
 	}
 
 	private function set_content_strings(&$append_data, $field_key, $field_name, $text, $html, $type, $format,$translate=0 ) {
+
+		if(strpos($text, '!#readmoreText!#') !== false || strpos($html, 'class="wp-block-themeisle-blocks-countdown"') !== false) {
+			return;
+		}
+
+		if(! is_array($this->translated_strings_texts)) {
+			$this->translated_strings_texts = array();
+		}
+
+		if(! in_array($text, $this->translated_strings_texts)) {
+			$this->translated_strings_texts[] = $text;
+		}
+
 		if($this->is_bulk_translation()) {
 			if($translate == 1) {
 				$this->set_content_data($append_data, 'html', $html);
+				$this->set_content_data($append_data, 'text', $text);
 			}
 			return;
 		}else{

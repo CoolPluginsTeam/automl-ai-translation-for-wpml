@@ -260,7 +260,7 @@ const bulkTranslateEntries = async ({ ids, langs, storeDispatch }) => {
         return { success: false, message: __('No posts to translate untranslated data not found', 'automl-ai-translation-for-wpml') };
     }
 
-    if (!untranslatedPostsData.data.posts) {
+    if (!untranslatedPostsData.data.posts || Object.keys(untranslatedPostsData.data.posts).length === 0) {
         return { success: false, message: __('No posts to translate untranslated posts data not found', 'automl-ai-translation-for-wpml') };
     }
 
