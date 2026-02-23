@@ -192,17 +192,22 @@ const App = ({ onDestory, prefix, postIds }) => {
         ))}
       {!statusModalVisibility && !settingModalVisibility && (
         <div className={`${prefix}-language-container`}>
-          <div className={`${prefix}-header`}>
-            <h2>
-              {__("Step 1: Select Languages", "automl-ai-translation-for-wpml")}
-            </h2>
-            <span
-              className="close"
+        <div className={`${prefix}-header`}>
+            <div className={`${prefix}-modal-header-inner`}>
+              <span className={`${prefix}-step-label`}>
+                {__("STEP 1 OF 3", "automl-ai-translation-for-wpml")}
+              </span>
+              <h2>{__("Select Languages", "automl-ai-translation-for-wpml")}</h2>
+            </div>
+            <button
+              type="button"
+              className={`${prefix}-modal-close`}
               onClick={destroyApp}
               title={__("Close", "automl-ai-translation-for-wpml")}
+              aria-label={__("Close", "automl-ai-translation-for-wpml")}
             >
               &times;
-            </span>
+            </button>
           </div>
           {errorMessage && errorMessage !== "" ? (
             errorModal ? (
@@ -231,32 +236,51 @@ const App = ({ onDestory, prefix, postIds }) => {
                       : allCodes;
                     return selectedFirst.map((language, index) => {
                       if (!languageObject[language]) return null;
-                      const showHr = wizardSelectedCode && index === 1;
+                      const isDisabled = (!postIds.length && !isStringTranslationPage) || (wizardSelectedCode && language !== wizardSelectedCode);
+                      const isSelected = selectedLanguages.includes(language);
                       return (
                         <React.Fragment key={language}>
-                          {showHr && (
-                            <hr className={`${prefix}-languages-divider`} />
-                          )}
-                          <div className={`${prefix}-language`}>
-                            <div
-                              title={
-                                !postIds.length && !isStringTranslationPage
-                                  ? emptyPostIdsErrorMessage
-                                  : languageObject[language].name
+                          <div
+                            className={`${prefix}-language ${isDisabled ? `${prefix}-language-item--disabled` : ''} ${isSelected ? `${prefix}-language-item--selected` : ''}`}
+                            title={
+                              !postIds.length && !isStringTranslationPage
+                                ? emptyPostIdsErrorMessage
+                                : languageObject[language].name
+                            }
+                            onClick={(e) => {
+                              if (e.target.closest('input') || e.target.closest('label')) return;
+                              if (isDisabled) return;
+                              if (isSelected) {
+                                setSelectedLanguages(selectedLanguages.filter((l) => l !== language));
+                              } else {
+                                setSelectedLanguages([...selectedLanguages, language]);
                               }
-                            >
+                            }}
+                            role="button"
+                            tabIndex={isDisabled ? -1 : 0}
+                            onKeyDown={(e) => {
+                              if ((e.key === 'Enter' || e.key === ' ') && !isDisabled) {
+                                e.preventDefault();
+                                if (isSelected) {
+                                  setSelectedLanguages(selectedLanguages.filter((l) => l !== language));
+                                } else {
+                                  setSelectedLanguages([...selectedLanguages, language]);
+                                }
+                              }
+                            }}
+                          >
+                          <div className={`${prefix}-language-item`}>
                               <input
                                 type="checkbox"
                                 name="languages"
                                 id={language}
                                 value={language}
                                 onChange={(e) => handleLanguageChange(e)}
-                                disabled={
-                                  (!postIds.length && !isStringTranslationPage) ||
-                                  (wizardSelectedCode && language !== wizardSelectedCode)
-                                }
-                                checked={selectedLanguages.includes(language)}
+                                disabled={isDisabled}
+                                checked={isSelected}
+                                className={`${prefix}-language-checkbox-input`}
                               />
+                              <span className={`${prefix}-check-visual`} aria-hidden="true" />
                               <label
                                 htmlFor={language}
                                 className={`${prefix}-language-label`}
@@ -296,7 +320,7 @@ const App = ({ onDestory, prefix, postIds }) => {
                       : ""
                   }
                 >
-                  {__("Close", "automl-ai-translation-for-wpml")}
+                  {__("Cancel", "automl-ai-translation-for-wpml")}
                 </button>
                 <button
                   className={`${prefix}-footer-button button button-primary`}
@@ -316,7 +340,7 @@ const App = ({ onDestory, prefix, postIds }) => {
                       : ""
                   }
                 >
-                  {__("Translate", "automl-ai-translation-for-wpml")}
+                                    {__("Next", "automl-ai-translation-for-wpml")} <span className={`${prefix}-next-arrow`}>&#8594;</span>
                 </button>
               </div>
             </>
