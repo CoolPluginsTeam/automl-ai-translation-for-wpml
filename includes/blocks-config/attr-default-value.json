@@ -1,4 +1,123 @@
 {
+    
+    "kadence/form": {
+        "attributes": {
+            "submitLabel": "Submit",
+            "fields": [
+				{
+					"label": "Name",
+					"showLabel": true,
+					"placeholder": "",
+					"default": "",
+					"description": "",
+					"rows": 4,
+					"options": [
+						{
+							"value": "",
+							"label": ""
+						}
+					],
+					"multiSelect": false,
+					"inline": false,
+					"showLink": false,
+					"min": "",
+					"max": "",
+					"type": "text",
+					"required": false,
+					"width": ["100", "", ""],
+					"auto": "",
+					"errorMessage": "",
+					"requiredMessage": "",
+					"slug": "",
+					"ariaLabel": ""
+				},
+				{
+					"label": "Email",
+					"showLabel": true,
+					"placeholder": "",
+					"default": "",
+					"description": "",
+					"rows": 4,
+					"options": [
+						{
+							"value": "",
+							"label": ""
+						}
+					],
+					"multiSelect": false,
+					"inline": false,
+					"showLink": false,
+					"min": "",
+					"max": "",
+					"type": "email",
+					"required": true,
+					"width": ["100", "", ""],
+					"auto": "",
+					"errorMessage": "",
+					"requiredMessage": "",
+					"slug": "",
+					"ariaLabel": ""
+				},
+				{
+					"label": "Message",
+					"showLabel": true,
+					"placeholder": "",
+					"default": "",
+					"description": "",
+					"rows": 4,
+					"options": [
+						{
+							"value": "",
+							"label": ""
+						}
+					],
+					"multiSelect": false,
+					"inline": false,
+					"showLink": false,
+					"min": "",
+					"max": "",
+					"type": "textarea",
+					"required": true,
+					"width": ["100", "", ""],
+					"auto": "",
+					"errorMessage": "",
+					"requiredMessage": "",
+					"slug": "",
+					"ariaLabel": ""
+				}
+			]
+        }
+    },
+    "kadence/tabs": {
+        "attributes": {
+            "titles": [
+				{
+					"text": "Tab 1",
+					"icon": "",
+					"iconSide": "right",
+					"onlyIcon": false,
+					"subText": "",
+					"anchor": ""
+				},
+				{
+					"text": "Tab 2",
+					"icon": "",
+					"iconSide": "right",
+					"onlyIcon": false,
+					"subText": "",
+					"anchor": ""
+				},
+				{
+					"text": "Tab 3",
+					"icon": "",
+					"iconSide": "right",
+					"onlyIcon": false,
+					"subText": "",
+					"anchor": ""
+				}
+			]
+        }
+    },
     "uagb/buttons-child": {
         "attributes": {
             "label": "Click Here"
@@ -153,6 +272,159 @@
     "themeisle-blocks/progress-bar": {
         "attributes": {
             "title": "Skill"
+        }
+    },
+    "gutenverse/advanced-heading": {
+        "attributes": {
+            "text": "Heading ",
+            "subText": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt",
+            "focusText": "Focused"
+        }
+    },
+    "gutenverse/animated-text": {
+        "attributes": {
+            "beforeTextAnimated": "Before ",
+            "text": "Placeholder Text",
+            "afterTextAnimated": " After"
+        }
+    },
+    "gutenverse/chart": {
+        "attributes": {
+            "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+            "title": "Chart Title"
+        }
+    },
+    "gutenverse/countdown": {
+        "attributes": {
+            "labelDays": "days",
+            "labelHours": "hours",
+            "labelMinutes": "minutes",
+            "labelSeconds": "seconds"
+        }
+    },
+    "gutenverse/feature-list": {
+        "attributes": {
+            "featureList": [
+                {
+					"title": "One",
+					"type": "icon",
+					"icon": "fas fa-check",
+					"content": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry&#039;s standard dummy text ever since the 1500s."
+				},
+				{
+					"title": "Two",
+					"type": "icon",
+					"icon": "fas fa-check",
+					"content": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry&#039;s standard dummy text ever since the 1500s."
+				},
+				{
+					"title": "Three",
+					"type": "icon",
+					"icon": "fas fa-check",
+					"content": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry&#039;s standard dummy text ever since the 1500s."
+				}
+            ]
+        }
+    },
+    "gutenverse/fun-fact": {
+        "attributes": {
+            "suffix": "M",
+            "title": "Fun Fact"
+        }
+    },
+    "gutenverse/icon-box": {
+        "attributes": {
+            "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+            "title": "Icon Box"
+        }
+    },
+    "gutenverse/gallery": {
+        "attributes": {
+            "images": [
+                {
+                    "title": "One"
+                },
+                {
+                    "title": "Two"
+                },
+                {
+                    "title": "Three"
+                },
+                {
+                    "title": "Four"
+                }
+            ]
+        }
+    },
+    "gutenverse/portfolio-gallery": {
+        "attributes": {
+            "linkText": "View More",
+            "images": [
+                {
+					"id": "One",
+					"title": "One",
+					"subtitle": "Sub Title",
+					"current": true,
+					"link": "#"
+				},
+				{
+					"id": "Two",
+					"title": "Two",
+					"subtitle": "Sub Title",
+					"current": false,
+					"link": "#"
+				},
+				{
+					"id": "Three",
+					"title": "Three",
+					"subtitle": "Sub Title",
+					"current": false,
+					"link": "#"
+				},
+				{
+					"id": "Four",
+					"title": "Four",
+					"subtitle": "Sub Title",
+					"current": false,
+					"link": "#"
+				}
+            ]
+        }
+    },
+    "gutenverse/progress-bar": {
+        "attributes": {
+            "title": "Progress Bar"
+        }
+    },
+    "gutenverse/star-rating": {
+        "attributes": {
+            "title": "Lorem Ipsum"
+        }
+    },
+    "gutenverse/testimonials": {
+        "attributes": {
+            "testimonialData": [
+                {
+                    "description": "Lorem Ipsum",
+                    "name": "John Doe",
+                    "comment": "Lorem Ipsum Donor Mannor"
+                },
+                {
+                    "description": "Lorem Ipsum",
+                    "name": "John Doe",
+                    "comment": "Lorem Ipsum Donor Mannor"
+                },
+                {
+                    "description": "Lorem Ipsum",
+                    "name": "John Doe",
+                    "comment": "Lorem Ipsum Donor Mannor"
+                },
+                {
+                    "description": "Lorem Ipsum",
+                    "name": "John Doe",
+                    "comment": "Lorem Ipsum Donor Mannor"
+                }
+            ]
         }
     }
 }
