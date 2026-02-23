@@ -476,13 +476,29 @@ class Update_Block_Config {
                 }else if (is_array($attr_value)){
 
                     $current_attr=isset($block_attrs[$attr_key]) ? $block_attrs[$attr_key] : [];
-                    $current_config=isset($current_config[$attr_key]) ? (array) $current_config[$attr_key] : (isset($current_config[0][$attr_key]) ? (array) $current_config[0][$attr_key] : []);
+                    $current_config=[];
+                    $current_config=(array) $this->get_current_config($current_config, $attr_key);
+                    if(empty($current_config)){
+                        $current_config=(array) $this->get_current_config($current_config[0], $attr_key);
+                    }
                     if(!empty($current_config)){
                         $this->update_array_attributes_in_package($block, $current_attr, $attr_value, $current_config, $translation_package, $attr_translations);
                     }
                 }
             }
         }
+    }
+
+    private function get_current_config($current_config, $attr_key){
+
+        $current_confing=[];
+        if(is_array($current_config) && isset($current_config[$attr_key])){
+            $current_confing=$current_config[$attr_key];
+        }else if(is_object($current_config) && isset($current_config->$attr_key)){
+            $current_confing=$current_config->$attr_key;
+        }
+
+        return $current_confing;
     }
 
     private function update_package_strings(array &$append_data, $html, $field_key, $field_name, $text, $type, $format, $translate): void {
