@@ -160,7 +160,7 @@ class Gutenberg_Update extends Content_Update_Base {
                         $attr_name=$attr_data[0];
                         $attr_value=$attr_data[1];
 
-                        if(!isset($this->translate_strings[md5($block['b/lockName'].$attr_value)])){
+                        if(!isset($this->translate_strings[md5($block['blockName'].$attr_value)])){
                             $decoded_attr_value=html_entity_decode($attr_value);
                             $inner_content=str_replace($attr_name.'="'.$attr_value.'"', $attr_name.'="'.$decoded_attr_value.'"', $inner_content);
                         }
