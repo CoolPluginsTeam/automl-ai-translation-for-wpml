@@ -207,6 +207,9 @@ final class WPML_Auto_Translate_Addon {
 			if ( class_exists( 'WPML_Auto_Dashboard' ) ) {
 				WPML_Auto_Dashboard::get_instance();
 			}
+			if ( class_exists( 'WPML_Auto_Cpt_Dashboard' ) ) {
+				new WPML_Auto_Cpt_Dashboard();
+			}
 		}
 	}
 
