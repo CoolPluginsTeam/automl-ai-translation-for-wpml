@@ -1,6 +1,6 @@
 <?php
 /**
- * Helper functions for WPML Auto Translate Addon.
+ * Helper functions for AUTOML Ai Translate Addon.
  *
  * @package WPML_Auto_Translate
  */

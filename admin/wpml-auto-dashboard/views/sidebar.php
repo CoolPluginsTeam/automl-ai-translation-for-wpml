@@ -196,7 +196,7 @@ endif;
 				<?php endif; ?>
 			</div>
 			<div class="wpml-auto-dashboard-addon-r">
-				<img src="<?php echo esc_url( WPML_AT_PLUGIN_URL . 'admin/wpml-auto-dashboard/images/atlt-logo.png' ); ?>" alt="<?php esc_attr_e( 'Loco Auto Translate Addon', 'automl-ai-translation-for-wpml' ); ?>">
+				<img src="<?php echo esc_url( AUTOML_AI_PLUGIN_URL . 'admin/wpml-auto-dashboard/images/atlt-logo.png' ); ?>" alt="<?php esc_attr_e( 'Loco Auto Translate Addon', 'automl-ai-translation-for-wpml' ); ?>">
 			</div>
 		</div>
 	</div>

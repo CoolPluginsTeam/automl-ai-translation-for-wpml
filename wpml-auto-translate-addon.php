@@ -20,19 +20,19 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Define plugin constants.
-if ( ! defined( 'WPML_AT_VERSION' ) ) {
-	define( 'WPML_AT_VERSION', '1.0.0' );
+if ( ! defined( 'AUTOML_AI_VERSION' ) ) {
+	define( 'AUTOML_AI_VERSION', '1.0.0' );
 }
-if ( ! defined( 'WPML_AT_PLUGIN_DIR' ) ) {
-	define( 'WPML_AT_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
+if ( ! defined( 'AUTOML_AI_PLUGIN_DIR' ) ) {
+	define( 'AUTOML_AI_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 }
-if ( ! defined( 'WPML_AT_PLUGIN_URL' ) ) {
-	define( 'WPML_AT_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
+if ( ! defined( 'AUTOML_AI_PLUGIN_URL' ) ) {
+	define( 'AUTOML_AI_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 }
-if ( ! defined( 'WPML_AT_PLUGIN_BASENAME' ) ) {
-	define( 'WPML_AT_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
+if ( ! defined( 'AUTOML_AI_PLUGIN_BASENAME' ) ) {
+	define( 'AUTOML_AI_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
 }
-$automl_wpml_autoload = WPML_AT_PLUGIN_DIR . 'vendor/autoload.php';
+$automl_wpml_autoload = AUTOML_AI_PLUGIN_DIR . 'vendor/autoload.php';
 if ( file_exists( $automl_wpml_autoload ) ) {
 	require_once $automl_wpml_autoload;
 }
@@ -45,19 +45,19 @@ use AUTOML_WPML\Helper\Helper;
 /**
  * Main plugin class.
  */
-final class WPML_Auto_Translate_Addon {
+final class AUTOML_Ai_Translate_Addon {
 
 	/**
 	 * Plugin instance.
 	 *
-	 * @var WPML_Auto_Translate_Addon
+	 * @var AUTOML_Ai_Translate_Addon
 	 */
 	private static $instance = null;
 
 	/**
 	 * Get plugin instance.
 	 *
-	 * @return WPML_Auto_Translate_Addon
+	 * @return AUTOML_Ai_Translate_Addon
 	 */
 	public static function get_instance() {
 		if ( null === self::$instance ) {
@@ -75,7 +75,7 @@ final class WPML_Auto_Translate_Addon {
 		add_action( 'init', array( AI_Client::class, 'init' ) );
 	
 		add_action( 'admin_init', array( $this, 'register_ai_model_setting' ) );
-		add_action( 'admin_menu', array( $this, 'register_wpml_auto_dashboard_menu' ), 20 );
+		add_action( 'admin_menu', array( $this, 'register_automl_ai_dashboard_menu' ), 20 );
 		add_action( 'admin_menu', array( $this, 'hide_wp_ai_client_menu' ), 99 );
 	}
 
@@ -102,7 +102,7 @@ final class WPML_Auto_Translate_Addon {
 		);
 	}
 
-	public function register_wpml_auto_dashboard_menu() {
+	public function register_automl_ai_dashboard_menu() {
 		global $menu;
 	
 		// Fallback parent slug if we can't detect WPML explicitly.
@@ -121,8 +121,8 @@ final class WPML_Auto_Translate_Addon {
 	
 		add_submenu_page(
 			$parent_slug, // parent (WPML) menu slug
-			__( 'WPML Auto Translate', 'automl-ai-translation-for-wpml' ), // page title
-			__( 'WPML Auto Translate', 'automl-ai-translation-for-wpml' ),      // menu title
+			__( 'AUTOML Ai Translate', 'automl-ai-translation-for-wpml' ), // page title
+			__( 'AUTOML Ai Translate', 'automl-ai-translation-for-wpml' ),      // menu title
 			'manage_options',       	                                  // capability
 			'wpml-auto-dashboard',                                    // menu slug
 			array( \WPML_Auto_Dashboard::get_instance(), 'wpml_auto_render_dashboard_page' ) // callback
@@ -168,7 +168,7 @@ final class WPML_Auto_Translate_Addon {
 		);
 
 		foreach ( $files as $file ) {
-			$file_path = WPML_AT_PLUGIN_DIR . $file;
+			$file_path = AUTOML_AI_PLUGIN_DIR . $file;
 			if ( file_exists( $file_path ) ) {
 				require_once $file_path;
 			}
@@ -234,7 +234,7 @@ final class WPML_Auto_Translate_Addon {
 		?>
 		<div class="notice notice-error">
 			<p>
-				<strong><?php esc_html_e( 'WPML Auto Translate Addon:', 'automl-ai-translation-for-wpml' ); ?></strong>
+				<strong><?php esc_html_e( 'AUTOML Ai Translate Addon:', 'automl-ai-translation-for-wpml' ); ?></strong>
 				<?php esc_html_e( 'This plugin requires WPML to be installed and activated.', 'automl-ai-translation-for-wpml' ); ?>
 			</p>
 		</div>
@@ -246,7 +246,7 @@ final class WPML_Auto_Translate_Addon {
  * Initialize the plugin.
  */
 function wpml_auto_translate_addon() {
-	return WPML_Auto_Translate_Addon::get_instance();
+	return AUTOML_Ai_Translate_Addon::get_instance();
 }
 
 register_activation_hook( __FILE__, array( \AUTOML_WPML\Modules\Wizard\WPML_AT_Wizard::class, 'start_wizard' ) );

@@ -42,10 +42,10 @@ const SetupPage = () => {
 				<div className="wpml-at-wizard-card" style={{ maxWidth: 600, margin: '0 auto', padding: 40 }}>
 					<h2 style={{ marginTop: 0 }}>{ __( "You're ready to translate with AI", 'automl-ai-translation-for-wpml' ) }</h2>
 					<p style={{ color: '#6b7280', marginBottom: 24 }}>
-						{ __( "Use the WPML Auto Translate dashboard to translate your posts and strings with AI.", 'automl-ai-translation-for-wpml' ) }
+						{ __( "Use the AUTOML Ai Translate dashboard to translate your posts and strings with AI.", 'automl-ai-translation-for-wpml' ) }
 					</p>
 					<a href={ dashboardUrl } className="button button-primary button-hero">
-						{ __( 'Open WPML Auto Translate', 'automl-ai-translation-for-wpml' ) }
+						{ __( 'Open AUTOML Ai Translate', 'automl-ai-translation-for-wpml' ) }
 					</a>
 				</div>
 			</div>

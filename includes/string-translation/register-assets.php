@@ -85,11 +85,11 @@ class Register_Assets {
 			// Enqueue bulk translate build files on string translation page.
 			if ($is_string_translation) {
 
-				$asset_file = include WPML_AT_PLUGIN_DIR . 'assets/bulk-string-translate/index.asset.php';
+				$asset_file = include AUTOML_AI_PLUGIN_DIR . 'assets/bulk-string-translate/index.asset.php';
 
 				wp_enqueue_script(
 					'wpml-at-bulk-translate',
-					WPML_AT_PLUGIN_URL . 'assets/bulk-string-translate/index.js',
+					AUTOML_AI_PLUGIN_URL . 'assets/bulk-string-translate/index.js',
 					$asset_file['dependencies'],
 					$asset_file['version'],
 					true
@@ -97,7 +97,7 @@ class Register_Assets {
 
 				wp_enqueue_style(
 					'wpml-at-bulk-translate',
-					WPML_AT_PLUGIN_URL . 'assets/bulk-string-translate/index.css',
+					AUTOML_AI_PLUGIN_URL . 'assets/bulk-string-translate/index.css',
 					array(),
 					$asset_file['version']
 				);
@@ -117,7 +117,7 @@ class Register_Assets {
 						'update_translate_data_nonce' => wp_create_nonce( 'automl_wpml_update_translate_data' ), 
 						'bulkTranslateRouteUrl' => get_rest_url(null, 'automl-bulk-translate'),
 						'bulkTranslatePrivateKey' => wp_create_nonce('automl_wpml_bulk_translate_entries_nonce'),
-						'automl_wpml_url'           => esc_url(WPML_AT_PLUGIN_URL),
+						'automl_wpml_url'           => esc_url(AUTOML_AI_PLUGIN_URL),
 						'AIServices' => $available_ai_services,
 						'admin_url' => admin_url(),
 						'ai_translate_route_url' => get_rest_url(null, 'automl-bulk-translate'),

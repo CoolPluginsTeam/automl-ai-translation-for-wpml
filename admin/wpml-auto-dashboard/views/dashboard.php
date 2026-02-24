@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<div class="wpml-auto-dashboard-get-started-grid-content">
 					<h2><?php echo esc_html__( 'Automate the Translation Process :-', 'automl-ai-translation-for-wpml' ); ?></h2>
 					<iframe
-						title="Automate the Translation Process with WPML Auto Translate Addon"
+						title="Automate the Translation Process with AUTOML Ai Translate Addon"
 						src="https://www.youtube.com/embed/ecHsOyIL_J4?feature=oembed"
 						frameborder="0"
 						allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"

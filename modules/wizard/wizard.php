@@ -176,18 +176,18 @@ class WPML_AT_Wizard {
 		if ( ! $this->is_wizard() ) {
 			return;
 		}
-		$asset_path = WPML_AT_PLUGIN_DIR . 'admin/assets/frontend/setup/setup.asset.php';
+		$asset_path = AUTOML_AI_PLUGIN_DIR . 'admin/assets/frontend/setup/setup.asset.php';
 		if ( ! file_exists( $asset_path ) ) {
 			wp_enqueue_style(
 				'wpml-at-wizard',
-				WPML_AT_PLUGIN_URL . 'modules/wizard/assets/wizard.css',
+				AUTOML_AI_PLUGIN_URL . 'modules/wizard/assets/wizard.css',
 				array(),
-				WPML_AT_VERSION
+				AUTOML_AI_VERSION
 			);
 			return;
 		}
 		$asset   = require $asset_path;
-		$script  = WPML_AT_PLUGIN_URL . 'admin/assets/frontend/setup/setup.js';
+		$script  = AUTOML_AI_PLUGIN_URL . 'admin/assets/frontend/setup/setup.js';
 		wp_enqueue_script(
 			'wpml_at_setup',
 			$script,
@@ -227,9 +227,9 @@ class WPML_AT_Wizard {
         );
 		wp_enqueue_style(
 			'wpml-at-wizard',
-			WPML_AT_PLUGIN_URL . 'modules/wizard/assets/wizard.css',
+			AUTOML_AI_PLUGIN_URL . 'modules/wizard/assets/wizard.css',
 			array(),
-			WPML_AT_VERSION
+			AUTOML_AI_VERSION
 		);
 	}
 }

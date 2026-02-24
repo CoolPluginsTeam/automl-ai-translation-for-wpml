@@ -53,7 +53,7 @@ const AiTranslation = ({ onBack, onContinue }) => {
 			<div style={{ flex: 1 }}>
 				<h2 style={{ marginTop: 0 }}>{ __( 'AI Translation', 'automl-ai-translation-for-wpml' ) }</h2>
 				<p style={{ fontSize: 14, marginBottom: 12 }}>
-					{ __( 'AutoML lets you translate content using AI. Add your API keys below; they are saved to the same settings as WPML Auto Translate Settings.', 'automl-ai-translation-for-wpml' ) }
+					{ __( 'AutoML lets you translate content using AI. Add your API keys below; they are saved to the same settings as AUTOML Ai Translate Settings.', 'automl-ai-translation-for-wpml' ) }
 				</p>
 
 				<div style={{ marginBottom: 16 }}>
@@ -90,7 +90,7 @@ const AiTranslation = ({ onBack, onContinue }) => {
 				) }
 
 				<p style={{ fontSize: 14, marginBottom: 24 }}>
-					{ __( 'You can also add or change keys and models later in WPML Auto Translate → Settings.', 'automl-ai-translation-for-wpml' ) }
+					{ __( 'You can also add or change keys and models later in AUTOML Ai Translate → Settings.', 'automl-ai-translation-for-wpml' ) }
 				</p>
 			</div>
 			<div className="wpml-at-wizard-footer" style={{ display: 'flex', justifyContent: 'space-between', marginTop: 24 }}>

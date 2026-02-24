@@ -60,13 +60,13 @@ class Register_Assets {
         
         $slug_translation_option = get_option('automl_wpml_slug_translation_option','title_translate');
 
-        $editor_script_asset = include WPML_AT_PLUGIN_DIR . 'assets/bulk-translate/index.asset.php';
+        $editor_script_asset = include AUTOML_AI_PLUGIN_DIR . 'assets/bulk-translate/index.asset.php';
         
         $rtl=function_exists('is_rtl') ? is_rtl() : false;
         $css_file=$rtl ? 'index-rtl.css' : 'index.css';
       
-        wp_enqueue_script('automl-wpml-bulk-translate', WPML_AT_PLUGIN_URL . 'assets/bulk-translate/index.js', $editor_script_asset['dependencies'], $editor_script_asset['version'], true);
-        wp_enqueue_style('automl-wpml-bulk-translate', WPML_AT_PLUGIN_URL . 'assets/bulk-translate/'.$css_file, array(), $editor_script_asset['version']);
+        wp_enqueue_script('automl-wpml-bulk-translate', AUTOML_AI_PLUGIN_URL . 'assets/bulk-translate/index.js', $editor_script_asset['dependencies'], $editor_script_asset['version'], true);
+        wp_enqueue_style('automl-wpml-bulk-translate', AUTOML_AI_PLUGIN_URL . 'assets/bulk-translate/'.$css_file, array(), $editor_script_asset['version']);
 
         $languages = WPML_AT_Helper::get_wpml_languages();
         $selected_language = get_option( 'wpml_at_wizard_selected_language', array() );
@@ -116,7 +116,7 @@ class Register_Assets {
                 'bulkTranslateRouteUrl' => get_rest_url(null, 'automl-bulk-translate'),
                 'bulkTranslatePrivateKey' => wp_create_nonce('automl_wpml_bulk_translate_entries_nonce'),
                 'pendingPostsIdsKey' => wp_create_nonce('automl_wpml_pending_posts_ids_nonce'),
-                'automl_wpml_url'           => esc_url(WPML_AT_PLUGIN_URL),
+                'automl_wpml_url'           => esc_url(AUTOML_AI_PLUGIN_URL),
                 'AIServices' => $available_ai_services,
                 'admin_url' => admin_url(),
                 'ai_translate_route_nonce' => wp_create_nonce('wp_rest'),

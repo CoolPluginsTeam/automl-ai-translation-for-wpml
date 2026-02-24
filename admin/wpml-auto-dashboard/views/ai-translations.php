@@ -57,14 +57,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 				?>
 				<div class="wpml-auto-dashboard-translation-card">
 					<div class="logo">
-						<img src="<?php echo esc_url( WPML_AT_PLUGIN_URL . 'assets/images/' . $automl_wpml_ai_translation['logo'] ); ?>"
+						<img src="<?php echo esc_url( AUTOML_AI_PLUGIN_URL . 'assets/images/' . $automl_wpml_ai_translation['logo'] ); ?>"
 							alt="<?php echo esc_attr( $automl_wpml_ai_translation['alt'] ); ?>">
 					</div>
 					<h3><?php echo esc_html( $automl_wpml_ai_translation['title'] ); ?></h3>
 					<p><?php echo esc_html( $automl_wpml_ai_translation['description'] ); ?></p>
 					<div class="play-btn-container">
 						<a href="<?php echo esc_url( $automl_wpml_ai_translation['url'] ); ?>" target="_blank">
-							<img src="<?php echo esc_url( WPML_AT_PLUGIN_URL . 'admin/wpml-auto-dashboard/images/' . $automl_wpml_ai_translation['icon'] ); ?>"
+							<img src="<?php echo esc_url( AUTOML_AI_PLUGIN_URL . 'admin/wpml-auto-dashboard/images/' . $automl_wpml_ai_translation['icon'] ); ?>"
 								alt="<?php echo esc_attr( $automl_wpml_ai_translation['alt'] ); ?>">
 						</a>
 					</div>

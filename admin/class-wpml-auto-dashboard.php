@@ -1,6 +1,6 @@
 <?php
 /**
- * Admin Dashboard for WPML Auto Translate Addon.
+ * Admin Dashboard for AUTOML Ai Translate Addon.
  *
  * @package WPML_Auto_Translate
  */
@@ -59,16 +59,16 @@ if ( ! class_exists( 'WPML_Auto_Dashboard' ) ) {
 			// Adjust paths if you place assets elsewhere.
 			wp_enqueue_style(
 				'wpml-auto-dashboard-style',
-				WPML_AT_PLUGIN_URL . 'admin/wpml-auto-dashboard/css/admin-styles.css',
+				AUTOML_AI_PLUGIN_URL . 'admin/wpml-auto-dashboard/css/admin-styles.css',
 				array(),
-				WPML_AT_VERSION
+				AUTOML_AI_VERSION
 			);
 
 			wp_enqueue_script(
 				'wpml-auto-dashboard-script',
-				WPML_AT_PLUGIN_URL . 'admin/wpml-auto-dashboard/js/wpml-auto-data-share-setting.js',
+				AUTOML_AI_PLUGIN_URL . 'admin/wpml-auto-dashboard/js/wpml-auto-data-share-setting.js',
 				array( 'jquery' ),
-				WPML_AT_VERSION,
+				AUTOML_AI_VERSION,
 				true
 			);
 		}
@@ -104,7 +104,7 @@ if ( ! class_exists( 'WPML_Auto_Dashboard' ) ) {
 				<div class="wpml-auto-dashboard-header">
 					<div class="wpml-auto-dashboard-header-left">
 						<a href="<?php echo esc_url( admin_url( 'admin.php?page=wpml-auto-dashboard&tab=dashboard' ) ); ?>" class="wpml-auto-dashboard-logo-link">
-							<img src="<?php echo esc_url( WPML_AT_PLUGIN_URL . 'admin/wpml-auto-dashboard/images/polylang-addon-logo.svg' ); ?>" alt="<?php esc_attr_e( 'WPML Auto Logo', 'automl-ai-translation-for-wpml' ); ?>">
+							<img src="<?php echo esc_url( AUTOML_AI_PLUGIN_URL . 'admin/wpml-auto-dashboard/images/polylang-addon-logo.svg' ); ?>" alt="<?php esc_attr_e( 'WPML Auto Logo', 'automl-ai-translation-for-wpml' ); ?>">
 						</a>
 						<div class="wpml-auto-dashboard-tab-title">
 							<span>↳</span> <?php echo esc_html( $valid_tabs[ $current_tab ] ); ?>
@@ -127,14 +127,14 @@ if ( ! class_exists( 'WPML_Auto_Dashboard' ) ) {
 				<div class="tab-content">
 					<?php
 					// Main tab content.
-					$view_file = WPML_AT_PLUGIN_DIR . $file_prefix . $current_tab . '.php';
+					$view_file = AUTOML_AI_PLUGIN_DIR . $file_prefix . $current_tab . '.php';
 					if ( file_exists( $view_file ) ) {
 						require $view_file;
 					} else {
 						echo '<p>' . esc_html__( 'View file not found.', 'automl-ai-translation-for-wpml' ) . '</p>';
 					}
 
-					$sidebar_file = WPML_AT_PLUGIN_DIR . $file_prefix . 'sidebar.php';
+					$sidebar_file = AUTOML_AI_PLUGIN_DIR . $file_prefix . 'sidebar.php';
 					if ( file_exists( $sidebar_file ) ) {
 						require $sidebar_file;
 					}
@@ -143,7 +143,7 @@ if ( ! class_exists( 'WPML_Auto_Dashboard' ) ) {
 
 				<?php
 				// Footer.
-				$footer_file = WPML_AT_PLUGIN_DIR . $file_prefix . 'footer.php';
+				$footer_file = AUTOML_AI_PLUGIN_DIR . $file_prefix . 'footer.php';
 				if ( file_exists( $footer_file ) ) {
 					require $footer_file;
 				}
