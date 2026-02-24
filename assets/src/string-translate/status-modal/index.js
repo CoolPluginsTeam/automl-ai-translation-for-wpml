@@ -544,8 +544,14 @@ const StatusModal = ({ postIds, selectedLanguages, prefix, onDestory }) => {
                       })}
                     {!isLoading &&
                       Object.keys(translatePostInfo).map((key, index) => {
-                        const info = translatePostInfo[key];
-                        const isStringAggregate = key.startsWith("strings_");
+                      const info = translatePostInfo[key];
+                      const isStringAggregate = key.startsWith("strings_");
+                      const isStringDashboardOnly =
+                        isStringAggregate &&
+                        key.split("_").length === 3 &&
+                        key.split("_")[1] === key.split("_")[2];
+
+                      if (isStringDashboardOnly) return null;
                         const workingStatus =
                           info.status === "running" ||
                           info.status === "in-progress";

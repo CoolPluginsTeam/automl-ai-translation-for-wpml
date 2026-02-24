@@ -1069,13 +1069,56 @@ const initBulkTranslateStrings = async (
           let timeTakenSec = 0;
           if (batchToSave.length > 0) {
             timeTakenSec = Math.round((Date.now() - batchStartTime) / 1000);
-            await saveStringTranslations(lang, batchToSave, nonce, {
-              source_lang: sourceLang,
-              service_provider: serviceSlug || activeProvider,
-              string_count: batchToSave.length,
-              character_count: batchCharsTranslated,
-              time_taken: timeTakenSec,
-            });
+            await saveStringTranslations(lang, batchToSave, nonce);
+            if (automl_wpml_bulk_translate_object?.update_translate_data_nonce) {
+              const batchWords = batch.reduce(
+                (sum, s) =>
+                  sum +
+                  (typeof (s.text || s.html || "") === "string"
+                    ? (s.text || s.html || "")
+                        .trim()
+                        .split(/\s+/)
+                        .filter(Boolean).length
+                    : 0),
+                0,
+              );
+              const parentKey = `strings_${lang}`;
+              const translateInfoKey = `${parentKey}_${lang}`;
+              const saveId = `strings_${lang}_${Date.now()}`;
+
+              storeDispatch(
+                updateParentPostsInfo({
+                  postId: parentKey,
+                  data: {
+                    wordsCount: batchWords,
+                    charactersCount: batchCharsTranslated,
+                    stringsCount: batchToSave.length,
+                  },
+                }),
+              );
+              storeDispatch(
+                updateTranslatePostInfo({
+                  [translateInfoKey]: {
+                    stringsTranslated: batchToSave.length,
+                    wordsTranslated: batchWords,
+                    charactersTranslated: batchCharsTranslated,
+                    duration: timeTakenSec * 1000,
+                  },
+                }),
+              );
+
+              updateTranslateData({
+                provider: serviceSlug || activeProvider,
+                sourceLang,
+                targetLang: lang,
+                parentPostId: parentKey,
+                currentPostId: saveId,
+                editorType: "strings",
+                updateTranslateDataNonce:
+                  automl_wpml_bulk_translate_object.update_translate_data_nonce,
+                extraData: {},
+              });
+            }
           }
 
           offset += batch.length;

@@ -160,6 +160,7 @@ final class WPML_Auto_Translate_Addon {
 			'includes/class-wpml-at-helper.php',
 			'admin/class-wpml-at-admin.php',
 			'includes/class-wpml-at-strings-ajax.php',
+			'includes/class-wpml-at-update-translate-data-ajax.php',
 			'includes/routes/bulk-translation-route.php',
 			'admin/class-wpml-auto-dashboard.php',
 			'admin/cpt_dashboard/cpt_dashboard.php',
@@ -191,7 +192,10 @@ final class WPML_Auto_Translate_Addon {
 		if ( class_exists( WPML_AT_Strings_Ajax::class ) ) {
 			WPML_AT_Strings_Ajax::init();
 		}
-        if ( class_exists( Bulk_Translation_Route::class ) ) {
+		if ( class_exists( 'WPML_AT_Update_Translate_Data_Ajax' ) ) {
+			WPML_AT_Update_Translate_Data_Ajax::init();
+		}
+		if ( class_exists( Bulk_Translation_Route::class ) ) {
 			new Bulk_Translation_Route( 'automl-bulk-translate' );
 		}
 		

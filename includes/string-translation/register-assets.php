@@ -66,7 +66,7 @@ class Register_Assets {
 				'AUTOML_WPML_AUTO_TRANSLATE',
 				array(
 					'ajax'      => esc_url(admin_url('admin-ajax.php')),
-					'nonce'     => wp_create_nonce('AUTOML_WPML_AUTO_TRANSLATE_nonce'),
+					'nonce'     => wp_create_nonce('automl_wpml_auto_translate_nonce'),
 					'languages' => $selected_language,
 					'admin_url' => esc_url(admin_url()),
 					'i18n'      => array(
@@ -110,9 +110,11 @@ class Register_Assets {
 						'taxonomy_page'          => '',
 						'languageObject'         => $lang_object,
 						'selected_language_object' => $selected_lang_object,
-						'ajax'                   => esc_url( admin_url( 'admin-ajax.php' ) ),
-						'nonce'                  => wp_create_nonce( 'AUTOML_WPML_AUTO_TRANSLATE_nonce' ),
+						'ajax_url'               => esc_url( admin_url( 'admin-ajax.php' ) ),  
+						'nonce'                  => wp_create_nonce('automl_wpml_auto_translate_nonce'),
 						'default_language_slug'  => $default_language,
+						'update_translate_data'   => 'automl_wpml_update_translate_data',     
+						'update_translate_data_nonce' => wp_create_nonce( 'automl_wpml_update_translate_data' ), 
 						'bulkTranslateRouteUrl' => get_rest_url(null, 'automl-bulk-translate'),
 						'bulkTranslatePrivateKey' => wp_create_nonce('automl_wpml_bulk_translate_entries_nonce'),
 						'automl_wpml_url'           => esc_url(WPML_AT_PLUGIN_URL),
