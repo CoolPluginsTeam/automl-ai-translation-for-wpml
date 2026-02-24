@@ -293,14 +293,14 @@ if(!defined('ABSPATH')){
             add_action('admin_notices', function() use ($message, $prefix, $url, $allowed){
                 $html= '<div class="notice notice-info is-dismissible cpt-review-notice">';
                 
-                $html .= '<div class="cpt-review-notice-content"><p>'.$message.'</p><div class="atfpp-review-notice-dismiss" data-prefix="'.esc_attr($prefix).'" data-nonce="'.esc_attr(wp_create_nonce('atfpp_hide_review_notice')).'"><a href="'.esc_url($url).'" target="_blank" class="button button-primary">Rate Now! ★★★★★</a><button class="button cpt-already-reviewed">'.esc_html__('Already Reviewed', 'automl-ai-translation-for-wpml').'</button><button class="button cpt-not-interested">'.esc_html__('Not Interested', 'automl-ai-translation-for-wpml').'</button></div></div></div>';
+                $html .= '<div class="cpt-review-notice-content"><p>'.$message.'</p><div class="automl-wpml-review-notice-dismiss" data-prefix="'.esc_attr($prefix).'" data-nonce="'.esc_attr(wp_create_nonce('automl_wpml_hide_review_notice')).'"><a href="'.esc_url($url).'" target="_blank" class="button button-primary">Rate Now! ★★★★★</a><button class="button cpt-already-reviewed">'.esc_html__('Already Reviewed', 'automl-ai-translation-for-wpml').'</button><button class="button cpt-not-interested">'.esc_html__('Not Interested', 'automl-ai-translation-for-wpml').'</button></div></div></div>';
                 
                 echo wp_kses($html, $allowed);
             });
 
-            add_action('atfpp_display_admin_notices', function() use ($message, $prefix, $url, $allowed){
+            add_action('automl-wpml_display_admin_notices', function() use ($message, $prefix, $url, $allowed){
                 $html= '<div class="notice notice-info is-dismissible cpt-review-notice">';
-                $html .= '<div class="cpt-review-notice-content"><p>'.$message.'</p><div class="atfpp-review-notice-dismiss" data-prefix="'.$prefix.'" data-nonce="'.wp_create_nonce('atfpp_hide_review_notice').'"><a href="'. $url .'" target="_blank" class="button button-primary">Rate Now! ★★★★★</a><button class="button cpt-not-interested">'.__('Not Interested', 'automl-ai-translation-for-wpml').'</button><button class="button cpt-already-reviewed">'.__('Already Reviewed', 'automl-ai-translation-for-wpml').'</button></div></div></div>';
+                $html .= '<div class="cpt-review-notice-content"><p>'.$message.'</p><div class="automl-wpml-review-notice-dismiss" data-prefix="'.$prefix.'" data-nonce="'.wp_create_nonce('automl_wpml_hide_review_notice').'"><a href="'. $url .'" target="_blank" class="button button-primary">Rate Now! ★★★★★</a><button class="button cpt-not-interested">'.__('Not Interested', 'automl-ai-translation-for-wpml').'</button><button class="button cpt-already-reviewed">'.__('Already Reviewed', 'automl-ai-translation-for-wpml').'</button></div></div></div>';
                 
                 echo wp_kses($html, $allowed);
             });
@@ -317,7 +317,7 @@ if(!defined('ABSPATH')){
                 wp_die( '0', 403 );
             }
 
-            if(isset($_POST['nonce']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'atfpp_hide_review_notice')){
+            if(isset($_POST['nonce']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'automl_wpml_hide_review_notice')){
                 $prefix = isset($_POST['prefix']) ? sanitize_key(wp_unslash($_POST['prefix'])) : '';
                 $review_notice_dismissed = get_option('cpt_review_notice_dismissed', array());
                 $review_notice_dismissed[$prefix] = true;
