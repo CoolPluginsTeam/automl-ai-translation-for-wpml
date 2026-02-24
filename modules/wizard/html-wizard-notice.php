@@ -9,11 +9,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-$wizard_url = add_query_arg(
+$automl_wpml_wizard_url = add_query_arg(
 	array( 'page' => 'wpml_at_wizard' ),
 	admin_url( 'admin.php' )
 );
-$skip_url = wp_nonce_url(
+$automl_wpml_skip_url = wp_nonce_url(
 	add_query_arg( 'wpml_at_hide_wizard_notice', '1', admin_url( 'admin.php' ) ),
 	'wpml_at_hide_wizard',
 	'_wpml_at_notice_nonce'
@@ -34,10 +34,10 @@ $skip_url = wp_nonce_url(
 		<?php esc_html_e( 'You\'re almost ready to translate your content with AI.', 'automl-ai-translation-for-wpml' ); ?>
 	</p>
 	<p class="buttons">
-		<a href="<?php echo esc_url( $wizard_url ); ?>" class="button button-primary">
+		<a href="<?php echo esc_url( $automl_wpml_wizard_url ); ?>" class="button button-primary">
 			<?php esc_html_e( 'Run the Setup Wizard', 'automl-ai-translation-for-wpml' ); ?>
 		</a>
-		<a href="<?php echo esc_url( $skip_url ); ?>" class="button button-secondary">
+		<a href="<?php echo esc_url( $automl_wpml_skip_url ); ?>" class="button button-secondary">
 			<?php esc_html_e( 'Skip setup', 'automl-ai-translation-for-wpml' ); ?>
 		</a>
 	</p>

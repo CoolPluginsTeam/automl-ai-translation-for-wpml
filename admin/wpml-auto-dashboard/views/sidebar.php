@@ -142,7 +142,7 @@ endif;
 					$carry['character_count'] += intval( $translation['character_count'] ?? 0 );
 					$carry['time_taken']      += intval( $translation['time_taken'] ?? 0 );
 
-					if ( ! empty( $translation['job_id'] ) ) {
+					if ( ! empty( $translation['post_id'] ) ) {
 						$carry['translation_count']++;
 					}
 					return $carry;

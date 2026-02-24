@@ -23,9 +23,9 @@ export const updateTranslateData = ({
   )
     return;
 
-  const parentPostInfo = store.getState().parentPostsInfo[parentPostId];
+  const parentPostInfo = store.getState().parentPostsInfo?.[parentPostId] || {};
   const translateData =
-    store.getState().translatePostInfo[parentPostId + "_" + targetLang];
+    store.getState().translatePostInfo?.[parentPostId + "_" + targetLang] || {};
 
   let sourceCount = {
     wordsCount: parentPostInfo.wordsCount || 0,
@@ -41,6 +41,8 @@ export const updateTranslateData = ({
   const sourceCharacterCount = sourceCount.charactersCount;
   const sourceStringCount = sourceCount.stringsCount;
   const date = new Date().toISOString();
+
+  const ajaxUrl = automl_wpml_bulk_translate_object.ajax_url;
 
   const data = {
     provider,
@@ -58,12 +60,12 @@ export const updateTranslateData = ({
     action: automl_wpml_bulk_translate_object.update_translate_data,
     automl_wpml_nonce: updateTranslateDataNonce,
     post_id: currentPostId,
-    ajax_url: automl_wpml_bulk_translate_object.ajax_url,
+    ajax_url: ajaxUrl,
     extraData: JSON.stringify(extraData),
     bulk_translate: true,
   };
 
-  fetch(automl_wpml_bulk_translate_object.ajax_url, {
+  fetch(ajaxUrl, {
     method: "POST",
     headers: {
       "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
