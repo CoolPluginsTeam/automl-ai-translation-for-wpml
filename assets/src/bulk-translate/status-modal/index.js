@@ -330,7 +330,7 @@ const StatusModal = ({ postIds, selectedLanguages, prefix, onDestory }) => {
                     <p>{emptyPostMessage}</p> :
                     <>
                         {isLoading && <div className={`${prefix}-progress-skeleton`}></div>}
-                        {(countInfo.totalPosts > 1) && progressBarVisibility && !isLoading ?
+                        {(countInfo.totalPosts > 0) && progressBarVisibility && !isLoading ?
                             <>
                                 {!charactersCountVisibility && <div className={`${prefix}-overall-progress`}>
                                     <div className={`${prefix}-progress-bar`}>
