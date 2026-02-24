@@ -10,22 +10,16 @@ const SettingModal = (props) => {
     const prefix=props.prefix || 'automl-wpml-bulk-translate';
     const imgFolder = automl_wpml_bulk_translate_object.automl_wpml_url + 'assets/images/';
     const [errorModal, setErrorModal] = useState(false);
+    const [selectedProvider, setSelectedProvider] = useState(null);
 
-    /**
-     * Function to handle fetching content based on the target button clicked.
-     * Sets the target button and updates the fetch status to true.
-     * @param {Event} e - The event object representing the button click.
-     */
-    const startTranslationHandler = async (e) => {
-        let targetElement = !e.target.classList.contains(`${prefix}-service-btn`) ? e.target.closest(`.${prefix}-service-btn`) : e.target;
+    const onSelectProvider = (service) => {
+        setSelectedProvider(service);
+    };
 
-        if (!targetElement) {
-            return;
+    const onStartTranslation = () => {
+        if (selectedProvider) {
+            props.updateProviderHandler(selectedProvider);
         }
-
-        const dataService = targetElement.dataset && targetElement.dataset.service;
-
-        props.updateProviderHandler(dataService);
     };
 
     const errorModalHandler = (msg) => {
@@ -38,7 +32,7 @@ const SettingModal = (props) => {
 
     return (
         <>
-            {errorModal ? <ErrorModalBox message={errorModal} onDestroy={props.onDestory} onClose={closeErrorModal} Title='AutoML - AI Translation for WPML' prefix={prefix} /> :
+            {errorModal ? <ErrorModalBox message={errorModal} onDestroy={props.onDestory} onClose={closeErrorModal} Title='AutoPoly - AI Translation For Polylang (Pro)' prefix={prefix} /> :
             <div id={`${prefix}-setting-modal-container`}>
                 <div className={`${prefix}-setting-modal-content`}>
                     <SettingModalHeader
@@ -46,15 +40,18 @@ const SettingModal = (props) => {
                         prefix={prefix}
                     />
                     <SettingModalBody
-                        startTranslationHandler={startTranslationHandler}
                         imgFolder={imgFolder}
                         prefix={prefix}
                         localAiModalError={props.localAiModalError}
                         errorModalHandler={errorModalHandler}
+                        selectedProvider={selectedProvider}
+                        onSelectProvider={onSelectProvider}
                     />
                     <SettingModalFooter
                         setSettingVisibility={props.onCloseHandler}
                         prefix={prefix}
+                        selectedProvider={selectedProvider}
+                        onStartTranslation={onStartTranslation}
                     />
                 </div>
             </div>}

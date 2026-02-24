@@ -83,7 +83,7 @@ const bulkTranslateStore = createSlice({
     },
 
     updateServiceProvider: (state, action) => {
-      if(['localAiTranslator','google', 'google_ai', 'openai_ai', 'openrouter_ai', 'deepl_ai'].includes(action.payload)){
+      if(['localAiTranslator','google_ai', 'openai_ai'].includes(action.payload)){
         state.serviceProvider = action.payload;
       }
     },
