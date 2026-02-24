@@ -1226,7 +1226,7 @@ const saveStringTranslations = async (
   nonce,
   stats = null,
 ) => {
-  const ajaxUrl = automl_wpml_bulk_translate_object.ajax;
+  const ajaxUrl = automl_wpml_bulk_translate_object.ajax_url;
 
   const body = {
     action: "automl_wpml_google_auto_translate_save_string_translations",
