@@ -74,7 +74,6 @@ const updateFilteredContent = async ({ source, lang, translatedContent, serviceP
 
     updateContent(source, translatedContent);
 
-    console.log(source);
     return source;
 }
 

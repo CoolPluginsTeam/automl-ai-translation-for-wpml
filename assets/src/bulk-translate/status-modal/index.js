@@ -52,7 +52,7 @@ const StatusModal = ({ postIds, selectedLanguages, prefix, onDestory }) => {
             await LoopCallback({ callback: processPostIds, loop: Object.keys(pendingPostsInfo), index: 0 });
         }
 
-        const getPendingPostsIdsResponse = async () => {
+        const initBulkTranslation = async () => {
             const sendRequest = async () => {
                 const response = await fetch(automl_wpml_bulk_translate_object.bulkTranslateRouteUrl + '/automl_wpmlp/pending-posts-ids', {
                     method: 'POST',
@@ -103,7 +103,7 @@ const StatusModal = ({ postIds, selectedLanguages, prefix, onDestory }) => {
             await sendRequest();
         }
 
-        getPendingPostsIdsResponse();
+        initBulkTranslation();
     }, []);
 
     const handleErrorModal = (data) => {
@@ -365,21 +365,34 @@ const StatusModal = ({ postIds, selectedLanguages, prefix, onDestory }) => {
                         <div className={`${prefix}-status-table-container`}>
                             <div className={`${prefix}-status-inner`}>
                                 {isLoading && postIds.map((postId) => (
-                                    <div className={`${prefix}-progress-skeleton`} key={postId}>
-                                        <div className={`${prefix}-progress-skeleton-item`}></div>
-                                        <div className={`${prefix}-progress-skeleton-item`}></div>
-                                        <div className={`${prefix}-progress-skeleton-item`}></div>
-                                        <div className={`${prefix}-progress-skeleton-item`}></div>
+                                    <div className={`${prefix}-status-inner-item`} key={postId}>
+                                        <div className={`${prefix}-status-parent-post-title`}>
+                                            <div className={`${prefix}-progress-skeleton`} style={{ maxWidth: '80px', marginBottom: '0px' }}></div>
+                                        </div>
+                                        <div className={`${prefix}-status-target-post`}>
+                                            <div className={`${prefix}-status-target-post-flag`}>
+                                                <div className={`${prefix}-progress-skeleton`} style={{ maxWidth: '80px', marginBottom: '0px' }}></div>
+                                            </div>
+                                            <div className={`${prefix}-status-target-post-status`}>
+                                                <div className={`${prefix}-progress-skeleton`} style={{ maxWidth: '80px', marginBottom: '0px' }}></div>
+                                            </div>
+                                            <div className={`${prefix}-status-target-post-title`} style={{ gridColumn: 'span 2' }}>
+                                                <div className={`${prefix}-progress-skeleton`} style={{ maxWidth: '80px', marginInline: 'auto', marginBottom: '0px' }}></div>
+                                            </div>
+                                            <div className={`${prefix}-status-target-post-actions`}>
+                                                <div className={`${prefix}-progress-skeleton`} style={{ maxWidth: '80px', marginBottom: '0px' }}></div>
+                                            </div>
+                                        </div>
                                     </div>
                                 ))}
                                 {!isLoading && Object.keys(errorPostsInfo).length > 0 &&
                                     Object.keys(errorPostsInfo).map((key, index) => {
                                         return (
-                                            <div className={`${prefix}-status-table-container-inner-item`} key={key}>
+                                            <div className={`${prefix}-status-inner-item`} key={key}>
                                                 <div key={`group-title-${key}`} className={`${prefix}-group-title`}>
                                                     {errorPostsInfo[key]?.title || __('Untitled', 'automl-ai-translation-for-wpml')}
                                                 </div>
-                                                <div className={`${prefix}-status-table-container-inner-item-target-post ${prefix}-error-message`}>
+                                                <div className={`${prefix}-status-inner-item ${prefix}-error-message`}>
                                                     <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(errorPostsInfo[key].errorMessage) }}></div>
                                                 </div>
                                             </div>
@@ -424,7 +437,7 @@ const StatusModal = ({ postIds, selectedLanguages, prefix, onDestory }) => {
                                                                 <div className={`${prefix}-percentage`}>0%</div>
                                                             </div>}
                                                         </div>
-                                                        <div className={`${prefix}-status-target-post-title`} style={{ gridColumn: 'span 2'}}>
+                                                        <div className={`${prefix}-status-target-post-title`} style={{ gridColumn: 'span 2' }}>
                                                             <>
                                                                 {info.status === 'completed' ?
                                                                     <a href={info.postLink} target="_blank" rel="noopener noreferrer">{info.targetPostTitle}</a> :
