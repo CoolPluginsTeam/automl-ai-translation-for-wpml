@@ -379,9 +379,6 @@ if ( ! class_exists( 'Bulk_Translation_Route' ) ) :
            	// Clean the text
 						$cleanText = preg_replace( '/(^```json\n|```$)/', '', $raw );
 
-						$cleanText = str_replace( '<ATFPP_NEW_L>', '\n', $cleanText );
-						$cleanText = str_replace( '<ATFPP_NEW_R>', '\r', $cleanText );
-
 						// Replace the double backslashes with a single backslash
 						$final_text = preg_replace( '/\\\\{2,}([\'"n])/', '\\\$1', $cleanText );
 
@@ -686,7 +683,6 @@ if ( ! class_exists( 'Bulk_Translation_Route' ) ) :
 			$post_title     = html_entity_decode( get_the_title( $translated_post_id ) );
 			$post_edit_link = html_entity_decode( get_edit_post_link( $translated_post_id ) );
 				
-			// wp_delete_post($translated_post_id, true);
 			wp_send_json_success(
 				array(
 					'post_id'                     => $translated_post_id,

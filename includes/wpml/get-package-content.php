@@ -82,8 +82,8 @@ class Get_Package_Content {
 	private function create_package() {
 
 		if(wpml_is_st_loaded()){
-			$wpml_package_helper = new WPML_Package_Helper();
-			$this->package = $wpml_package_helper->get_post_string_packages(false, $this->post_id);
+			$automl_wpml_package_helper = new WPML_Package_Helper();
+			$this->package = $automl_wpml_package_helper->get_post_string_packages(false, $this->post_id);
 
 			if(empty($this->package)) {
 				$builder = new WPML_Element_Translation_Package( null );
@@ -94,7 +94,7 @@ class Get_Package_Content {
 					true // is original
 				);
 
-				$this->package = $wpml_package_helper->get_post_string_packages(false, $this->post_id);
+				$this->package = $automl_wpml_package_helper->get_post_string_packages(false, $this->post_id);
 			}
 
 			if(!empty($this->package)) {
