@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import StatusModal from './status-modal';
 import { useDispatch, useSelector } from 'react-redux';
-import { resetStore, updateServiceProvider } from './redux-store/features/actions';
+import { resetStore, updateServiceProvider, updateCountInfo } from './redux-store/features/actions';
 import { selectCountInfo } from './redux-store/features/selectors';
 import ChromeAiTranslator from './components/translate-provider/local-ai/local-ai-translate';
 import ErrorModalBox from './components/error-modal-box';
@@ -57,6 +57,11 @@ const App = ({ onDestory, prefix, postIds }) => {
             setErrorModal(true);
             return;
         }
+
+        if(false === settingModalVisibility){
+            dispatch(updateCountInfo({startTime: new Date().getTime()}));
+        }
+
         setSettingModalVisibility((prev) => !prev);
     };
 

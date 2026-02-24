@@ -208,7 +208,6 @@ const bulkTranslateEntries = async ({ ids, langs, storeDispatch }) => {
     const bulkTranslateRouteUrl = automl_wpml_bulk_translate_object.bulkTranslateRouteUrl;
     const bulkTranslatePrivateKey = automl_wpml_bulk_translate_object.bulkTranslatePrivateKey;
     const nonce = automl_wpml_bulk_translate_object.nonce;
-    storeDispatch(updateCountInfo({startTime: new Date().getTime()}));
 
     const body = {
         ids: JSON.stringify(ids),

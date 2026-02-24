@@ -66,7 +66,7 @@ class LocalAiTranslate {
             await this.translateContent(0);
 
             if (!this.stopTranslation) {
-                this.updateContent(targetLang);
+                await this.updateContent(targetLang);
             }
         }
 

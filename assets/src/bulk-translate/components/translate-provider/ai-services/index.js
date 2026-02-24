@@ -11,7 +11,7 @@ import { store } from "../../../redux-store/store";
 import {translateFieldNameSort} from "../../../helper/index";
 
 class AIService {
-    constructor({ postId = '', sourceLang = '', targetLangs = [], totalPosts = 0, prefix = '', createTranslatePostNonce = '', updateContent = () => { }, storeDispatch = () => { }, updateDestoryHandler = () => { }, previousCompletedStrings = 0 }) {
+    constructor({ postId = '', sourceLang = '', targetLangs = [], totalPosts = 0, prefix = '', createTranslatePostNonce = '', updateContent = async () => { }, storeDispatch = () => { }, updateDestoryHandler = () => { }, previousCompletedStrings = 0 }) {
         this.CONCURRENCY_LIMIT = window?.automl_wpml_bulk_translate_object?.AIRequestBatchSize || 5;
         this.MAX_TOKENS=window?.automl_wpml_bulk_translate_object?.AIRequestMaxTokens || 500;
 
@@ -176,11 +176,11 @@ class AIService {
 
         try {
             await this.runRequest();
-            this.processCompleteHandler(timeStart);
+            await this.processCompleteHandler(timeStart);
         } catch (error) {
             this.pendingStrings = true;
 
-            this.processCompleteHandler(timeStart);
+            await this.processCompleteHandler(timeStart);
             if (error.name === 'AbortError') {
                 const errorMessage = this.errorMessage && this.errorMessage.includes('You exceeded your current quota') ? __('You have exceeded you current plan limit. that\'s why the request is aborted.', 'automl-ai-translation-for-wpml') : error;
                 console.warn(errorMessage);
@@ -212,7 +212,7 @@ class AIService {
 
         this.updateTotalProgressStatus(this.totalStrings, this.completedStrings);
 
-        this.updateContent(this.activeTargetLangs);
+        await this.updateContent(this.activeTargetLangs);
     }
 
     makeAjaxRequest = async (batch) => {

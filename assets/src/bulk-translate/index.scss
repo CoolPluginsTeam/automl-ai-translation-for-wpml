@@ -457,16 +457,20 @@ $prefix: automl-wpml-bulk-translate;
                 font-size: 1rem;
                 margin-bottom: 10px;
                 margin-top: 5px;
+                margin-inline: 24px;
             }
 
             .#{$prefix}-count-container {
                 display: grid;
                 grid-template-columns: auto auto auto;
                 gap: .8rem .3rem;
-                padding: .5rem 0;
+                padding: .7rem 1rem;
                 font-size: 1rem;
                 justify-content: space-between;
                 margin-inline: 24px;
+                background: #00000005;
+                border-radius: 13px;
+                margin-bottom: 15px;
 
                 .#{$prefix}-count-text-heading {
                     color: #8c8585;
@@ -507,11 +511,6 @@ $prefix: automl-wpml-bulk-translate;
                             text-align: center;
                         }
                     }
-                }
-
-                .status-target-post{
-                    display: grid;
-                    width: 100%;
                 }
 
                 .#{$prefix}-progress-bar-circular {
@@ -591,6 +590,7 @@ $prefix: automl-wpml-bulk-translate;
                     display: grid;
                     grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
                     align-items: center;
+                    border: 1px solid #00000005;
 
                     &-flag{
                         display: flex;
@@ -639,6 +639,9 @@ $prefix: automl-wpml-bulk-translate;
 
                     &-actions{
                         text-align: right;
+                        display: flex;
+                        align-items: center;
+                        justify-content: flex-end;
                     }
 
                     & > div{
