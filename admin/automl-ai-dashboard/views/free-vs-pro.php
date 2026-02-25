@@ -3,14 +3,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 ?>
-<div class="wpml-auto-dashboard-free-vs-pro">
-	<div class="wpml-auto-dashboard-free-vs-pro-container">
+<div class="automl_ai_dashboard-free-vs-pro">
+	<div class="automl_ai_dashboard-free-vs-pro-container">
 		<div class="header">
 			<h1><?php esc_html_e( 'Free vs Other Solutions', 'automl-ai-translation-for-wpml' ); ?></h1>
-			<div class="wpml-auto-dashboard-status">
+			<div class="automl_ai_dashboard-status">
 				<span class="status"><?php esc_html_e( 'Info', 'automl-ai-translation-for-wpml' ); ?></span>
 				<a href="<?php echo esc_url( 'https://coolplugins.net/?utm_source=wpml-auto-plugin&utm_medium=inside&utm_campaign=other_products&utm_content=freevspro' ); ?>"
-					class="wpml-auto-dashboard-btn"
+					class="automl_ai_dashboard-btn"
 					target="_blank">
 					<?php esc_html_e( 'See more addons', 'automl-ai-translation-for-wpml' ); ?>
 				</a>

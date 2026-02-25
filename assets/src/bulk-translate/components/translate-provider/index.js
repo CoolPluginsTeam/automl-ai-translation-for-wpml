@@ -36,7 +36,7 @@ export default (props) => {
             Docs: "https://docs.coolplugins.net/doc/translate-via-open-ai-polylang/?utm_source=automl_wpml_plugin&utm_medium=inside&utm_campaign=docs&utm_content=bulk_translate_openai",
             BetaEnabled: true,
             ButtonDisabled: props.openai_aiButtonDisabled,
-            ErrorMessage: props.openai_aiButtonDisabled ? <a className={`${prefix}-provider-error button button-primary`} href={adminUrl + 'admin.php?page=wpml-auto-dashboard&tab=settings'} target="_blank">{__('Add API Key', 'automl-ai-translation-for-wpml')}</a> : <></>,
+            ErrorMessage: props.openai_aiButtonDisabled ? <a className={`${prefix}-provider-error button button-primary`} href={adminUrl + 'admin.php?page=automl_ai_dashboard&tab=settings'} target="_blank">{__('Add API Key', 'automl-ai-translation-for-wpml')}</a> : <></>,
             Logo: 'openai.png',
             filterHtmlContent: true
         },
@@ -49,7 +49,7 @@ export default (props) => {
             Docs: "https://docs.coolplugins.net/doc/translate-via-gemini-ai-polylang/?utm_source=automl_wpml_plugin&utm_medium=inside&utm_campaign=docs&utm_content=bulk_translate_gemini",
             BetaEnabled: true,
             ButtonDisabled: props.google_aiButtonDisabled,
-            ErrorMessage: props.google_aiButtonDisabled ? <a className={`${prefix}-provider-error button button-primary`} href={adminUrl + 'admin.php?page=wpml-auto-dashboard&tab=settings'} target="_blank">{__('Add API Key', 'automl-ai-translation-for-wpml')}</a> : <></>,
+            ErrorMessage: props.google_aiButtonDisabled ? <a className={`${prefix}-provider-error button button-primary`} href={adminUrl + 'admin.php?page=automl_ai_dashboard&tab=settings'} target="_blank">{__('Add API Key', 'automl-ai-translation-for-wpml')}</a> : <></>,
             Logo: 'gemini.png',
             filterHtmlContent: true
         }

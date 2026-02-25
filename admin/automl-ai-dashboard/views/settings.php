@@ -9,8 +9,8 @@ if ( ! current_user_can( 'manage_options' ) ) {
 $automl_wpml_wizard_lang    = get_option( 'wpml_at_wizard_selected_language', array() );
 $automl_wpml_wizard_language_set = is_array( $automl_wpml_wizard_lang ) && ! empty( $automl_wpml_wizard_lang['code'] );
 ?>
-<div class="wpml-auto-dashboard-settings">
-	<div class="wpml-auto-dashboard-settings-container">
+<div class="automl_ai_dashboard-settings">
+	<div class="automl_ai_dashboard-settings-container">
 		<div class="header">
 			<h1><?php echo esc_html__( 'AUTOML Ai Translate Settings', 'automl-ai-translation-for-wpml' ); ?></h1>
 		</div>
@@ -39,8 +39,8 @@ $automl_wpml_wizard_language_set = is_array( $automl_wpml_wizard_lang ) && ! emp
 			</div>
 		<?php endif; ?>
 
-		<div class="wpml-auto-dashboard-api-settings-container">
-			<div class="wpml-auto-dashboard-api-settings">
+		<div class="automl_ai_dashboard-api-settings-container">
+			<div class="automl_ai_dashboard-api-settings">
 				<form method="post" action="options.php">
 					<?php
                      // Dummy username field to satisfy browser heuristics; not used by backend.
@@ -60,18 +60,18 @@ $automl_wpml_wizard_language_set = is_array( $automl_wpml_wizard_lang ) && ! emp
 					$automl_wpml_ai_credentials = get_option( 'wp_ai_client_provider_credentials', array() );
 
 					// Current selected models (saved by the addon).
-					$automl_wpml_current_models       = get_option( 'wpml_at_ai_translation_models', array() );
+					$automl_wpml_current_models       = get_option( 'automl_ai_translation_models', array() );
 					$automl_wpml_current_openai_model = isset( $automl_wpml_current_models['openai'] ) ? $automl_wpml_current_models['openai'] : '';
 					$automl_wpml_current_google_model = isset( $automl_wpml_current_models['google'] ) ? $automl_wpml_current_models['google'] : '';
 					$automl_wpml_openai_api_key = isset( $automl_wpml_ai_credentials['openai'] ) ? $automl_wpml_ai_credentials['openai'] : '';
 					$automl_wpml_google_api_key = isset( $automl_wpml_ai_credentials['google'] ) ? $automl_wpml_ai_credentials['google'] : '';
                     if ( empty( $automl_wpml_current_openai_model ) && !empty( $automl_wpml_openai_api_key ) ) {
 						$automl_wpml_current_openai_model = 'gpt-4o-mini';
-						update_option( 'wpml_at_ai_translation_models', array( 'openai' => $automl_wpml_current_openai_model ) );
+						update_option( 'automl_ai_translation_models', array( 'openai' => $automl_wpml_current_openai_model ) );
 					}
 					if ( empty( $automl_wpml_current_google_model ) && !empty( $automl_wpml_google_api_key ) ) {
 						$automl_wpml_current_google_model = 'gemini-2.5-flash';
-						update_option( 'wpml_at_ai_translation_models', array( 'google' => $automl_wpml_current_google_model ) );
+						update_option( 'automl_ai_translation_models', array( 'google' => $automl_wpml_current_google_model ) );
 					}
 					
 					$automl_wpml_openai_models = array();
@@ -140,7 +140,7 @@ $automl_wpml_wizard_language_set = is_array( $automl_wpml_wizard_lang ) && ! emp
 					}
 
 					?>
-					<div class="wpml-auto-dashboard-api-settings-form">
+					<div class="automl_ai_dashboard-api-settings-form">
 						<?php
 						// Providers shown in the UI.
 						$automl_wpml_api_settings = array(
@@ -184,13 +184,13 @@ $automl_wpml_wizard_language_set = is_array( $automl_wpml_wizard_lang ) && ! emp
 
 							// OpenAI model selector.
 							if ( 'openai' === $automl_wpml_api_key && $automl_wpml_has_key && ! empty( $automl_wpml_openai_models ) ) : ?>
-								<div class="wpml-auto-dashboard-api-settings-openai-model">
+								<div class="automl_ai_dashboard-api-settings-openai-model">
 									<label for="wpml_selected_openai_model" class="api-settings-label">
 										<?php esc_html_e( 'Select OpenAI Model', 'automl-ai-translation-for-wpml' ); ?>
 									</label>
 									<select
 										id="wpml_selected_openai_model"
-										name="wpml_at_ai_translation_models[openai]"
+										name="automl_ai_translation_models[openai]"
 										class="wpml-openai-model-select"
 										<?php echo $automl_wpml_wizard_language_set ? '' : ' disabled="disabled"'; ?>
 									>
@@ -207,13 +207,13 @@ $automl_wpml_wizard_language_set = is_array( $automl_wpml_wizard_lang ) && ! emp
 
 							// Google / Gemini model selector.
 							if ( 'google' === $automl_wpml_api_key && $automl_wpml_has_key && ! empty( $automl_wpml_google_models ) ) : ?>
-								<div class="wpml-auto-dashboard-api-settings-google-model">
+								<div class="automl_ai_dashboard-api-settings-google-model">
 									<label for="wpml_selected_google_model" class="api-settings-label">
 										<?php esc_html_e( 'Select Gemini Model', 'automl-ai-translation-for-wpml' ); ?>
 									</label>
 									<select
 										id="wpml_selected_google_model"
-										name="wpml_at_ai_translation_models[google]"
+										name="automl_ai_translation_models[google]"
 										class="wpml-google-model-select"
 										<?php echo $automl_wpml_wizard_language_set ? '' : ' disabled="disabled"'; ?>
 									>
@@ -240,10 +240,10 @@ $automl_wpml_wizard_language_set = is_array( $automl_wpml_wizard_lang ) && ! emp
 
 						<hr style="margin: 2rem 0px;">
 
-						<div class="wpml-auto-dashboard-save-btn-container">
+						<div class="automl_ai_dashboard-save-btn-container">
 						<?php submit_button( __( 'Save (via WP AI Client & WPML Addon)', 'automl-ai-translation-for-wpml' ), 'primary', 'submit', true, $automl_wpml_wizard_language_set ? array() : array( 'disabled' => 'disabled' ) ); ?>
 						</div>
-					</div><!-- .wpml-auto-dashboard-api-settings-form -->
+					</div><!-- .automl_ai_dashboard-api-settings-form -->
 				</form>
 			</div>
 		</div>

@@ -3,14 +3,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 ?>
-<div class="wpml-auto-dashboard-license">
-	<div class="wpml-auto-dashboard-license-container">
+<div class="automl_ai_dashboard-license">
+	<div class="automl_ai_dashboard-license-container">
 		<div class="header">
 			<h1><?php esc_html_e( 'License Key', 'automl-ai-translation-for-wpml' ); ?></h1>
-			<div class="wpml-auto-dashboard-status">
+			<div class="automl_ai_dashboard-status">
 				<span><?php esc_html_e( 'Free', 'automl-ai-translation-for-wpml' ); ?></span>
 				<a href="<?php echo esc_url( 'https://coolplugins.net/?utm_source=wpml-auto-plugin&utm_medium=inside&utm_campaign=other_products&utm_content=license' ); ?>"
-					class="wpml-auto-dashboard-btn"
+					class="automl_ai_dashboard-btn"
 					target="_blank">
 					<?php esc_html_e( 'View More Plugins', 'automl-ai-translation-for-wpml' ); ?>
 				</a>
@@ -31,7 +31,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			?>
 		</p>
 
-		<div class="wpml-auto-dashboard-upgrade-box">
+		<div class="automl_ai_dashboard-upgrade-box">
 			<p>
 				<?php esc_html_e( 'If you like this addon, you can explore more multilingual & translation plugins by Cool Plugins.', 'automl-ai-translation-for-wpml' ); ?>
 				<a href="<?php echo esc_url( 'https://coolplugins.net/?utm_source=wpml-auto-plugin&utm_medium=inside&utm_campaign=other_products&utm_content=license_box' ); ?>"

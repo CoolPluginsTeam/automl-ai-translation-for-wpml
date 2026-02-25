@@ -9,24 +9,24 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-if ( ! class_exists( 'WPML_Auto_Dashboard' ) ) {
+if ( ! class_exists( 'AUTOML_Ai_Dashboard' ) ) {
 
 	/**
 	 * Handles the custom admin dashboard page.
 	 */
-	class WPML_Auto_Dashboard {
+	class AUTOML_Ai_Dashboard {
 
 		/**
 		 * Instance.
 		 *
-		 * @var WPML_Auto_Dashboard|null
+		 * @var AUTOML_Ai_Dashboard|null
 		 */
 		protected static $instance = null;
 
 		/**
 		 * Get singleton instance.
 		 *
-		 * @return WPML_Auto_Dashboard
+		 * @return AUTOML_Ai_Dashboard
 		 */
 		public static function get_instance() {
 			if ( null === self::$instance ) {
@@ -52,21 +52,21 @@ if ( ! class_exists( 'WPML_Auto_Dashboard' ) ) {
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			$page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
 
-			if ( 'wpml-auto-dashboard' !== $page ) {
+			if ( 'automl_ai_dashboard' !== $page ) {
 				return;
 			}
 
 			// Adjust paths if you place assets elsewhere.
 			wp_enqueue_style(
-				'wpml-auto-dashboard-style',
-				AUTOML_AI_PLUGIN_URL . 'admin/wpml-auto-dashboard/css/admin-styles.css',
+				'automl_ai_dashboard-style',
+				AUTOML_AI_PLUGIN_URL . 'admin/automl-ai-dashboard/css/admin-styles.css',
 				array(),
 				AUTOML_AI_VERSION
 			);
 
 			wp_enqueue_script(
-				'wpml-auto-dashboard-script',
-				AUTOML_AI_PLUGIN_URL . 'admin/wpml-auto-dashboard/js/wpml-auto-data-share-setting.js',
+				'automl_ai_dashboard-script',
+				AUTOML_AI_PLUGIN_URL . 'admin/automl-ai-dashboard/js/wpml-auto-data-share-setting.js',
 				array( 'jquery' ),
 				AUTOML_AI_VERSION,
 				true
@@ -76,17 +76,17 @@ if ( ! class_exists( 'WPML_Auto_Dashboard' ) ) {
 		/**
 		 * Render the main dashboard layout and load tab views.
 		 */
-		public function wpml_auto_render_dashboard_page() {
+		public function automl_ai_render_dashboard_page() {
 			// Folder for view files (you will create these files next).
 			// Expected:
-			// - admin/wpml-auto-dashboard/views/dashboard.php
-			// - admin/wpml-auto-dashboard/views/ai-translations.php
-			// - admin/wpml-auto-dashboard/views/settings.php
-			// - admin/wpml-auto-dashboard/views/license.php
-			// - admin/wpml-auto-dashboard/views/free-vs-pro.php
-			// - admin/wpml-auto-dashboard/views/sidebar.php
-			// - admin/wpml-auto-dashboard/views/footer.php
-			$file_prefix = 'admin/wpml-auto-dashboard/views/';
+			// - admin/automl-ai-dashboard/views/dashboard.php
+			// - admin/automl-ai-dashboard/views/ai-translations.php
+			// - admin/automl-ai-dashboard/views/settings.php
+			// - admin/automl-ai-dashboard/views/license.php
+			// - admin/automl-ai-dashboard/views/free-vs-pro.php
+			// - admin/automl-ai-dashboard/views/sidebar.php
+			// - admin/automl-ai-dashboard/views/footer.php
+			$file_prefix = 'admin/automl-ai-dashboard/views/';
 
 			$valid_tabs = array(
 				'dashboard'       => __( 'Dashboard', 'automl-ai-translation-for-wpml' ),
@@ -100,24 +100,24 @@ if ( ! class_exists( 'WPML_Auto_Dashboard' ) ) {
 			$tab         = isset( $_GET['tab'] ) ? sanitize_key( wp_unslash( $_GET['tab'] ) ) : 'dashboard';
 			$current_tab = array_key_exists( $tab, $valid_tabs ) ? $tab : 'dashboard';
 			?>
-			<div class="wpml-auto-dashboard-wrapper">
-				<div class="wpml-auto-dashboard-header">
-					<div class="wpml-auto-dashboard-header-left">
-						<a href="<?php echo esc_url( admin_url( 'admin.php?page=wpml-auto-dashboard&tab=dashboard' ) ); ?>" class="wpml-auto-dashboard-logo-link">
-							<img src="<?php echo esc_url( AUTOML_AI_PLUGIN_URL . 'admin/wpml-auto-dashboard/images/polylang-addon-logo.svg' ); ?>" alt="<?php esc_attr_e( 'WPML Auto Logo', 'automl-ai-translation-for-wpml' ); ?>">
+			<div class="automl_ai_dashboard-wrapper">
+				<div class="automl_ai_dashboard-header">
+					<div class="automl_ai_dashboard-header-left">
+						<a href="<?php echo esc_url( admin_url( 'admin.php?page=automl_ai_dashboard&tab=dashboard' ) ); ?>" class="automl_ai_dashboard-logo-link">
+							<img src="<?php echo esc_url( AUTOML_AI_PLUGIN_URL . 'admin/automl-ai-dashboard/images/polylang-addon-logo.svg' ); ?>" alt="<?php esc_attr_e( 'WPML Auto Logo', 'automl-ai-translation-for-wpml' ); ?>">
 						</a>
-						<div class="wpml-auto-dashboard-tab-title">
+						<div class="automl_ai_dashboard-tab-title">
 							<span>↳</span> <?php echo esc_html( $valid_tabs[ $current_tab ] ); ?>
 						</div>
 					</div>
-					<div class="wpml-auto-dashboard-header-right">
+					<div class="automl_ai_dashboard-header-right">
 						<span><?php echo esc_html__( 'AutoML - AI Translation for WPML', 'automl-ai-translation-for-wpml' ); ?></span>
 					</div>
 				</div>
 
 				<nav class="nav-tab-wrapper" aria-label="<?php esc_attr_e( 'Dashboard navigation', 'automl-ai-translation-for-wpml' ); ?>">
 					<?php foreach ( $valid_tabs as $tab_key => $tab_title ) : ?>
-						<a href="<?php echo esc_url( admin_url( 'admin.php?page=wpml-auto-dashboard&tab=' . $tab_key ) ); ?>"
+						<a href="<?php echo esc_url( admin_url( 'admin.php?page=automl_ai_dashboard&tab=' . $tab_key ) ); ?>"
 							class="nav-tab <?php echo esc_attr( $tab === $tab_key ? 'nav-tab-active' : '' ); ?>">
 							<?php echo esc_html( $tab_title ); ?>
 						</a>
@@ -154,5 +154,5 @@ if ( ! class_exists( 'WPML_Auto_Dashboard' ) ) {
 	}
 
 	// Bootstrap the dashboard class.
-	WPML_Auto_Dashboard::get_instance();
+	AUTOML_Ai_Dashboard::get_instance();
 }

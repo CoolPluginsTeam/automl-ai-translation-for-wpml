@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Main class for AutoML wizard.
  */
-class WPML_AT_Wizard {
+class AUTOML_Ai_Wizard {
 
 	/**
 	 * Constructor.
@@ -161,7 +161,7 @@ class WPML_AT_Wizard {
 			wp_die( esc_html__( 'Sorry, you are not allowed to manage options for this site.', 'automl-ai-translation-for-wpml' ) );
 		}
         if ( get_option( 'wpml_at_setup_complete' ) && $this->is_wizard_language_set() ) {
-			wp_safe_redirect( add_query_arg( array( 'page' => 'wpml-auto-dashboard' ), admin_url( 'admin.php' ) ) );
+			wp_safe_redirect( add_query_arg( array( 'page' => 'automl_ai_dashboard' ), admin_url( 'admin.php' ) ) );
 			exit;
 		}
 		include __DIR__ . '/view-wizard-page.php';
@@ -202,7 +202,7 @@ class WPML_AT_Wizard {
 		}
         $saved_credentials = get_option( 'wp_ai_client_provider_credentials', array() );
 
-        $saved_models = get_option( 'wpml_at_ai_translation_models', array() );
+        $saved_models = get_option( 'automl_ai_translation_models', array() );
 		wp_localize_script(
             'wpml_at_setup',
             'wpml_at_setup',
@@ -210,7 +210,7 @@ class WPML_AT_Wizard {
                 'api_url'        => rest_url( 'automl-bulk-translate/' ),
                 'nonce'          => wp_create_nonce( 'wp_rest' ),
                 'admin_url'      => get_admin_url( null, 'admin.php' ),
-                'dashboard_url'  => add_query_arg( array( 'page' => 'wpml-auto-dashboard' ), admin_url( 'admin.php' ) ),
+                'dashboard_url'  => add_query_arg( array( 'page' => 'automl_ai_dashboard' ), admin_url( 'admin.php' ) ),
                 'home_url'       => get_home_url(),
                 'wpml_languages' => $wpml_languages,
                 'default_language' => $default_language,

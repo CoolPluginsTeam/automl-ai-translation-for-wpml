@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Register and handle wp_ajax_automl_wpml_update_translate_data.
  */
-class WPML_AT_Update_Translate_Data_Ajax {
+class AUTOML_AI_Update_Translate_Data_Ajax {
 
 	/**
 	 * Initialize: register the AJAX action.
@@ -35,9 +35,12 @@ class WPML_AT_Update_Translate_Data_Ajax {
 		}
 
 		$nonce = isset( $_POST['automl_wpml_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['automl_wpml_nonce'] ) ) : '';
-		if ( ! wp_verify_nonce( $nonce, 'automl_wpml_update_translate_data' ) ) {
-			wp_send_json_error( array( 'msg' => __( 'Invalid nonce', 'automl-ai-translation-for-wpml' ) ), 400 );
-		}
+if ( empty( $nonce ) && isset( $_POST['translate_data_nonce'] ) ) {
+	$nonce = sanitize_text_field( wp_unslash( $_POST['translate_data_nonce'] ) );
+}
+if ( ! wp_verify_nonce( $nonce, 'automl_wpml_update_translate_data' ) ) {
+	wp_send_json_error( array( 'msg' => __( 'Invalid nonce', 'automl-ai-translation-for-wpml' ) ), 400 );
+}
     
 		$post_id        = isset( $_POST['post_id'] ) ? sanitize_text_field( wp_unslash( $_POST['post_id'] ) ) : '';
 		$provider       = isset( $_POST['provider'] ) ? sanitize_text_field( wp_unslash( $_POST['provider'] ) ) : '';
@@ -58,8 +61,8 @@ class WPML_AT_Update_Translate_Data_Ajax {
 		if ( empty( $post_id ) || empty( $provider ) || empty( $source_lang ) || empty( $target_lang ) ) {
 			wp_send_json_error( array( 'msg' => __( 'Missing required fields', 'automl-ai-translation-for-wpml' ) ), 400 );
 		}
-
-		if ( class_exists( 'WPML_Auto_Cpt_Dashboard' ) ) {
+    
+		if ( class_exists( 'AUTOML_Ai_Cpt_Dashboard' ) ) {
 			$data = array(
 				'post_id'              => $post_id,
 				'service_provider'     => $provider,
@@ -77,7 +80,7 @@ class WPML_AT_Update_Translate_Data_Ajax {
 				'extra_data'           => $extra_data,
 				'bulk_translate'       => $bulk_translate,
 			);
-			WPML_Auto_Cpt_Dashboard::store_options( 'wpml_auto', 'post_id', 'update', $data );
+			AUTOML_Ai_Cpt_Dashboard::store_options( 'wpml_auto', 'post_id', 'update', $data );
 		}
 
 		wp_send_json_success();

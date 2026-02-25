@@ -3,14 +3,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 ?>
-<div class="wpml-auto-dashboard-ai-translations">
-	<div class="wpml-auto-dashboard-ai-translations-container">
+<div class="automl_ai_dashboard-ai-translations">
+	<div class="automl_ai_dashboard-ai-translations-container">
 		<div class="header">
 			<h1><?php esc_html_e( 'AI Translations', 'automl-ai-translation-for-wpml' ); ?></h1>
-			<div class="wpml-auto-dashboard-status">
+			<div class="automl_ai_dashboard-status">
 				<span><?php esc_html_e( 'Active', 'automl-ai-translation-for-wpml' ); ?></span>
-				<a href="<?php echo esc_url( admin_url( 'admin.php?page=wpml-auto-dashboard&tab=settings' ) ); ?>"
-					class="wpml-auto-dashboard-btn"
+				<a href="<?php echo esc_url( admin_url( 'admin.php?page=automl_ai_dashboard&tab=settings' ) ); ?>"
+					class="automl_ai_dashboard-btn"
 					target="_blank">
 					<?php esc_html_e( 'Configure AI Provider', 'automl-ai-translation-for-wpml' ); ?>
 				</a>
@@ -24,7 +24,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			); ?>
 		</p>
 
-		<div class="wpml-auto-dashboard-translations">
+		<div class="automl_ai_dashboard-translations">
 			<?php
 			$automl_wpml_ai_translations = array(
 				array(
@@ -55,7 +55,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 			foreach ( $automl_wpml_ai_translations as $automl_wpml_ai_translation ) :
 				?>
-				<div class="wpml-auto-dashboard-translation-card">
+				<div class="automl_ai_dashboard-translation-card">
 					<div class="logo">
 						<img src="<?php echo esc_url( AUTOML_AI_PLUGIN_URL . 'assets/images/' . $automl_wpml_ai_translation['logo'] ); ?>"
 							alt="<?php echo esc_attr( $automl_wpml_ai_translation['alt'] ); ?>">
@@ -64,7 +64,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<p><?php echo esc_html( $automl_wpml_ai_translation['description'] ); ?></p>
 					<div class="play-btn-container">
 						<a href="<?php echo esc_url( $automl_wpml_ai_translation['url'] ); ?>" target="_blank">
-							<img src="<?php echo esc_url( AUTOML_AI_PLUGIN_URL . 'admin/wpml-auto-dashboard/images/' . $automl_wpml_ai_translation['icon'] ); ?>"
+							<img src="<?php echo esc_url( AUTOML_AI_PLUGIN_URL . 'admin/automl-ai-dashboard/images/' . $automl_wpml_ai_translation['icon'] ); ?>"
 								alt="<?php echo esc_attr( $automl_wpml_ai_translation['alt'] ); ?>">
 						</a>
 					</div>

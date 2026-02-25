@@ -13,4 +13,4 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 require_once __DIR__ . '/wizard.php';
 
-$wpml_at_wizard = new WPML_AT_Wizard();
+$wpml_at_wizard = new AUTOML_Ai_Wizard();

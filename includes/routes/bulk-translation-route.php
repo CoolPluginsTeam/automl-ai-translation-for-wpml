@@ -325,7 +325,7 @@ if ( ! class_exists( 'Bulk_Translation_Route' ) ) :
             }
         
             // Get selected model for this provider from our option.
-            $models   = get_option( 'wpml_at_ai_translation_models', array() );
+            $models   = get_option( 'automl_ai_translation_models', array() );
             $model_id = isset( $models[ $service_slug ] ) ? $models[ $service_slug ] : '';
             if ( ! $model_id ) {
                 wp_send_json_error( 'No AI model selected for this provider.' );
@@ -421,7 +421,7 @@ if ( ! class_exists( 'Bulk_Translation_Route' ) ) :
 
 		update_option( 'wp_ai_client_provider_credentials', $credentials );
 
-		$models = get_option( 'wpml_at_ai_translation_models', array() );
+		$models = get_option( 'automl_ai_translation_models', array() );
 		if ( ! is_array( $models ) ) {
 			$models = array();
 		}
@@ -432,7 +432,7 @@ if ( ! class_exists( 'Bulk_Translation_Route' ) ) :
 			$models['google'] = $google_model;
 		}
 		if ( ! empty( $models ) ) {
-			update_option( 'wpml_at_ai_translation_models', $models );
+			update_option( 'automl_ai_translation_models', $models );
 		}
 
 		return new \WP_REST_Response( array( 'success' => true ), 200 );

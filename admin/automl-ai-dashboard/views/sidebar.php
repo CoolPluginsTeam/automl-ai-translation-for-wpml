@@ -123,10 +123,10 @@ endif;
 ?>
 
 <!-- Right Sidebar -->
-<div class="wpml-auto-dashboard-sidebar">
-	<div class="wpml-auto-dashboard-status">
+<div class="automl_ai_dashboard-sidebar">
+	<div class="automl_ai_dashboard-status">
 		<h3><?php esc_html_e( 'Auto Translation Status', 'automl-ai-translation-for-wpml' ); ?></h3>
-		<div class="wpml-auto-dashboard-sts-top">
+		<div class="automl_ai_dashboard-sts-top">
 			<?php
 			// You can later store stats in an option similar to this.
 			$automl_wpml_all_translation_data = get_option( 'wpml_auto_dashboard_data', array() );
@@ -160,7 +160,7 @@ endif;
 			<span><?php echo esc_html( wpml_auto_format_number( $totals['character_count'] ) ); ?></span>
 			<span><?php esc_html_e( 'Total Characters Translated!', 'automl-ai-translation-for-wpml' ); ?></span>
 		</div>
-		<ul class="wpml-auto-dashboard-sts-btm">
+		<ul class="automl_ai_dashboard-sts-btm">
 			<li>
 				<span><?php esc_html_e( 'Total Strings', 'automl-ai-translation-for-wpml' ); ?></span>
 				<span><?php echo esc_html( wpml_auto_format_number( $totals['string_count'] ) ); ?></span>
@@ -176,10 +176,10 @@ endif;
 		</ul>
 	</div>
 
-	<div class="wpml-auto-dashboard-translate-full">
+	<div class="automl_ai_dashboard-translate-full">
 		<h3><?php esc_html_e( 'Other Auto Translation Addons', 'automl-ai-translation-for-wpml' ); ?></h3>
-		<div class="wpml-auto-dashboard-addon first">
-			<div class="wpml-auto-dashboard-addon-l">
+		<div class="automl_ai_dashboard-addon first">
+			<div class="automl_ai_dashboard-addon-l">
 				<strong><?php echo esc_html( wpml_auto_get_plugin_display_name( 'automatic-translator-addon-for-loco-translate' ) ); ?></strong>
 				<span class="addon-desc">
 					<?php esc_html_e( 'Loco Translate addon to automatically translate plugins and themes.', 'automl-ai-translation-for-wpml' ); ?>
@@ -189,19 +189,19 @@ endif;
 					<span class="installed"><?php esc_html_e( 'Installed', 'automl-ai-translation-for-wpml' ); ?></span>
 				<?php else : ?>
 					<a href="<?php echo esc_url( admin_url( 'plugin-install.php?s=Automatic+translate+addon+for+loco+translate+by+coolplugins&tab=search&type=term' ) ); ?>"
-						class="wpml-auto-dashboard-btn"
+						class="automl_ai_dashboard-btn"
 						target="_blank">
 						<?php esc_html_e( 'Install', 'automl-ai-translation-for-wpml' ); ?>
 					</a>
 				<?php endif; ?>
 			</div>
-			<div class="wpml-auto-dashboard-addon-r">
-				<img src="<?php echo esc_url( AUTOML_AI_PLUGIN_URL . 'admin/wpml-auto-dashboard/images/atlt-logo.png' ); ?>" alt="<?php esc_attr_e( 'Loco Auto Translate Addon', 'automl-ai-translation-for-wpml' ); ?>">
+			<div class="automl_ai_dashboard-addon-r">
+				<img src="<?php echo esc_url( AUTOML_AI_PLUGIN_URL . 'admin/automl-ai-dashboard/images/atlt-logo.png' ); ?>" alt="<?php esc_attr_e( 'Loco Auto Translate Addon', 'automl-ai-translation-for-wpml' ); ?>">
 			</div>
 		</div>
 	</div>
 
-	<div class="wpml-auto-dashboard-rate-us">
+	<div class="automl_ai_dashboard-rate-us">
 		<h3><?php esc_html_e( 'Rate Us ⭐⭐⭐⭐⭐', 'automl-ai-translation-for-wpml' ); ?></h3>
 		<p><?php esc_html_e( "We'd love your feedback! Hope this addon made WPML auto-translations easier for you.", 'automl-ai-translation-for-wpml' ); ?></p>
 		<a href="https://wordpress.org/support/plugin/automl-ai-translation-for-wpml/reviews/#new-post"

@@ -15,7 +15,7 @@ if (! defined('ABSPATH')) {
 /**
  * Strings AJAX handler class.
  */
-class WPML_AT_Strings_Ajax
+class AUTOML_AI_Strings_Ajax
 {
 
 	/**

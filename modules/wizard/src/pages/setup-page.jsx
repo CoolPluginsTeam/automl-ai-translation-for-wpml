@@ -26,7 +26,7 @@ const SetupPage = () => {
 	}, [ currentStep ] );
 
 	const data = window.wpml_at_setup || {};
-	const dashboardUrl = data.dashboard_url || ( data.admin_url || '' ).replace( 'admin.php', 'admin.php?page=wpml-auto-dashboard' );
+	const dashboardUrl = data.dashboard_url || ( data.admin_url || '' ).replace( 'admin.php', 'admin.php?page=automl_ai_dashboard' );
 
 	const handleGetStarted = () => {
 		setCurrentStep( 'languages' );

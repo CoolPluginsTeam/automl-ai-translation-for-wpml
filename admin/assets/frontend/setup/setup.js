@@ -33,7 +33,7 @@ const AiTranslation = ({
   onContinue
 }) => {
   const data = window.wpml_at_setup || {};
-  const dashboardUrl = data.dashboard_url || (data.admin_url || '').replace('admin.php', 'admin.php?page=wpml-auto-dashboard');
+  const dashboardUrl = data.dashboard_url || (data.admin_url || '').replace('admin.php', 'admin.php?page=automl_ai_dashboard');
   const saved_models = data.saved_models || {};
   const savedCreds = data.saved_credentials || {};
   const [openaiKey, setOpenaiKey] = react__WEBPACK_IMPORTED_MODULE_0___default().useState(savedCreds.openai_key || '');
@@ -619,7 +619,7 @@ const SetupPage = () => {
     setStepInUrl(currentStep);
   }, [currentStep]);
   const data = window.wpml_at_setup || {};
-  const dashboardUrl = data.dashboard_url || (data.admin_url || '').replace('admin.php', 'admin.php?page=wpml-auto-dashboard');
+  const dashboardUrl = data.dashboard_url || (data.admin_url || '').replace('admin.php', 'admin.php?page=automl_ai_dashboard');
   const handleGetStarted = () => {
     setCurrentStep('languages');
   };

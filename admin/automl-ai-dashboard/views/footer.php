@@ -3,13 +3,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 ?>
-<div class="wpml-auto-dashboard-info">
-	<div class="wpml-auto-dashboard-info-links">
+<div class="automl_ai_dashboard-info">
+	<div class="automl_ai_dashboard-info-links">
 		<p>
 			<?php esc_html_e( 'Made with ❤️ by', 'automl-ai-translation-for-wpml' ); ?>
 			<span class="logo">
 				<a href="<?php echo esc_url( 'https://coolplugins.net/?utm_source=wpml-auto-plugin&utm_medium=inside&utm_campaign=author_page&utm_content=dashboard_footer' ); ?>" target="_blank">
-					<img src="<?php echo esc_url( AUTOML_AI_PLUGIN_URL . 'admin/wpml-auto-dashboard/images/cool-plugins-logo-black.svg' ); ?>" alt="<?php esc_attr_e( 'Cool Plugins Logo', 'automl-ai-translation-for-wpml' ); ?>">
+					<img src="<?php echo esc_url( AUTOML_AI_PLUGIN_URL . 'admin/automl-ai-dashboard/images/cool-plugins-logo-black.svg' ); ?>" alt="<?php esc_attr_e( 'Cool Plugins Logo', 'automl-ai-translation-for-wpml' ); ?>">
 				</a>
 			</span>
 		</p>
@@ -20,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<?php esc_html_e( 'Docs', 'automl-ai-translation-for-wpml' ); ?>
 		</a>
 
-		<div class="wpml-auto-dashboard-social-icons">
+		<div class="automl_ai_dashboard-social-icons">
 			<?php
 			$automl_wpml_social_links = array(
 				array( 'https://www.facebook.com/coolplugins/', 'facebook.svg', esc_html__( 'Facebook', 'automl-ai-translation-for-wpml' ) ),
@@ -31,7 +31,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 			foreach ( $automl_wpml_social_links as $link ) {
 				echo '<a href="' . esc_url( $link[0] ) . '" target="_blank">
-						<img src="' . esc_url( AUTOML_AI_PLUGIN_URL . 'admin/wpml-auto-dashboard/images/' . $link[1] ) . '" alt="' . esc_attr( $link[2] ) . '">
+						<img src="' . esc_url( AUTOML_AI_PLUGIN_URL . 'admin/automl-ai-dashboard/images/' . $link[1] ) . '" alt="' . esc_attr( $link[2] ) . '">
 					  </a>';
 			}
 			?>

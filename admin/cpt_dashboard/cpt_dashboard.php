@@ -10,13 +10,13 @@ if(!defined('ABSPATH')){
  * example:
  * 
  * Dashbord initialize
- * if(!class_exists('WPML_Auto_Cpt_Dashboard')){
- * $dashboard=WPML_Auto_Cpt_Dashboard::instance();
+ * if(!class_exists('AUTOML_Ai_Cpt_Dashboard')){
+ * $dashboard=AUTOML_Ai_Cpt_Dashboard::instance();
  * }
  * 
  * Store options
- * if(class_exists('WPML_Auto_Cpt_Dashboard')){
- *  WPML_Auto_Cpt_Dashboard::store_options(
+ * if(class_exists('AUTOML_Ai_Cpt_Dashboard')){
+ *  AUTOML_Ai_Cpt_Dashboard::store_options(
  *      'prefix', // Required plugin prefix
  *      'unique_key',// Optional unique key is used to update the data based on post/page id or plugin/themes name
  *      'update', // Optional preview string count or character count update or replace
@@ -35,7 +35,7 @@ if(!defined('ABSPATH')){
  * }
  * 
  * Add Tabs
- * add_filter('WPML_Auto_Cpt_Dashboard_tabs', function($tabs){
+ * add_filter('AUTOML_Ai_Cpt_Dashboard_tabs', function($tabs){
  *  $tabs[]=array(
  *      'prefix'=>'tab_name', // Required
  *      'tab_name'=>'Tab Name', // Required
@@ -53,8 +53,8 @@ if(!defined('ABSPATH')){
  * });
  * 
  * Display review notice
- * if(class_exists('WPML_Auto_Cpt_Dashboard')){
- *  WPML_Auto_Cpt_Dashboard::review_notice(
+ * if(class_exists('AUTOML_Ai_Cpt_Dashboard')){
+ *  AUTOML_Ai_Cpt_Dashboard::review_notice(
  *      'prefix', // Required
  *      'plugin_name', // Required
  *      'url', // Required
@@ -62,8 +62,8 @@ if(!defined('ABSPATH')){
  * }
  * 
  * Get translation data
- * if(class_exists('WPML_Auto_Cpt_Dashboard')){
- *  WPML_Auto_Cpt_Dashboard::get_translation_data(
+ * if(class_exists('AUTOML_Ai_Cpt_Dashboard')){
+ *  AUTOML_Ai_Cpt_Dashboard::get_translation_data(
  *      'prefix', // Required
  *      array(
  *          'editor_type' => 'gutenberg', // optional return data based on editor type
@@ -73,9 +73,9 @@ if(!defined('ABSPATH')){
  * }
  */
 
- if(!class_exists('WPML_Auto_Cpt_Dashboard'))
+ if(!class_exists('AUTOML_Ai_Cpt_Dashboard'))
     {
-        class WPML_Auto_Cpt_Dashboard{
+        class AUTOML_Ai_Cpt_Dashboard{
 
         /**
          * Init
