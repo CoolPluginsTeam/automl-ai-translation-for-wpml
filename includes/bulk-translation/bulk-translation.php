@@ -53,7 +53,7 @@ class Bulk_Translation {
 
         public function automl_wpml_bulk_translate_button($views)
         {
-            echo "<button class='button automl-wpml-bulk-translate-btn' style='display:none;'>Bulk Translate</button>";
+            echo "<button class='button automl-wpml-bulk-translate-btn' style='display:none;'>AI Translate</button>";
 
             return $views;
         }
