@@ -131,12 +131,12 @@ endif;
 			// You can later store stats in an option similar to this.
 			$automl_wpml_all_translation_data = get_option( 'wpml_auto_dashboard_data', array() );
 
-			if ( ! is_array( $automl_wpml_all_translation_data ) || ! isset( $automl_wpml_all_translation_data['wpml_auto'] ) ) {
-				$automl_wpml_all_translation_data['wpml_auto'] = array();
+			if ( ! is_array( $automl_wpml_all_translation_data ) || ! isset( $automl_wpml_all_translation_data['automl_ai'] ) ) {
+				$automl_wpml_all_translation_data['automl_ai'] = array();
 			}
 
 			$totals = array_reduce(
-				$automl_wpml_all_translation_data['wpml_auto'],
+				$automl_wpml_all_translation_data['automl_ai'],
 				function ( $carry, $translation ) {
 					$carry['string_count']    += intval( $translation['string_count'] ?? 0 );
 					$carry['character_count'] += intval( $translation['character_count'] ?? 0 );

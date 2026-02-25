@@ -33,9 +33,6 @@ const Providers = (props) => {
                   <img src={`${props.imgFolder}${ActiveService.Logo}`} alt="" />
               </span>
               <span className={`${prefix}-provider-card-name`}>{ActiveService.title}</span>
-              {props.description && (
-                  <span className={`${prefix}-provider-card-desc`}>{props.description}</span>
-              )}
               <div className={`${prefix}-provider-card-actions`}>
                   <a href={ActiveService.Docs} target="_blank" rel="noopener noreferrer" className={`${prefix}-provider-card-docs`} title={ActiveService.Docs} onClick={(e) => e.stopPropagation()}>
                       <svg width="16" height="20" viewBox="0 0 9 12" fill="none" xmlns="http://www.w3.org/2000/svg">

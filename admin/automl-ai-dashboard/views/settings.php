@@ -6,7 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 if ( ! current_user_can( 'manage_options' ) ) {
 	wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'automl-ai-translation-for-wpml' ) );
 }
-$automl_wpml_wizard_lang    = get_option( 'wpml_at_wizard_selected_language', array() );
+$automl_wpml_wizard_lang    = get_option( 'automl_ai_wizard_selected_language', array() );
 $automl_wpml_wizard_language_set = is_array( $automl_wpml_wizard_lang ) && ! empty( $automl_wpml_wizard_lang['code'] );
 ?>
 <div class="automl_ai_dashboard-settings">

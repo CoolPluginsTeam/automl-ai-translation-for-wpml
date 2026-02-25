@@ -79,6 +79,7 @@
   background: white;
   position: relative;
   border-radius: 8px;
+  overflow: hidden;
   max-width: 100vw;
   /* Setting Modal CSS Start */
   /* Setting Modal CSS Start */

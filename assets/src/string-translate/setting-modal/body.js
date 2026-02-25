@@ -2,11 +2,6 @@ import Providers from "./providers";
 import TranslateService from "../components/translate-provider";
 import { __ } from "@wordpress/i18n";
 
-const providerDescriptions = {
-    localAiTranslator: __("Translate using Chrome's built-in translation API.", "automl-ai-translation-for-wpml"),
-    openai_ai: __("Best for creative and localized content.", "automl-ai-translation-for-wpml"),
-    google_ai: __("Reliable, fast translation across 130+ languages.", "automl-ai-translation-for-wpml"),
-};
 
 const SettingModalBody = (props) => {
     const { prefix, localAiModalError } = props;
@@ -23,7 +18,6 @@ const SettingModalBody = (props) => {
                         key={provider}
                         {...props}
                         layout="card"
-                        description={providerDescriptions[provider]}
                         selectedProvider={props.selectedProvider}
                         onSelectProvider={props.onSelectProvider}
                         openai_aiDisabled={openai_aiDisabled}

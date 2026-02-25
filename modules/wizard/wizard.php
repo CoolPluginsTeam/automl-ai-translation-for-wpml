@@ -146,7 +146,7 @@ class AUTOML_Ai_Wizard {
 	 * @return bool
 	 */
 	private function is_wizard_language_set() {
-		$opt = get_option( 'wpml_at_wizard_selected_language', array() );
+		$opt = get_option( 'automl_ai_wizard_selected_language', array() );
 		return is_array( $opt ) && ! empty( $opt['code'] );
 	}
 
@@ -214,7 +214,7 @@ class AUTOML_Ai_Wizard {
                 'home_url'       => get_home_url(),
                 'wpml_languages' => $wpml_languages,
                 'default_language' => $default_language,
-                'saved_language' => get_option( 'wpml_at_wizard_selected_language', array() ),
+                'saved_language' => get_option( 'automl_ai_wizard_selected_language', array() ),
                 'saved_credentials' => array(
                     'openai_key' => isset( $saved_credentials['openai'] ) ? $saved_credentials['openai'] : '',
                     'google_key' => isset( $saved_credentials['google'] ) ? $saved_credentials['google'] : '',

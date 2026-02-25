@@ -456,7 +456,7 @@ if ( ! class_exists( 'Bulk_Translation_Route' ) ) :
 		} elseif ( is_string( $param ) && $param !== '' ) {
 			$stored = array( 'code' => sanitize_text_field( $param ), 'name' => '', 'flag_url' => '' );
 		}
-		update_option( 'wpml_at_wizard_selected_language', $stored );
+		update_option( 'automl_ai_wizard_selected_language', $stored );
 		return new \WP_REST_Response( array( 'success' => true ), 200 );
 	}
 

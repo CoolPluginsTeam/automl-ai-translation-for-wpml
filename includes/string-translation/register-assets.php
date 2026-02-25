@@ -47,7 +47,7 @@ class Register_Assets {
 			}
 			}
 
-			$selected_language = get_option( 'wpml_at_wizard_selected_language', array() );
+			$selected_language = get_option( 'automl_ai_wizard_selected_language', array() );
 			$languages = WPML_AT_Helper::get_wpml_languages();
 			$lang_object = array();
 			foreach ($languages as $lang) {
@@ -88,7 +88,7 @@ class Register_Assets {
 				$asset_file = include AUTOML_AI_PLUGIN_DIR . 'assets/bulk-string-translate/index.asset.php';
 
 				wp_enqueue_script(
-					'wpml-at-bulk-translate',
+					'automl-ai-bulk-translate',
 					AUTOML_AI_PLUGIN_URL . 'assets/bulk-string-translate/index.js',
 					$asset_file['dependencies'],
 					$asset_file['version'],
@@ -96,7 +96,7 @@ class Register_Assets {
 				);
 
 				wp_enqueue_style(
-					'wpml-at-bulk-translate',
+					'automl-ai-bulk-translate',
 					AUTOML_AI_PLUGIN_URL . 'assets/bulk-string-translate/index.css',
 					array(),
 					$asset_file['version']
@@ -104,7 +104,7 @@ class Register_Assets {
 
 				// Localize script with necessary data for string translation
 				wp_localize_script(
-					'wpml-at-bulk-translate',
+					'automl-ai-bulk-translate',
 					'automl_wpml_bulk_translate_object',
 					array(
 						'taxonomy_page'          => '',

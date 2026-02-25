@@ -48,7 +48,7 @@ if ( ! wp_verify_nonce( $nonce, 'automl_wpml_update_translate_data' ) ) {
 		$target_lang    = isset( $_POST['targetLang'] ) ? sanitize_text_field( wp_unslash( $_POST['targetLang'] ) ) : '';
 		$string_count   = isset( $_POST['totalStringCount'] ) ? absint( $_POST['totalStringCount'] ) : 0;
 		$char_count     = isset( $_POST['totalCharacterCount'] ) ? absint( $_POST['totalCharacterCount'] ) : 0;
-		$time_taken     = isset( $_POST['timeTaken'] ) ? absint( $_POST['timeTaken'] ) : 0;
+		$time_taken     = isset($_POST['timeTaken']) ? absint($_POST['timeTaken']) : 0;
 		$total_word_count    = isset( $_POST['totalWordCount'] ) ? absint( $_POST['totalWordCount'] ) : 0;
 		$editor_type    = isset( $_POST['editorType'] ) ? sanitize_text_field( wp_unslash( $_POST['editorType'] ) ) : '';
 		$date           = isset( $_POST['date'] ) ? sanitize_text_field( wp_unslash( $_POST['date'] ) ) : '';
@@ -70,7 +70,7 @@ if ( ! wp_verify_nonce( $nonce, 'automl_wpml_update_translate_data' ) ) {
 				'target_language'      => $target_lang,
 				'string_count'         => (string) $string_count,
 				'character_count'      => (string) $char_count,
-				'time_taken'           => (string) $time_taken,
+				'time_taken'           => $time_taken,
 				'date_time'            => ! empty( $date ) ? gmdate( 'Y-m-d H:i:s', strtotime( $date ) ) : current_time( 'Y-m-d H:i:s' ),
 				'total_word_count'     => (string) $total_word_count,
 				'editor_type'          => $editor_type,
@@ -80,7 +80,7 @@ if ( ! wp_verify_nonce( $nonce, 'automl_wpml_update_translate_data' ) ) {
 				'extra_data'           => $extra_data,
 				'bulk_translate'       => $bulk_translate,
 			);
-			AUTOML_Ai_Cpt_Dashboard::store_options( 'wpml_auto', 'post_id', 'update', $data );
+			AUTOML_Ai_Cpt_Dashboard::store_options( 'automl_ai', 'post_id', 'update', $data );
 		}
 
 		wp_send_json_success();

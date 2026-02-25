@@ -69,7 +69,7 @@ class Register_Assets {
         wp_enqueue_style('automl-wpml-bulk-translate', AUTOML_AI_PLUGIN_URL . 'assets/bulk-translate/'.$css_file, array(), $editor_script_asset['version']);
 
         $languages = WPML_AT_Helper::get_wpml_languages();
-        $selected_language = get_option( 'wpml_at_wizard_selected_language', array() );
+        $selected_language = get_option( 'automl_ai_wizard_selected_language', array() );
         $selected_lang_object = array();
 			if ( ! empty( $selected_language['code'] ) ) {
 				$selected_lang_object[ $selected_language['code'] ] = array(
