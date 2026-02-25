@@ -53,15 +53,12 @@ const ErrorModalBox = ({ message, onClose, Title, prefix, children }) => {
         <div className={`${prefix}-error-modal-box-container`}>
             <div className={`${prefix}-error-modal-box`}>
                 <div className={`${prefix}-error-modal-box-header`}>
-                    <span className={`${prefix}-error-modal-box-close`} onClick={onClose}>×</span>
                     {Title && <h3>{Title}</h3>}
+                    <span className={`${prefix}-error-modal-box-close`} onClick={onClose} title={__('Close', 'automl-ai-translation-for-wpml')}>×</span>
                 </div>
                 <div className={`${prefix}-error-modal-box-body`}>
                     <p dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(stringifiedMessage) }} />
                     {children}
-                </div>
-                <div className={`${prefix}-error-modal-box-footer`}>
-                    <button className={`${prefix}-error-modal-box-close button button-primary`} onClick={onClose}>{__('Back', 'automl-ai-translation-for-wpml')}</button>
                 </div>
             </div>
         </div>

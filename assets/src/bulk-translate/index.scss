@@ -96,10 +96,10 @@ $prefix: automl-wpml-bulk-translate;
 
     ##{$prefix}-container {
         background: white;
-        // width: clamp(200px, 480px, 60%);
         position: relative;
         border-radius: 8px;
         max-width: 100vw;
+        overflow: hidden;
 
         &.#{$prefix}-status-modal-active {
             width: clamp(200px, 800px, 90%);
@@ -197,7 +197,7 @@ $prefix: automl-wpml-bulk-translate;
                         display: grid;
                         grid-template-columns: repeat(3, 1fr);
                         gap: 16px;
-                        padding: 0 24px 20px;
+                        padding: 0 24px 16px;
                         max-width: 560px;
                         min-width: 500px;
                       }
@@ -230,7 +230,6 @@ $prefix: automl-wpml-bulk-translate;
                           width: auto;
                           min-height: 1.4rem !important;
                           font-size: 9px;
-                          margin-bottom: 7px;
                         }
                       }
                   
@@ -317,7 +316,6 @@ $prefix: automl-wpml-bulk-translate;
                       }
                   
                       &-error {
-                        margin-top: 8px;
                         font-size: 0.8125rem;
                       }
                 }
@@ -325,7 +323,6 @@ $prefix: automl-wpml-bulk-translate;
                 .#{$prefix}-setting-modal-footer {
                     background: 0 0;
                     border: none;
-                    border-top: 1px solid #dcdcde;
                     display: flex;
                     justify-content: space-between;
                     margin-top: 0;
@@ -607,27 +604,27 @@ $prefix: automl-wpml-bulk-translate;
                             border-radius: 5px;
                             font-size: 12px;
                             color: #fff;
-                            border: 1px solid transparent;
+                            border-radius: 30px;
+                            font-weight: 600;
 
                             &.success {
-                                background: #3db63d;
-                                border-color: #33a133;
+                                color: #3db63d;
+                                background: #3db63d26;
                             }
         
                             &.error {
-                                background: #ee4237;
-                                border-color: #dd362b;
+                                color: #ee4237;
+                                background: #ee423726;
                             }
         
                             &.warning {
-                                background: #fff297;
-                                color: #000000;
-                                border-color: #f7e241;
+                                color: #6e6e6e;
+                                background: #fff297ab;
                             }
         
                             &.primary {
-                                background: #2271b1;
-                                border-color: #2271b1;
+                                color: #2271b1;
+                                background: #2271b126;
                             }
                         }
     
@@ -637,7 +634,8 @@ $prefix: automl-wpml-bulk-translate;
                         text-align: center;
                     }
 
-                    &-actions{
+                    &-actions,
+                    &-error-button{
                         text-align: right;
                         display: flex;
                         align-items: center;
@@ -651,6 +649,7 @@ $prefix: automl-wpml-bulk-translate;
                             height: 55px;
                             display: flex;
                             align-items: center;
+                            justify-content: center;
                         }
                     }
                 }
@@ -758,6 +757,8 @@ $prefix: automl-wpml-bulk-translate;
             padding: 1rem;
             font-weight: 600;
             font-size: 16px;
+            text-align: center;
+            height: unset !important;
 
             span {
                 font-weight: 500;
@@ -782,8 +783,7 @@ $prefix: automl-wpml-bulk-translate;
                     padding: 0;
 
                     * {
-                        color: red !important;
-                        font-size: 16px;
+                        font-size: 15px;
                         box-shadow: unset;
                         outline: unset;
                         border: unset;
@@ -1024,39 +1024,43 @@ $prefix: automl-wpml-bulk-translate;
 
             .#{$prefix}-error-modal-box-header {
                 position: relative;
+                position: relative;
+                align-items: flex-start;
+                background: #fff;
+                display: flex;
+                gap: 16px;
+                justify-content: space-between;
+                padding: 12px 24px 0;
             }
 
             .#{$prefix}-error-modal-box-header h3 {
                 height: unset;
-                padding: 8px 36px 8px 25px;
+                padding: 0;
                 border: none;
                 background: 0 0;
-                border-bottom: 1px solid #dcdcde;
                 font-size: 18px;
                 font-weight: 600;
                 line-height: 2;
                 margin: 0;
-                color: black;
+                color: #1d2327;
             }
 
-            .#{$prefix}-error-modal-box-header .#{$prefix}-error-modal-box-close {
-                right: 15px;
-                top: 13px;
-                border-radius: 0 !important;
-                height: 30px !important;
-                width: 20px !important;
-                position: absolute;
-                font-size: 32px;
-                font-weight: bold;
-                color: #646970;
+            .#{$prefix}-error-modal-box-close {
+                border: none;
+                background: none;
                 cursor: pointer;
+                font-size: 24px;
+                padding: 0;
+                margin: 0;
+                width: 24px;
+                height: 24px;
             }
 
             .#{$prefix}-error-modal-box-body {
                 min-height: 0px;
                 max-height: 65vh;
                 height: auto;
-                padding: 22px;
+                padding: 15px 24px 24px;
                 overflow: auto;
 
                 h4 {
@@ -1088,8 +1092,7 @@ $prefix: automl-wpml-bulk-translate;
                     padding: 0;
 
                     * {
-                        color: red !important;
-                        font-size: 16px;
+                        font-size: 15px;
                         box-shadow: unset;
                         outline: unset;
                         border: unset;
