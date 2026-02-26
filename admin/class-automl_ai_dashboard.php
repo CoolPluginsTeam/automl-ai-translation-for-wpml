@@ -92,8 +92,6 @@ if ( ! class_exists( 'AUTOML_Ai_Dashboard' ) ) {
 				'dashboard'       => __( 'Dashboard', 'automl-ai-translation-for-wpml' ),
 				'ai-translations' => __( 'AI Translations', 'automl-ai-translation-for-wpml' ),
 				'settings'        => __( 'Settings', 'automl-ai-translation-for-wpml' ),
-				'license'         => __( 'License', 'automl-ai-translation-for-wpml' ),
-				'free-vs-pro'     => __( 'Free vs Pro', 'automl-ai-translation-for-wpml' ),
 			);
 
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -104,14 +102,14 @@ if ( ! class_exists( 'AUTOML_Ai_Dashboard' ) ) {
 				<div class="automl_ai_dashboard-header">
 					<div class="automl_ai_dashboard-header-left">
 						<a href="<?php echo esc_url( admin_url( 'admin.php?page=automl_ai_dashboard&tab=dashboard' ) ); ?>" class="automl_ai_dashboard-logo-link">
-							<img src="<?php echo esc_url( AUTOML_AI_PLUGIN_URL . 'admin/automl-ai-dashboard/images/polylang-addon-logo.svg' ); ?>" alt="<?php esc_attr_e( 'WPML Auto Logo', 'automl-ai-translation-for-wpml' ); ?>">
+							<img src="<?php echo esc_url( AUTOML_AI_PLUGIN_URL . 'admin/automl-ai-dashboard/images/automl-ai-logo.png' ); ?>" alt="<?php esc_attr_e( 'WPML Auto Logo', 'automl-ai-translation-for-wpml' ); ?>">
 						</a>
+						<div>
+							<span class="automl_ai_dashboard-logo-text">AutoML</span>
+						</div>
 						<div class="automl_ai_dashboard-tab-title">
 							<span>↳</span> <?php echo esc_html( $valid_tabs[ $current_tab ] ); ?>
 						</div>
-					</div>
-					<div class="automl_ai_dashboard-header-right">
-						<span><?php echo esc_html__( 'AutoML - AI Translation for WPML', 'automl-ai-translation-for-wpml' ); ?></span>
 					</div>
 				</div>
 

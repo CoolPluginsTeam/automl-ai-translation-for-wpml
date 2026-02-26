@@ -49,7 +49,7 @@ class AUTOML_Ai_Wizard {
 			esc_html__( 'AutoML Setup Wizard', 'automl-ai-translation-for-wpml' ),
 			esc_html__( 'Setup Wizard', 'automl-ai-translation-for-wpml' ),
 			'manage_options',
-			'wpml_at_wizard',
+			'automl_ai_wizard',
 			array( $this, 'display_wizard_page' )
 		);
 	}
@@ -83,13 +83,13 @@ class AUTOML_Ai_Wizard {
 		if ( ! get_transient( 'wpml_at_activation_redirect' ) ) {
 			return;
 		}
-		if ( ( isset( $_GET['page'] ) && 'wpml_at_wizard' === sanitize_key( $_GET['page'] ) ) || isset( $_GET['activate-multi'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( ( isset( $_GET['page'] ) && 'automl_ai_wizard' === sanitize_key( $_GET['page'] ) ) || isset( $_GET['activate-multi'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			delete_transient( 'wpml_at_activation_redirect' );
 			return;
 		}
 		delete_transient( 'wpml_at_activation_redirect' );
 		wp_safe_redirect(
-			add_query_arg( array( 'page' => 'wpml_at_wizard' ), admin_url( 'admin.php' ) )
+			add_query_arg( array( 'page' => 'automl_ai_wizard' ), admin_url( 'admin.php' ) )
 		);
 		exit;
 	}
@@ -110,7 +110,7 @@ class AUTOML_Ai_Wizard {
 		if ( ! $screen || ! in_array( $screen->base, array( 'edit', 'upload', 'options-general', 'dashboard' ), true ) ) {
 			return;
 		}
-		if ( isset( $_GET['page'] ) && 'wpml_at_wizard' === sanitize_key( $_GET['page'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( isset( $_GET['page'] ) && 'automl_ai_wizard' === sanitize_key( $_GET['page'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			return;
 		}
 		ob_start();
@@ -138,7 +138,7 @@ class AUTOML_Ai_Wizard {
 	 * @return bool
 	 */
 	public function is_wizard() {
-		return isset( $_GET['page'] ) && 'wpml_at_wizard' === sanitize_key( $_GET['page'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		return isset( $_GET['page'] ) && 'automl_ai_wizard' === sanitize_key( $_GET['page'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	}
     	/**
 	 * Whether a translation language has been selected in the wizard.

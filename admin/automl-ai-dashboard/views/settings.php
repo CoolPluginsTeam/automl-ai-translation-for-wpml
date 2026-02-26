@@ -32,7 +32,7 @@ $automl_wpml_wizard_language_set = is_array( $automl_wpml_wizard_lang ) && ! emp
 					<?php esc_html_e( 'Complete the Setup Wizard and choose a language in the Languages step. Until then, API key settings are disabled.', 'automl-ai-translation-for-wpml' ); ?>
 				</p>
 				<p>
-					<a href="<?php echo esc_url( add_query_arg( array( 'page' => 'wpml_at_wizard&step=languages' ), admin_url( 'admin.php' ) ) ); ?>" class="button button-primary">
+					<a href="<?php echo esc_url( add_query_arg( array( 'page' => 'automl_ai_wizard&step=languages' ), admin_url( 'admin.php' ) ) ); ?>" class="button button-primary">
 						<?php esc_html_e( 'Open Setup Wizard', 'automl-ai-translation-for-wpml' ); ?>
 					</a>
 				</p>
@@ -47,7 +47,7 @@ $automl_wpml_wizard_language_set = is_array( $automl_wpml_wizard_lang ) && ! emp
                         ?>
                         <input
                             type="text"
-                            name="wpml_auto_dummy_api_key"
+                            name="automl_ai_dummy_api_key"
                             autocomplete="api-key"
                             style="display:none;"
                             aria-hidden="true"
@@ -185,13 +185,13 @@ $automl_wpml_wizard_language_set = is_array( $automl_wpml_wizard_lang ) && ! emp
 							// OpenAI model selector.
 							if ( 'openai' === $automl_wpml_api_key && $automl_wpml_has_key && ! empty( $automl_wpml_openai_models ) ) : ?>
 								<div class="automl_ai_dashboard-api-settings-openai-model">
-									<label for="wpml_selected_openai_model" class="api-settings-label">
+									<label for="automl_ai_selected_openai_model" class="api-settings-label">
 										<?php esc_html_e( 'Select OpenAI Model', 'automl-ai-translation-for-wpml' ); ?>
 									</label>
 									<select
-										id="wpml_selected_openai_model"
+										id="automl_ai_selected_openai_model"
 										name="automl_ai_translation_models[openai]"
-										class="wpml-openai-model-select"
+										class="automl-openai-model-select"
 										<?php echo $automl_wpml_wizard_language_set ? '' : ' disabled="disabled"'; ?>
 									>
 										<option value=""><?php esc_html_e( 'Select model...', 'automl-ai-translation-for-wpml' ); ?></option>
@@ -208,13 +208,13 @@ $automl_wpml_wizard_language_set = is_array( $automl_wpml_wizard_lang ) && ! emp
 							// Google / Gemini model selector.
 							if ( 'google' === $automl_wpml_api_key && $automl_wpml_has_key && ! empty( $automl_wpml_google_models ) ) : ?>
 								<div class="automl_ai_dashboard-api-settings-google-model">
-									<label for="wpml_selected_google_model" class="api-settings-label">
+									<label for="automl_ai_selected_google_model" class="api-settings-label">
 										<?php esc_html_e( 'Select Gemini Model', 'automl-ai-translation-for-wpml' ); ?>
 									</label>
 									<select
-										id="wpml_selected_google_model"
+										id="automl_ai_selected_google_model"
 										name="automl_ai_translation_models[google]"
-										class="wpml-google-model-select"
+										class="automl-google-model-select"
 										<?php echo $automl_wpml_wizard_language_set ? '' : ' disabled="disabled"'; ?>
 									>
 										<option value=""><?php esc_html_e( 'Select model...', 'automl-ai-translation-for-wpml' ); ?></option>

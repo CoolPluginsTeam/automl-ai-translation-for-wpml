@@ -62,6 +62,12 @@ WPML Auto Dashboard - Admin Panel Styles
     color: var(--text-color);
 }
 
+.automl_ai_dashboard-logo-text{
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
 .automl_ai_dashboard-btn:focus {
    box-shadow: none;
 }
@@ -105,7 +111,7 @@ WPML Auto Dashboard - Admin Panel Styles
 .automl_ai_dashboard-header-left {
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 5px;
 }
 
 .automl_ai_dashboard-logo-link:focus,
@@ -114,7 +120,8 @@ WPML Auto Dashboard - Admin Panel Styles
 }
 
 .automl_ai_dashboard-header-left img {
-    max-width: 170px;
+    max-width: 45px;
+    margin-left: 10px;
 }
 
 .automl_ai_dashboard-header-left svg {
@@ -951,7 +958,7 @@ ul.automl_ai_dashboard-sts-btm li span:first-child {
         gap: 15px;
     }
     .automl_ai_dashboard-header-left img {
-        max-width: 125px;
+        max-width: 56px;
     }
     .automl_ai_dashboard-btn {
         padding: 8px 6px;

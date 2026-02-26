@@ -82,7 +82,7 @@ class WPML_AT_Helper {
 		}
 
 		if ( ! $source_lang ) {
-			$source_lang = apply_filters( 'wpml_default_language', 'en' );
+			$source_lang = apply_filters( 'automl_default_language', 'en' );
 		}
 
 		return $source_lang;
@@ -96,14 +96,14 @@ class WPML_AT_Helper {
 	 * @return array Translations array.
 	 */
 	public static function get_post_translations( $post_id, $post_type ) {
-		$trid = apply_filters( 'wpml_element_trid', null, $post_id, 'post_' . $post_type );
+		$trid = apply_filters( 'automl_element_trid', null, $post_id, 'post_' . $post_type );
 
 		if ( ! $trid ) {
 			return array();
 		}
 
 		return apply_filters(
-			'wpml_get_element_translations',
+			'automl_get_element_translations',
 			array(),
 			$trid,
 			'post_' . $post_type

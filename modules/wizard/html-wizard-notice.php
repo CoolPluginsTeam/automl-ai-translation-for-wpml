@@ -10,7 +10,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 $automl_wpml_wizard_url = add_query_arg(
-	array( 'page' => 'wpml_at_wizard' ),
+	array( 'page' => 'automl_ai_wizard' ),
 	admin_url( 'admin.php' )
 );
 $automl_wpml_skip_url = wp_nonce_url(

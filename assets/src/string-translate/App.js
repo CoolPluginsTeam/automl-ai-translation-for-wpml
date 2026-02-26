@@ -17,7 +17,7 @@ const App = ({ onDestory, prefix, postIds }) => {
   const dispatch = useDispatch();
   const { languageObject = {}, selected_language_object = {} } = automl_wpml_bulk_translate_object || {};
   const wizardSelectedCode = Object.keys(selected_language_object)[0] || '';
-  const wizardLanguagesUrl = (automl_wpml_bulk_translate_object?.admin_url || '').replace(/\/?$/, '') + '/admin.php?page=wpml_at_wizard&step=languages';
+  const wizardLanguagesUrl = (automl_wpml_bulk_translate_object?.admin_url || '').replace(/\/?$/, '') + '/admin.php?page=automl_ai_wizard&step=languages';
   const emptyPostIdsErrorMessage = sprintf(
     __(
       "Please select at least one %s for translation.",

@@ -485,7 +485,7 @@ if ( ! class_exists( 'Bulk_Translation_Route' ) ) :
 			$target_language = json_decode( $params['lang'] );
 			$target_language = array_map( 'sanitize_text_field', $target_language );
 
-			$active_languages = apply_filters( 'wpml_active_languages', null, null );
+			$active_languages = apply_filters( 'automl_active_languages', null, null );
 
 			$active_languages_slugs = array_column( $active_languages, 'code' );
 			$valid_target_languages = array_intersect( $target_language, $active_languages_slugs );
@@ -498,10 +498,10 @@ if ( ! class_exists( 'Bulk_Translation_Route' ) ) :
 			$pending_posts_ids = array();
 
 			foreach ( $post_ids as $post_id ) {
-				$automl_wpml_post_element_type = apply_filters( 'wpml_element_type', get_post_type( $post_id ) );
-				$automl_wpml_trid = apply_filters( 'wpml_element_trid', null, $post_id);
+				$automl_wpml_post_element_type = apply_filters( 'automl_element_type', get_post_type( $post_id ) );
+				$automl_wpml_trid = apply_filters( 'automl_element_trid', null, $post_id);
 
-				$automl_wpml_translations = apply_filters( 'wpml_get_element_translations', null, $automl_wpml_trid, $automl_wpml_post_element_type );
+				$automl_wpml_translations = apply_filters( 'automl_get_element_translations', null, $automl_wpml_trid, $automl_wpml_post_element_type );
 				
 				$parent_post_set=false;
 
@@ -546,7 +546,7 @@ if ( ! class_exists( 'Bulk_Translation_Route' ) ) :
 				wp_send_json_error( 'Empty post IDs Select at least one post to translate' );
 			}
 
-			$active_languages = apply_filters( 'wpml_active_languages', null, null );
+			$active_languages = apply_filters( 'automl_active_languages', null, null );
 
 			$active_languages_slugs = array_column( $active_languages, 'code' );
 
@@ -574,13 +574,13 @@ if ( ! class_exists( 'Bulk_Translation_Route' ) ) :
 					continue;
 				}
 
-				$automl_wpml_post_element_type = apply_filters( 'wpml_element_type', get_post_type( $post_id ) );
+				$automl_wpml_post_element_type = apply_filters( 'automl_element_type', get_post_type( $post_id ) );
 
 				// Get the translation group ID (trid) of the post
-				$automl_wpml_trid = apply_filters( 'wpml_element_trid', null, $post_id );
+				$automl_wpml_trid = apply_filters( 'automl_element_trid', null, $post_id );
 
 				// Get all translations of the element using the trid and element type
-				$automl_wpml_translations = apply_filters( 'wpml_get_element_translations', null, $automl_wpml_trid, $automl_wpml_post_element_type );
+				$automl_wpml_translations = apply_filters( 'automl_get_element_translations', null, $automl_wpml_trid, $automl_wpml_post_element_type );
 
 				$automl_wpml_post_translated_languages = array_column( $automl_wpml_translations, 'language_code' );
 
