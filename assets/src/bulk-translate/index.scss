@@ -50,9 +50,10 @@ $prefix: automl-wpml-bulk-translate;
 
 .automl-wpml-bulk-translate-modal-header-inner {
     & .automl-wpml-bulk-translate-modal-desc {
-        margin-top: 0px !important;
-        font-size: 9px !important;
+        font-size: 12px !important;
         font-weight: 500;
+        margin-top: 0!important;
+        color: #888;
     }
     .automl-wpml-bulk-translate-step-label{
         font-size: 10px;
@@ -74,6 +75,7 @@ $prefix: automl-wpml-bulk-translate;
 
 ##{$prefix}-wrapper {
     display: none;
+    font-family: Inter, Figtree, sans-serif;
 
     &.#{$prefix}-active {
         display: flex;
@@ -195,9 +197,9 @@ $prefix: automl-wpml-bulk-translate;
                     
                     .automl-wpml-bulk-translate-provider-cards {
                         display: grid;
-                        grid-template-columns: repeat(3, 1fr);
+                        grid-template-columns: repeat(2, 1fr);
                         gap: 16px;
-                        padding: 0 24px 16px;
+                        padding: 16px 24px;
                         max-width: 560px;
                         min-width: 500px;
                       }
@@ -205,7 +207,7 @@ $prefix: automl-wpml-bulk-translate;
                   
                     .automl-wpml-bulk-translate-provider-card {
                       position: relative;
-                      padding: 8px;
+                      padding: 12px;
                       border: 2px solid #e2e8f0;
                       border-radius: 10px;
                       background: #fff;
@@ -215,6 +217,13 @@ $prefix: automl-wpml-bulk-translate;
                       align-items: flex-start;
                       text-align: left;
                       cursor: pointer;
+
+                      &-body{
+                        display: flex;
+                        align-items: center;
+                        width: 100%;
+                        gap: 10px;
+                      }
                   
                       &:hover {
                         border-color: #cbd5e1;
@@ -226,10 +235,12 @@ $prefix: automl-wpml-bulk-translate;
                         cursor: not-allowed;
                   
                         .automl-wpml-bulk-translate-provider-error {
-                          display: flex;
-                          width: auto;
-                          min-height: 1.4rem !important;
-                          font-size: 9px;
+                            color: #64748b;
+                            display: inline-flex;
+                      
+                            &:hover {
+                              color: var(--wp-admin-theme-color, #2271b1);
+                            }
                         }
                       }
                   
@@ -262,20 +273,18 @@ $prefix: automl-wpml-bulk-translate;
                         display: flex;
                         align-items: center;
                         justify-content: center;
-                        margin-bottom: 6px;
                   
                         img {
-                          width: 32px;
-                          height: 32px;
+                          width: 24px;
+                          height: 24px;
                           object-fit: contain;
                         }
                       }
                   
                       &-name {
                         font-weight: 700;
-                        font-size: 1rem;
+                        font-size: 14px;
                         color: #0f172a;
-                        margin-bottom: 6px;
                         display: block;
                       }
                   
@@ -290,14 +299,15 @@ $prefix: automl-wpml-bulk-translate;
                       &-actions {
                         display: flex;
                         align-items: center;
-                        gap: 12px;
-                        margin-top: 12px;
+                        margin-top: 7px;
                         flex-wrap: wrap;
+                        width: 100%;
                       }
                   
                       &-docs {
                         color: #64748b;
                         display: inline-flex;
+                        margin-right: auto;
                   
                         &:hover {
                           color: var(--wp-admin-theme-color, #2271b1);
@@ -305,14 +315,14 @@ $prefix: automl-wpml-bulk-translate;
                       }
                   
                       &-check {
-                        position: absolute;
-                        top: 7px;
-                        right: 16px;
+                        position: relative;
+                        display: block;
                         width: 22px;
                         height: 22px;
                         border: 2px solid #cbd5e1;
                         border-radius: 50%;
                         box-sizing: border-box;
+                        margin-left: auto;
                       }
                   
                       &-error {
@@ -321,12 +331,12 @@ $prefix: automl-wpml-bulk-translate;
                 }
 
                 .#{$prefix}-setting-modal-footer {
-                    background: 0 0;
                     border: none;
                     display: flex;
                     justify-content: space-between;
                     margin-top: 0;
                     padding: 16px 22.4px;
+                    border-top: 2px solid #0000000a;
 
                     .automl-wpml-bulk-translate-setting-close{
                         background-color: #ffffff;
@@ -400,9 +410,10 @@ $prefix: automl-wpml-bulk-translate;
             }
 
             .automl-wpml-bulk-translate-modal-desc{
-                font-size: 9px!important;
+                font-size: 12px !important;
                 font-weight: 500;
                 margin-top: 0!important;
+                color: #888;
             }
 
             .#{$prefix}-overall-progress .#{$prefix}-progress-bar {
@@ -465,7 +476,7 @@ $prefix: automl-wpml-bulk-translate;
                 font-size: 1rem;
                 justify-content: space-between;
                 margin-inline: 24px;
-                background: #00000005;
+                background: #00000008;
                 border-radius: 13px;
                 margin-bottom: 15px;
 
@@ -580,14 +591,14 @@ $prefix: automl-wpml-bulk-translate;
                 }
 
                 .#{$prefix}-status-target-post {
-                    background: #00000005;
+                    background: #00000008;
                     border-radius: 13px;
                     padding: 1rem;
                     padding-block: 0;
                     display: grid;
                     grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
                     align-items: center;
-                    border: 1px solid #00000005;
+                    border: 1px solid #00000008;
 
                     &-flag{
                         display: flex;
@@ -719,11 +730,11 @@ $prefix: automl-wpml-bulk-translate;
 
         .#{$prefix}-header {
             align-items: flex-start;
-            background: #fff;
             display: flex;
             gap: 16px;
             justify-content: space-between;
-            padding: 12px 24px 0;
+            padding: 10px 24px;
+            border-bottom: 2px solid #0000000a;
 
             & + .#{$prefix}-progress-skeleton{
                 margin-inline: 24px;
@@ -913,12 +924,12 @@ $prefix: automl-wpml-bulk-translate;
         }
 
         .#{$prefix}-footer {
-            background: 0 0;
             border: none;
             display: flex;
             justify-content: space-between;
             margin-top: 0;
             padding: 16px 22.4px;
+            border-top: 2px solid #0000000a;
 
             .#{$prefix}-footer-button:nth-of-type(1) {
                 background: #ffffff;
@@ -1020,6 +1031,7 @@ $prefix: automl-wpml-bulk-translate;
                 height: auto;
                 box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
                 border-radius: 8px;
+                overflow: hidden;
             }
 
             .#{$prefix}-error-modal-box-header {
@@ -1052,7 +1064,7 @@ $prefix: automl-wpml-bulk-translate;
                 font-size: 24px;
                 padding: 0;
                 margin: 0;
-                width: 24px;
+                width: 14px;
                 height: 24px;
             }
 

@@ -413,12 +413,14 @@ const StatusModal = ({ postIds, selectedLanguages, prefix, onDestory }) => {
                                                 </div>
                                                 {info.status === 'error' ?
                                                     <>
-                                                        <div className={`${prefix}-status-target-post-error ${prefix}-error-message`}>
-                                                            <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(info.errorMessage) }} style={{ gridColumn: `${info.errorHtml ? 'span 2' : 'span 1'}` }}></div>
-                                                        </div>
-                                                        <div className={`${prefix}-status-target-post-error-button`}>
-                                                            {info.errorHtml && <div className={`${prefix}-status-target-post-error-button`} onClick={() => { handleErrorModal(info) }}><button className={`${prefix}-status-error-button`}>{__('Error Details', 'automl-ai-translation-for-wpml')}</button></div>}
-                                                        </div>
+                                                        {!info.errorHtml ?
+                                                            <div className={`${prefix}-status-target-post-error ${prefix}-error-message`}>
+                                                                <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(info.errorMessage) }} style={{ gridColumn: 'span 4' }}></div>
+                                                            </div> :
+                                                            <div className={`${prefix}-status-target-post-error-button`} style={{ gridColumn: 'span 4' }}>
+                                                                {info.errorHtml && <div className={`${prefix}-status-target-post-error-button`} onClick={() => { handleErrorModal(info) }}><button className={`${prefix}-status-error-button`}>{__('Error Details', 'automl-ai-translation-for-wpml')}</button></div>}
+                                                            </div>
+                                                        }
                                                     </> :
                                                     <>
                                                         <div className={`${prefix}-status-target-post-status`}>

@@ -208,7 +208,7 @@ const App = ({ onDestory, prefix, postIds }) => {
                                         })()}
                                     </div>
                                 ) : (
-                                    <div className={`${prefix}-wizard-language-notice`} style={{ padding: '12px 16px', marginTop: 8, background: '#f0f6fc', border: '1px solid #c3c4c7', borderRadius: 4 }}>
+                                    <div className={`${prefix}-wizard-language-notice`} style={{ padding: '12px 24px', marginTop: 8, background: '#00000008', borderRadius: 4 }}>
                                         <p style={{ margin: '0 0 8px', fontSize: 14 }}>{__('Please select a translation language first.', 'automl-ai-translation-for-wpml')}</p>
                                         <a href={wizardLanguagesUrl} style={{ fontSize: 14 }}>{__('Select language in Setup Wizard (Languages step)', 'automl-ai-translation-for-wpml')}</a>
                                     </div>
