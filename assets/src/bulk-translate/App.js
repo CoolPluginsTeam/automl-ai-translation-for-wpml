@@ -9,6 +9,7 @@ import ErrorModalBox from './components/error-modal-box';
 import SettingModal from './setting-modal';
 import DOMPurify from 'dompurify';
 import Notice from './components/notice';
+import RenderLanguage from './render-langauge';
 
 const App = ({ onDestory, prefix, postIds }) => {
     const dispatch = useDispatch();
@@ -73,6 +74,10 @@ const App = ({ onDestory, prefix, postIds }) => {
         } else {
             setSelectedLanguages(selectedLanguages.filter((language) => language !== value));
         }
+    };
+
+    const setSelectedLanguagesHandler = (languages) => {
+        setSelectedLanguages(languages);
     };
 
     const closeErrorModal = (e) => {
@@ -152,62 +157,33 @@ const App = ({ onDestory, prefix, postIds }) => {
                         <>
                             <div className={`${prefix}-body`}>
                                 <SelectLanguageNotice />
-                                {wizardSelectedCode ? (
+                                {wizardSelectedCode ?
                                     <div className={`${prefix}-languages`}>
-                                        {(() => {
-                                            const defaultSlug = automl_wpml_bulk_translate_object.default_language_slug;
-                                            const allCodes = Object.keys(languageObject).filter((lang) => !defaultSlug || defaultSlug !== lang);
-                                            const selectedFirst = wizardSelectedCode && allCodes.includes(wizardSelectedCode)
-                                                ? [wizardSelectedCode, ...allCodes.filter((l) => l !== wizardSelectedCode)]
-                                                : allCodes;
-                                            return selectedFirst.map((language) => {
-                                                if (!languageObject[language]) return null;
-                                                const isDisabled = (!postIds.length && !isStringTranslationPage) || (wizardSelectedCode && language !== wizardSelectedCode);
-                                                const isSelected = selectedLanguages.includes(language);
-                                                return (
-                                                    <div
-                                                        key={language}
-                                                        className={`${prefix}-language ${isDisabled ? `${prefix}-language-item--disabled` : ''} ${isSelected ? `${prefix}-language-item--selected` : ''}`}
-                                                        title={!postIds.length && !isStringTranslationPage ? emptyPostIdsErrorMessage : languageObject[language].name}
-                                                        onClick={(e) => {
-                                                            if (e.target.closest('input') || e.target.closest('label')) return;
-                                                            if (isDisabled) return;
-                                                            if (isSelected) setSelectedLanguages(selectedLanguages.filter((l) => l !== language));
-                                                            else setSelectedLanguages([...selectedLanguages, language]);
-                                                        }}
-                                                        role="button"
-                                                        tabIndex={isDisabled ? -1 : 0}
-                                                        onKeyDown={(e) => {
-                                                            if ((e.key === 'Enter' || e.key === ' ') && !isDisabled) {
-                                                                e.preventDefault();
-                                                                if (isSelected) setSelectedLanguages(selectedLanguages.filter((l) => l !== language));
-                                                                else setSelectedLanguages([...selectedLanguages, language]);
-                                                            }
-                                                        }}
-                                                    >
-                                                        <div className={`${prefix}-language-item`}>
-                                                            <input
-                                                                type="checkbox"
-                                                                name="languages"
-                                                                id={language}
-                                                                value={language}
-                                                                onChange={(e) => handleLanguageChange(e)}
-                                                                disabled={isDisabled}
-                                                                checked={isSelected}
-                                                                className={`${prefix}-language-checkbox-input`}
-                                                            />
-                                                            <span className={`${prefix}-check-visual`} aria-hidden="true" />
-                                                            <label htmlFor={language} className={`${prefix}-language-label`} title={languageObject[language].name}>
-                                                                <img src={languageObject[language].flag} alt={languageObject[language].name} />
-                                                                &nbsp; {languageObject[language].name}
-                                                            </label>
-                                                        </div>
-                                                    </div>
-                                                );
-                                            });
-                                        })()}
-                                    </div>
-                                ) : (
+                                        <div className={`${prefix}-languages-enabled-list`}>
+                                        <RenderLanguage
+                                            language={wizardSelectedCode}
+                                            selectedLanguages={selectedLanguages}
+                                            setSelectedLanguages={setSelectedLanguagesHandler}
+                                            prefix={prefix}
+                                            languageObject={languageObject}
+                                            wizardSelectedCode={wizardSelectedCode}
+                                        />
+                                        </div>
+                                        <div className={`${prefix}-languages-disabled-lists`}>
+                                        {Object.keys(targetLanguages).map((language) => (
+                                            language === wizardSelectedCode ? <></> : 
+                                            <RenderLanguage
+                                                key={language}
+                                                language={language}
+                                                selectedLanguages={selectedLanguages}
+                                                setSelectedLanguages={setSelectedLanguagesHandler}
+                                                prefix={prefix}
+                                                languageObject={languageObject}
+                                                wizardSelectedCode={wizardSelectedCode}
+                                                />
+                                            ))}
+                                        </div>
+                                    </div>: (
                                     <div className={`${prefix}-wizard-language-notice`} style={{ padding: '12px 24px', marginTop: 8, background: '#00000008', borderRadius: 4 }}>
                                         <p style={{ margin: '0 0 8px', fontSize: 14 }}>{__('Please select a translation language first.', 'automl-ai-translation-for-wpml')}</p>
                                         <a href={wizardLanguagesUrl} style={{ fontSize: 14 }}>{__('Select language in Setup Wizard (Languages step)', 'automl-ai-translation-for-wpml')}</a>

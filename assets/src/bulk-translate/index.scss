@@ -52,7 +52,8 @@ $prefix: automl-wpml-bulk-translate;
     & .automl-wpml-bulk-translate-modal-desc {
         font-size: 12px !important;
         font-weight: 500;
-        margin-top: 0!important;
+        margin: 0;
+        margin-bottom: 4px;
         color: #888;
     }
     .automl-wpml-bulk-translate-step-label{
@@ -336,7 +337,7 @@ $prefix: automl-wpml-bulk-translate;
                     justify-content: space-between;
                     margin-top: 0;
                     padding: 16px 22.4px;
-                    border-top: 2px solid #0000000a;
+                    border-top: 2px solid #00000012;
 
                     .automl-wpml-bulk-translate-setting-close{
                         background-color: #ffffff;
@@ -733,8 +734,8 @@ $prefix: automl-wpml-bulk-translate;
             display: flex;
             gap: 16px;
             justify-content: space-between;
-            padding: 10px 24px;
-            border-bottom: 2px solid #0000000a;
+            padding: 10px 24px 8px;
+            border-bottom: 2px solid #00000012;
 
             & + .#{$prefix}-progress-skeleton{
                 margin-inline: 24px;
@@ -822,14 +823,24 @@ $prefix: automl-wpml-bulk-translate;
             }
 
             .#{$prefix}-languages {
-                display: grid;
-                -ms-grid-columns: 1fr 1fr 1fr;
+
+                &-enabled-list{
+                    display: grid;
                     grid-template-columns: repeat(3, 1fr);
-                gap: 1rem;
-                padding: 1rem 25px;
+                    gap: 10px;
+                    padding: 1rem 25px;
+                }
+
+                &-disabled-lists{
+                    display: grid;
+                    grid-template-columns: repeat(3, 1fr);
+                    gap: 10px;
+                    padding: 1rem 25px;
+                    background: #0000000a;
+                }
 
                 .#{$prefix}-language {
-                    display: flex;
+                    display: inline-flex;
                     padding: 7px;
                     border: 1px solid #ddd;
                     border-radius: 8px;
@@ -929,7 +940,7 @@ $prefix: automl-wpml-bulk-translate;
             justify-content: space-between;
             margin-top: 0;
             padding: 16px 22.4px;
-            border-top: 2px solid #0000000a;
+            border-top: 2px solid #00000012;
 
             .#{$prefix}-footer-button:nth-of-type(1) {
                 background: #ffffff;

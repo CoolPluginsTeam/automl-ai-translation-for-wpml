@@ -46,7 +46,8 @@
 .automl-wpml-bulk-translate-modal-header-inner .automl-wpml-bulk-translate-modal-desc {
   font-size: 12px !important;
   font-weight: 500;
-  margin-top: 0 !important;
+  margin: 0;
+  margin-bottom: 4px;
   color: #888;
 }
 
@@ -388,7 +389,7 @@
           justify-content: space-between;
   margin-top: 0;
   padding: 16px 22.4px;
-  border-top: 2px solid #0000000a;
+  border-top: 2px solid #00000012;
 }
 
 #automl-wpml-bulk-translate-wrapper #automl-wpml-bulk-translate-container #automl-wpml-bulk-translate-setting-modal-container .automl-wpml-bulk-translate-setting-modal-content .automl-wpml-bulk-translate-setting-modal-footer .automl-wpml-bulk-translate-setting-close {
@@ -846,8 +847,8 @@
   -webkit-box-pack: justify;
       -ms-flex-pack: justify;
           justify-content: space-between;
-  padding: 10px 24px;
-  border-bottom: 2px solid #0000000a;
+  padding: 10px 24px 8px;
+  border-bottom: 2px solid #00000012;
 }
 
 #automl-wpml-bulk-translate-wrapper #automl-wpml-bulk-translate-container .automl-wpml-bulk-translate-header + .automl-wpml-bulk-translate-progress-skeleton {
@@ -934,19 +935,29 @@
   padding: 1rem;
 }
 
-#automl-wpml-bulk-translate-wrapper #automl-wpml-bulk-translate-container .automl-wpml-bulk-translate-body .automl-wpml-bulk-translate-languages {
+#automl-wpml-bulk-translate-wrapper #automl-wpml-bulk-translate-container .automl-wpml-bulk-translate-body .automl-wpml-bulk-translate-languages-enabled-list {
   display: -ms-grid;
   display: grid;
-  -ms-grid-columns: 1fr 1fr 1fr;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1rem;
+  -ms-grid-columns: (1fr)[3];
+      grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
   padding: 1rem 25px;
 }
 
+#automl-wpml-bulk-translate-wrapper #automl-wpml-bulk-translate-container .automl-wpml-bulk-translate-body .automl-wpml-bulk-translate-languages-disabled-lists {
+  display: -ms-grid;
+  display: grid;
+  -ms-grid-columns: (1fr)[3];
+      grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  padding: 1rem 25px;
+  background: #0000000a;
+}
+
 #automl-wpml-bulk-translate-wrapper #automl-wpml-bulk-translate-container .automl-wpml-bulk-translate-body .automl-wpml-bulk-translate-languages .automl-wpml-bulk-translate-language {
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
+  display: -webkit-inline-box;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
   padding: 7px;
   border: 1px solid #ddd;
   border-radius: 8px;
@@ -1054,7 +1065,7 @@
           justify-content: space-between;
   margin-top: 0;
   padding: 16px 22.4px;
-  border-top: 2px solid #0000000a;
+  border-top: 2px solid #00000012;
 }
 
 #automl-wpml-bulk-translate-wrapper #automl-wpml-bulk-translate-container .automl-wpml-bulk-translate-footer .automl-wpml-bulk-translate-footer-button:nth-of-type(1) {
