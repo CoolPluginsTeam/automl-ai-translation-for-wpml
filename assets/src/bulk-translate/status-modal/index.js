@@ -449,8 +449,8 @@ const StatusModal = ({ postIds, selectedLanguages, prefix, onDestory }) => {
                                                 {info.status === 'error' ?
                                                     <>
                                                         {!info.errorHtml ?
-                                                            <div className={`${prefix}-status-target-post-error ${prefix}-error-message`}>
-                                                                <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(info.errorMessage) }} style={{ gridColumn: 'span 4' }}></div>
+                                                            <div className={`${prefix}-status-target-post-error ${prefix}-error-message`} style={{ gridColumn: 'span 4' }}>
+                                                                <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(info.errorMessage) }}></div>
                                                             </div> :
                                                             <div className={`${prefix}-status-target-post-error-button`} style={{ gridColumn: 'span 4' }}>
                                                                 {info.errorHtml && <div className={`${prefix}-status-target-post-error-button`} onClick={() => { handleErrorModal(info) }}><button className={`${prefix}-status-error-button`}>{__('Error Details', 'automl-ai-translation-for-wpml')}</button></div>}
@@ -523,7 +523,8 @@ const StatusModal = ({ postIds, selectedLanguages, prefix, onDestory }) => {
                         <div className={`${prefix}-status-footer`}>
                             {isLoading ?
                              <div className={`${prefix}-progress-skeleton`}></div> :
-                             <a className={`${prefix}-progress-button button button-primary ${!(countInfo.postsTranslated > 0 && !pendingPosts.length) ? 'disabled' : ''}`} href={!(countInfo.postsTranslated > 0 && !pendingPosts.length) ? '#' : getTranslatedPostLink()}>{sprintf(__('Check Translated %s', 'automl-ai-translation-for-wpml'), automl_wpml_bulk_translate_object.post_label)}</a>
+                             (!(countInfo.postsTranslated > 0 && !pendingPosts.length)) ? <div className={`${prefix}-progress-button button button-primary`} disabled>{sprintf(__('Check Translated %s', 'automl-ai-translation-for-wpml'), automl_wpml_bulk_translate_object.post_label)}</div> :
+                             <a className={`${prefix}-progress-button button button-primary`} href={getTranslatedPostLink()}>{sprintf(__('Check Translated %s', 'automl-ai-translation-for-wpml'), automl_wpml_bulk_translate_object.post_label)}</a>
                             }
                         </div>
                     </>

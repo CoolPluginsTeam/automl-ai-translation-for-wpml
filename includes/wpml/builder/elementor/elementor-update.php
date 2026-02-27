@@ -66,6 +66,13 @@ class Elementor_Update extends Content_Update_Base {
         }
         
         $source_post=get_post($this->post_id);
+
+        $automl_wpml_elementor_data = get_post_meta($this->post_id, '_elementor_data', true);
+
+        if(!is_array($automl_wpml_elementor_data) || empty($automl_wpml_elementor_data)){
+            return;
+        }
+
         $this->elementor_builder_factory->update_translated_post( $this->editor_type, $this->translated_post_id, $source_post, $this->translate_strings, $this->target_language );
 
         if ( class_exists( '\Elementor\Plugin' ) ) {
