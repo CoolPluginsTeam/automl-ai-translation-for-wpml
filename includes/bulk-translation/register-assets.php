@@ -100,8 +100,6 @@ class Register_Assets {
 
         $extra_data = array();
 
-        $extra_data['postMetaSync'] = 'false';
-
         $ai_max_tokens=get_option('automl_wpml_ai_request_token_per_request', 500);
         $ai_batch_size=get_option('automl_wpml_ai_request_batch_size', 5);
 

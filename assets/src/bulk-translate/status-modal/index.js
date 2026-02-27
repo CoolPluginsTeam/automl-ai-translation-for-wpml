@@ -364,7 +364,23 @@ const StatusModal = ({ postIds, selectedLanguages, prefix, onDestory }) => {
 
                         <div className={`${prefix}-status-table-container`}>
                             <div className={`${prefix}-status-inner`}>
-                                {isLoading && postIds.map((postId) => (
+                                {isLoading && 
+                                <>
+                                <div className={`${prefix}-status-header-container`}>
+                                    <div className={`${prefix}-status-flag-th`}>
+                                    <div className={`${prefix}-progress-skeleton`} style={{ maxWidth: '80px', marginBottom: '0px' }}></div>
+                                    </div>
+                                    <div className={`${prefix}-status-status-th`}>
+                                    <div className={`${prefix}-progress-skeleton`} style={{ maxWidth: '80px', marginBottom: '0px' }}></div>
+                                    </div>
+                                    <div className={`${prefix}-status-title-th`}>
+                                    <div className={`${prefix}-progress-skeleton`} style={{ maxWidth: '80px', marginBottom: '0px' }}></div>
+                                    </div>
+                                    <div className={`${prefix}-status-actions-th`}>
+                                    <div className={`${prefix}-progress-skeleton`} style={{ maxWidth: '80px', marginBottom: '0px' }}></div>
+                                    </div>
+                                </div>
+                                {postIds.map((postId) => (
                                     <div className={`${prefix}-status-inner-item`} key={postId}>
                                         <div className={`${prefix}-status-parent-post-title`}>
                                             <div className={`${prefix}-progress-skeleton`} style={{ maxWidth: '80px', marginBottom: '0px' }}></div>
@@ -385,6 +401,25 @@ const StatusModal = ({ postIds, selectedLanguages, prefix, onDestory }) => {
                                         </div>
                                     </div>
                                 ))}
+                                </>
+                                }
+                                {
+                                    !isLoading && Object.keys(translatePostInfo).length > 0 &&
+                                    <div className={`${prefix}-status-header-container`}>
+                                        <div className={`${prefix}-status-flag-th`}>
+                                            <span className={`${prefix}-status-header-label`}>{__('Flag', 'automl-ai-translation-for-wpml')}</span>
+                                        </div>
+                                        <div className={`${prefix}-status-status-th`}>
+                                            <span className={`${prefix}-status-header-label`}>{__('Status', 'automl-ai-translation-for-wpml')}</span>
+                                        </div>
+                                        <div className={`${prefix}-status-title-th`}>
+                                            <span className={`${prefix}-status-header-label`}>{__('Title', 'automl-ai-translation-for-wpml')}</span>
+                                        </div>
+                                        <div className={`${prefix}-status-actions-th`}>
+                                            <span className={`${prefix}-status-header-label`}>{__('Actions', 'automl-ai-translation-for-wpml')}</span>
+                                        </div>
+                                    </div>
+                                }
                                 {!isLoading && Object.keys(errorPostsInfo).length > 0 &&
                                     Object.keys(errorPostsInfo).map((key, index) => {
                                         return (
@@ -485,8 +520,15 @@ const StatusModal = ({ postIds, selectedLanguages, prefix, onDestory }) => {
                                 })}
                             </div>
                         </div>
+                        <div className={`${prefix}-status-footer`}>
+                            {isLoading ?
+                             <div className={`${prefix}-progress-skeleton`}></div> :
+                             <a className={`${prefix}-progress-button button button-primary ${!(countInfo.postsTranslated > 0 && !pendingPosts.length) ? 'disabled' : ''}`} href={!(countInfo.postsTranslated > 0 && !pendingPosts.length) ? '#' : getTranslatedPostLink()}>{sprintf(__('Check Translated %s', 'automl-ai-translation-for-wpml'), automl_wpml_bulk_translate_object.post_label)}</a>
+                            }
+                        </div>
                     </>
                 }
+
             </div>
     );
 };

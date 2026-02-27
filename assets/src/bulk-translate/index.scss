@@ -368,9 +368,11 @@ $prefix: automl-wpml-bulk-translate;
             height: 100%;
             justify-content: center;
             max-width: 900px;
-            padding: 5px;
-            padding-bottom: 20px;
             width: 100%;
+
+            .#{$prefix}-header + div{
+                margin-top: 16px;
+            }
 
             .#{$prefix}-status-modal-close {
                 background: none;
@@ -442,7 +444,7 @@ $prefix: automl-wpml-bulk-translate;
 
                 .#{$prefix}-progress {
                     height: 100%;
-                    background: #3db63d;
+                    background: #2271b1;
                     width: 0%;
                     transition: width 0.3s ease;
                     max-width: 100%;
@@ -461,7 +463,7 @@ $prefix: automl-wpml-bulk-translate;
             }
 
             .#{$prefix}-translator-strings-count {
-                color: #4caf50;
+                // color: #4caf50;
                 text-align: center;
                 font-size: 1rem;
                 margin-bottom: 10px;
@@ -477,13 +479,20 @@ $prefix: automl-wpml-bulk-translate;
                 font-size: 1rem;
                 justify-content: space-between;
                 margin-inline: 24px;
-                background: #00000008;
                 border-radius: 13px;
                 margin-bottom: 15px;
+                background: #00000008;
+                
+                // .#{$prefix}-post-count,
+                // .#{$prefix}-string-count,
+                // .#{$prefix}-char-count{
+                //     padding: .8rem 1rem;
+                //     border-radius: 8px;
+                // }
 
                 .#{$prefix}-count-text-heading {
                     color: #8c8585;
-                    font-size: 10px;
+                    font-size: 12px;
                     font-weight: 500;
 
                     ~ span{
@@ -492,23 +501,85 @@ $prefix: automl-wpml-bulk-translate;
                 }
             }
 
+            .#{$prefix}-status-header-container{
+                display: grid;
+                grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+                padding: .8rem 1rem;
+                background: #0000000a;
+                border-radius: 13px 13px 0 0;
+                border: 1px solid #00000012;
+                font-weight: 600;
+                text-transform: uppercase;
+                border-bottom: 0px;
+
+                .#{$prefix}-status-flag-th,
+                .#{$prefix}-status-status-th,
+                .#{$prefix}-status-title-th,
+                .#{$prefix}-status-actions-th{
+                    grid-column: span 1;
+                }
+
+                .#{$prefix}-status-status-th{
+                    text-align: center;
+                    display: flex;
+                    justify-content: center;
+                }
+
+                .#{$prefix}-status-title-th{
+                    grid-column: span 2;
+                    text-align: center;
+                    display: flex;
+                    justify-content: center;
+                }
+
+                .#{$prefix}-status-actions-th{
+                    text-align: right;
+                    padding-right: 5px;
+                    display: flex;
+                    justify-content: flex-end;
+
+                    .#{$prefix}-progress-skeleton {
+                        width: 172px;
+                        margin-right: -5px;
+                    }
+                }
+            }
+
+            .#{$prefix}-status-footer {
+                border: none;
+                display: flex;
+                justify-content: space-between;
+                margin-top: 0;
+                padding: 16px 22.4px;
+                border-top: 2px solid #00000012;
+
+                .#{$prefix}-progress-skeleton {
+                    height: 30px;
+                    width: 172px;
+                }
+            }
+
             .#{$prefix}-status-table-container {
                 height: 100%;
                 overflow: hidden;
                 margin-top: 8px;
                 margin-inline: 22px;
+                margin-bottom: 16px;
 
                 &>div {
                     height: 100%;
                     overflow-y: auto;
-                    padding: 2px;
                 }
 
                 .#{$prefix}-status-inner-item {
-                    border-radius: 13px;
-                    padding: 1rem;
-                    box-shadow: 0px 0px 2px #00000036;
-                    margin-bottom: 15px;
+                    border: 1px solid #00000012;
+                    border-bottom-width: 0px;
+                    border-top-color: #00000017;
+
+                    &:last-child{
+                        border-bottom-width: 1px;
+                        border-radius: 0 0 13px 13px;
+                    }
 
                     &.#{$prefix}-status-target-post-error {
                         background: #ff000014;
@@ -542,7 +613,7 @@ $prefix: automl-wpml-bulk-translate;
 
                     .#{$prefix}-progress {
                         fill: none;
-                        stroke: #4caf50;
+                        stroke: #2271b1;
                         stroke-width: 3;
                         stroke-linecap: round;
                         transition: stroke-dasharray 0.6s ease;
@@ -588,18 +659,15 @@ $prefix: automl-wpml-bulk-translate;
                 .#{$prefix}-status-parent-post-title{
                     font-weight: 600;
                     font-size: 14px;
-                    margin-bottom: 8px;
+                    padding: .8rem 1rem;
+                    background: #00000008;
                 }
 
                 .#{$prefix}-status-target-post {
-                    background: #00000008;
-                    border-radius: 13px;
-                    padding: 1rem;
-                    padding-block: 0;
                     display: grid;
                     grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
                     align-items: center;
-                    border: 1px solid #00000008;
+                    padding-inline: 1rem;
 
                     &-flag{
                         display: flex;
@@ -832,11 +900,28 @@ $prefix: automl-wpml-bulk-translate;
                 }
 
                 &-disabled-lists{
-                    display: grid;
-                    grid-template-columns: repeat(3, 1fr);
-                    gap: 10px;
                     padding: 1rem 25px;
                     background: #0000000a;
+                    border-radius: 8px;
+
+                    & > p{
+                        margin: 0;
+                        padding: 0;
+                        margin-bottom: 15px;
+                        font-size: 14px;
+                        font-weight: 600;
+                        
+                        a:focus{
+                            box-shadow: none;
+                            outline: none;
+                        }
+                    }
+
+                    &>div{
+                        display: grid;
+                        grid-template-columns: repeat(3, 1fr);
+                        gap: 10px;
+                    }
                 }
 
                 .#{$prefix}-language {
@@ -1047,13 +1132,12 @@ $prefix: automl-wpml-bulk-translate;
 
             .#{$prefix}-error-modal-box-header {
                 position: relative;
-                position: relative;
                 align-items: flex-start;
-                background: #fff;
                 display: flex;
                 gap: 16px;
                 justify-content: space-between;
-                padding: 12px 24px 0;
+                padding: 10px 24px 8px;
+                border-bottom: 2px solid #00000012;
             }
 
             .#{$prefix}-error-modal-box-header h3 {

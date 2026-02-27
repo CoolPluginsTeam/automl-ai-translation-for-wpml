@@ -15,7 +15,7 @@ const App = ({ onDestory, prefix, postIds }) => {
     const dispatch = useDispatch();
     const { languageObject = {}, selected_language_object = {} } = automl_wpml_bulk_translate_object || {};
     const wizardSelectedCode = Object.keys(selected_language_object)[0] || '';
-    const wizardLanguagesUrl = (automl_wpml_bulk_translate_object?.admin_url || '').replace(/\/?$/, '') + '/admin.php?page=wpml_at_wizard&step=languages';
+    const wizardLanguagesUrl = (automl_wpml_bulk_translate_object?.admin_url || '').replace(/\/?$/, '') + '/admin.php?page=automl_ai_wizard&step=languages';
     const emptyPostIdsErrorMessage = sprintf(__('Please select at least one %s for translation.', 'automl-ai-translation-for-wpml'), automl_wpml_bulk_translate_object.post_label);
     const [selectedLanguages, setSelectedLanguages] = useState([]);
     const isStringTranslationPage = false;
@@ -170,18 +170,25 @@ const App = ({ onDestory, prefix, postIds }) => {
                                         />
                                         </div>
                                         <div className={`${prefix}-languages-disabled-lists`}>
-                                        {Object.keys(targetLanguages).map((language) => (
-                                            language === wizardSelectedCode ? <></> : 
-                                            <RenderLanguage
-                                                key={language}
-                                                language={language}
-                                                selectedLanguages={selectedLanguages}
-                                                setSelectedLanguages={setSelectedLanguagesHandler}
-                                                prefix={prefix}
-                                                languageObject={languageObject}
-                                                wizardSelectedCode={wizardSelectedCode}
-                                                />
-                                            ))}
+                                        <p>{__('Multiple language translation available in Pro.', 'automl-ai-translation-for-wpml')}
+                                        &nbsp;
+                                        <a href='#' title={__('Buy Pro Version to Unlock All Languages', 'automl-ai-translation-for-wpml')} className={`${prefix}-buy-pro-version-link`}>{__('Upgrade now', 'automl-ai-translation-for-wpml')}</a>
+                                        </p>
+                                        <div>
+                                            {Object.keys(targetLanguages).map((language) => (
+                                                language === wizardSelectedCode ? <></> : 
+                                                <RenderLanguage
+                                                    key={language}
+                                                    language={language}
+                                                    selectedLanguages={selectedLanguages}
+                                                    setSelectedLanguages={setSelectedLanguagesHandler}
+                                                    prefix={prefix}
+                                                    languageObject={languageObject}
+                                                    wizardSelectedCode={wizardSelectedCode}
+                                                    />
+                                                ))
+                                            }
+                                        </div>
                                         </div>
                                     </div>: (
                                     <div className={`${prefix}-wizard-language-notice`} style={{ padding: '12px 24px', marginTop: 8, background: '#00000008', borderRadius: 4 }}>
