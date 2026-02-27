@@ -203,6 +203,10 @@ class Create_Translated_Post {
     private function update_translate_strings(): void {
 		$automl_wpml_content_update = null;
 
+		if(!is_array($this->translate_strings) || empty($this->translate_strings)){
+			return;
+		}
+
         if($this->editor_type === 'Elementor'){
             $nonce = wp_create_nonce('automl_wpml_elementor_content_update_nonce');
             $automl_wpml_content_update = new Elementor_Update( $this->post_id, $this->translated_post_id, $this->translate_strings, $this->target_language, $nonce );
@@ -212,6 +216,7 @@ class Create_Translated_Post {
             $nonce = wp_create_nonce('automl_wpml_gutenberg_content_update_nonce');
             $automl_wpml_content_update = new Gutenberg_Update( $this->post_id, $this->translated_post_id, $this->translate_strings, $this->target_language, $nonce );
         }
+
 
 		if(isset($automl_wpml_content_update) && $automl_wpml_content_update instanceof Content_Update_Base){
 			$automl_wpml_content_update->update_content();

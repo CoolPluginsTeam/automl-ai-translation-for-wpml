@@ -523,7 +523,8 @@ const StatusModal = ({ postIds, selectedLanguages, prefix, onDestory }) => {
                         <div className={`${prefix}-status-footer`}>
                             {isLoading ?
                              <div className={`${prefix}-progress-skeleton`}></div> :
-                             <a className={`${prefix}-progress-button button button-primary ${!(countInfo.postsTranslated > 0 && !pendingPosts.length) ? 'disabled' : ''}`} href={!(countInfo.postsTranslated > 0 && !pendingPosts.length) ? '#' : getTranslatedPostLink()}>{sprintf(__('Check Translated %s', 'automl-ai-translation-for-wpml'), automl_wpml_bulk_translate_object.post_label)}</a>
+                             (!(countInfo.postsTranslated > 0 && !pendingPosts.length)) ? <div className={`${prefix}-progress-button button button-primary`} disabled>{sprintf(__('Check Translated %s', 'automl-ai-translation-for-wpml'), automl_wpml_bulk_translate_object.post_label)}</div> :
+                             <a className={`${prefix}-progress-button button button-primary`} href={getTranslatedPostLink()}>{sprintf(__('Check Translated %s', 'automl-ai-translation-for-wpml'), automl_wpml_bulk_translate_object.post_label)}</a>
                             }
                         </div>
                     </>

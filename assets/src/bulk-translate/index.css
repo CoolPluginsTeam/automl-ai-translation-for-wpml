@@ -269,6 +269,7 @@
   display: -webkit-inline-box;
   display: -ms-inline-flexbox;
   display: inline-flex;
+  cursor: pointer;
 }
 
 #automl-wpml-bulk-translate-wrapper #automl-wpml-bulk-translate-container #automl-wpml-bulk-translate-setting-modal-container .automl-wpml-bulk-translate-setting-modal-content .automl-wpml-bulk-translate-provider-card--disabled .automl-wpml-bulk-translate-provider-error:hover {
@@ -643,6 +644,11 @@
 #automl-wpml-bulk-translate-wrapper #automl-wpml-bulk-translate-container #automl-wpml-bulk-translate-status-modal-container .automl-wpml-bulk-translate-status-footer .automl-wpml-bulk-translate-progress-skeleton {
   height: 30px;
   width: 172px;
+}
+
+#automl-wpml-bulk-translate-wrapper #automl-wpml-bulk-translate-container #automl-wpml-bulk-translate-status-modal-container .automl-wpml-bulk-translate-status-footer a {
+  -webkit-transition: all .3s ease-in-out;
+  transition: all .3s ease-in-out;
 }
 
 #automl-wpml-bulk-translate-wrapper #automl-wpml-bulk-translate-container #automl-wpml-bulk-translate-status-modal-container .automl-wpml-bulk-translate-status-table-container {
@@ -1300,7 +1306,7 @@
   color: #1d2327;
 }
 
-#automl-wpml-bulk-translate-wrapper #automl-wpml-bulk-translate-container .automl-wpml-bulk-translate-error-modal-box-container .automl-wpml-bulk-translate-error-modal-box-close {
+#automl-wpml-bulk-translate-wrapper #automl-wpml-bulk-translate-container .automl-wpml-bulk-translate-error-modal-box-container .automl-wpml-bulk-translate-error-modal-box-close:not(button) {
   border: none;
   background: none;
   cursor: pointer;
@@ -1378,23 +1384,27 @@
 }
 
 #automl-wpml-bulk-translate-wrapper #automl-wpml-bulk-translate-container .automl-wpml-bulk-translate-error-modal-box-container .automl-wpml-bulk-translate-error-modal-box-footer {
-  background: 0 0;
   border: none;
-  border-top: 1px solid #dcdcde;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
   margin-top: 0;
-  padding: 16px 22.4px 16px;
-  text-align: end;
+  padding: 16px 22.4px;
+  border-top: 2px solid #00000012;
 }
 
 #automl-wpml-bulk-translate-wrapper #automl-wpml-bulk-translate-container .automl-wpml-bulk-translate-error-modal-box-container .automl-wpml-bulk-translate-error-modal-box-footer .automl-wpml-bulk-translate-error-modal-box-close {
-  background: #f6f7f7;
-  border: 1px solid #c3c4c7;
-  color: #50575e;
+  background-color: #ffffff;
+  border: none;
+  color: #000000;
 }
 
 #automl-wpml-bulk-translate-wrapper #automl-wpml-bulk-translate-container .automl-wpml-bulk-translate-error-modal-box-container .automl-wpml-bulk-translate-error-modal-box-footer .automl-wpml-bulk-translate-error-modal-box-close:hover {
-  background-color: #e1e1e1;
-  border-color: #c9c9c9;
+  background-color: #fff;
+  border-color: #fff;
 }
 
 #automl-wpml-bulk-translate-wrapper #automl-wpml-bulk-translate-container .automl-wpml-bulk-translate-error-modal-box-container .automl-wpml-bulk-translate-ai-pending-request {
