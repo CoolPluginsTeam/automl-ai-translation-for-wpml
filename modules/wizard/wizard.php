@@ -32,7 +32,7 @@ class AUTOML_Ai_Wizard {
 	 * @return void
 	 */
     public function add_admin_menu() {
-		if ( get_option( 'wpml_at_setup_complete' ) && $this->is_wizard_language_set() ) {
+		if ( get_option( 'automl_ai_setup_complete' ) && $this->is_wizard_language_set() ) {
 			return;
 		}
 		$parent_slug = 'sitepress-multilingual-cms/menu/languages.php';
@@ -64,7 +64,7 @@ class AUTOML_Ai_Wizard {
 		if ( wp_doing_ajax() || $network_wide ) {
 			return;
 		}
-		if ( get_option( 'wpml_at_setup_complete' ) ) {
+		if ( get_option( 'automl_ai_setup_complete' ) ) {
 			return;
 		}
 		set_transient( 'wpml_at_activation_redirect', 1, 30 );
@@ -100,7 +100,7 @@ class AUTOML_Ai_Wizard {
 	 * @return void
 	 */
     public function maybe_show_wizard_notice() {
-		if ( get_option( 'wpml_at_setup_complete' ) && $this->is_wizard_language_set() ) {
+		if ( get_option( 'automl_ai_setup_complete' ) && $this->is_wizard_language_set() ) {
 			return;
 		}
 		if ( ! current_user_can( 'manage_options' ) ) {
@@ -160,7 +160,7 @@ class AUTOML_Ai_Wizard {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_die( esc_html__( 'Sorry, you are not allowed to manage options for this site.', 'automl-ai-translation-for-wpml' ) );
 		}
-        if ( get_option( 'wpml_at_setup_complete' ) && $this->is_wizard_language_set() ) {
+        if ( get_option( 'automl_ai_setup_complete' ) && $this->is_wizard_language_set() ) {
 			wp_safe_redirect( add_query_arg( array( 'page' => 'automl_ai_dashboard' ), admin_url( 'admin.php' ) ) );
 			exit;
 		}

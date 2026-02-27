@@ -60,9 +60,6 @@ const ErrorModalBox = ({ message, onClose, Title, prefix, children }) => {
                     <p dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(stringifiedMessage) }} />
                     {children}
                 </div>
-                <div className={`${prefix}-error-modal-box-footer`}>
-                    <button className={`${prefix}-error-modal-box-close button button-primary`} onClick={onClose}>{__('Back', 'automl-ai-translation-for-wpml')}</button>
-                </div>
             </div>
         </div>
     );

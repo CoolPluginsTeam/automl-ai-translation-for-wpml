@@ -245,7 +245,7 @@ if ( ! class_exists( 'Bulk_Translation_Route' ) ) :
 	 * @return \WP_REST_Response
 	 */
 	public function wizard_complete() {
-		update_option( 'wpml_at_setup_complete', true );
+		update_option( 'automl_ai_setup_complete', true );
 		return new \WP_REST_Response( array( 'success' => true ), 200 );
 	}
 

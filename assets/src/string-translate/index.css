@@ -601,16 +601,6 @@
   margin-top: 1.2rem;
 }
 
-#automl-wpml-bulk-translate-wrapper #automl-wpml-bulk-translate-container .automl-wpml-bulk-translate-header h2 {
-  background: 0 0;
-  border: none;
-  font-size: 18px;
-  font-weight: 600;
-  height: unset;
-  line-height: 2;
-  margin: 0;
-}
-
 #automl-wpml-bulk-translate-wrapper #automl-wpml-bulk-translate-container .automl-wpml-bulk-translate-error-message {
   color: red;
   padding: 1rem;
@@ -668,15 +658,6 @@
   padding: 1rem;
 }
 
-#automl-wpml-bulk-translate-wrapper #automl-wpml-bulk-translate-container .automl-wpml-bulk-translate-body .automl-wpml-bulk-translate-languages {
-  display: -ms-grid;
-  display: grid;
-  -ms-grid-columns: 1fr 1fr 1fr;
-      grid-template-columns: repeat(3, 1fr);
-  gap: 1rem;
-  padding: 1rem 25px;
-}
-
 #automl-wpml-bulk-translate-wrapper #automl-wpml-bulk-translate-container .automl-wpml-bulk-translate-body .automl-wpml-bulk-translate-languages .automl-wpml-bulk-translate-language {
   display: -webkit-box;
   display: -ms-flexbox;
@@ -684,6 +665,22 @@
   padding: 7px;
   border: 1px solid #ddd;
   border-radius: 8px;
+}
+
+#automl-wpml-bulk-translate-wrapper #automl-wpml-bulk-translate-container .automl-wpml-bulk-translate-body .automl-wpml-bulk-translate-languages-enabled-list {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(3, 1fr);
+  padding: 1rem 25px;
+}
+
+
+#automl-wpml-bulk-translate-wrapper #automl-wpml-bulk-translate-container .automl-wpml-bulk-translate-body .automl-wpml-bulk-translate-languages-disabled-lists {
+  background: #0000000a;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(3, 1fr);
+  padding: 1rem 25px;
 }
 
 #automl-wpml-bulk-translate-wrapper #automl-wpml-bulk-translate-container .automl-wpml-bulk-translate-body .automl-wpml-bulk-translate-languages .automl-wpml-bulk-translate-language.automl-wpml-bulk-translate-language-item--selected {
@@ -751,9 +748,10 @@
 }
 
 .automl-wpml-bulk-translate-modal-header-inner .automl-wpml-bulk-translate-modal-desc {
-  margin-top: 0px !important;
-  font-size: 9px !important;
+  color: #888;
+  font-size: 12px !important;
   font-weight: 500;
+  margin: 0 0 4px;
 }
 
 #automl-wpml-bulk-translate-wrapper #automl-wpml-bulk-translate-container .automl-wpml-bulk-translate-body .automl-wpml-bulk-translate-languages .automl-wpml-bulk-translate-language input[name="languages"]:disabled ~ img {
@@ -769,12 +767,12 @@
 }
 
 #automl-wpml-bulk-translate-wrapper #automl-wpml-bulk-translate-container .automl-wpml-bulk-translate-footer {
-  background: 0 0;
+  border: none;
+  border-top: 2px solid #00000012;
   display: flex;
   justify-content: space-between;
-  border: none;
   margin-top: 0;
-  padding: 16px 22.4px 16px; 
+  padding: 16px 22.4px;
 }
 
 #automl-wpml-bulk-translate-wrapper #automl-wpml-bulk-translate-container .automl-wpml-bulk-translate-footer .automl-wpml-bulk-translate-footer-button:nth-of-type(1) {
@@ -810,6 +808,24 @@
   font-size: 10px;
     font-weight: 600;
     color: #3737e7;
+}
+#automl-wpml-bulk-translate-wrapper #automl-wpml-bulk-translate-container .automl-wpml-bulk-translate-header h2{
+  background: 0 0;
+  border: none;
+  font-size: 18px;
+  font-weight: 600;
+  height: unset;
+  line-height: 2;
+  margin: 0;
+}
+
+#automl-wpml-bulk-translate-wrapper #automl-wpml-bulk-translate-container .automl-wpml-bulk-translate-header {
+  align-items: flex-start;
+  border-bottom: 2px solid #00000012;
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+  padding: 10px 24px 8px;
 }
 
 #automl-wpml-bulk-translate-wrapper #automl-wpml-bulk-translate-container .automl-wpml-bulk-translate-error-modal-box-container {
@@ -1044,24 +1060,25 @@
 /* Provider cards grid - Step 2 style */
 #automl-wpml-bulk-translate-wrapper .automl-wpml-bulk-translate-setting-modal-body .automl-wpml-bulk-translate-provider-cards {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-  padding: 0 24px 20px;
-  max-width: 560px;
-  min-width: 500px;
+    gap: 16px;
+    grid-template-columns: repeat(2, 1fr);
+    max-width: 560px;
+    min-width: 500px;
+    padding: 16px 24px;
 }
 
 #automl-wpml-bulk-translate-wrapper .automl-wpml-bulk-translate-provider-card {
-  position: relative;
-  padding: 8px;
+  align-items: flex-start;
+  background: #fff;
   border: 2px solid #e2e8f0;
   border-radius: 10px;
-  background: #fff;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  cursor: pointer;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  padding: 12px;
+  position: relative;
   text-align: left;
+  transition: border-color .2s, box-shadow .2s;
 }
 
 #automl-wpml-bulk-translate-wrapper .automl-wpml-bulk-translate-provider-card:hover {
@@ -1075,26 +1092,25 @@
 }
 
 #automl-wpml-bulk-translate-wrapper .automl-wpml-bulk-translate-provider-card-icon {
-  width: 25px;
-  height: 25px;
-  display: flex;
   align-items: center;
+  display: flex;
+  height: 25px;
   justify-content: center;
-  margin-bottom: 6px;
+  width: 25px;
 }
 
 #automl-wpml-bulk-translate-wrapper .automl-wpml-bulk-translate-provider-card-icon img {
-  width: 32px;
-  height: 32px;
+  height: 24px;
+  -o-object-fit: contain;
   object-fit: contain;
+  width: 24px;
 }
 
 #automl-wpml-bulk-translate-wrapper .automl-wpml-bulk-translate-provider-card-name {
-  font-weight: 700;
-  font-size: 1rem;
   color: #0f172a;
-  margin-bottom: 6px;
   display: block;
+  font-size: 14px;
+  font-weight: 700;
 }
 
 #automl-wpml-bulk-translate-wrapper .automl-wpml-bulk-translate-provider-card-desc {
@@ -1105,24 +1121,29 @@
   flex: 1;
 }
 .automl-wpml-bulk-translate-provider-card--disabled .automl-wpml-bulk-translate-provider-card-error .automl-wpml-bulk-translate-provider-error{
+  color: #64748b;
+  display: inline-flex;
+}
+
+#automl-wpml-bulk-translate-wrapper #automl-wpml-bulk-translate-container #automl-wpml-bulk-translate-setting-modal-container .automl-wpml-bulk-translate-setting-modal-content .automl-wpml-bulk-translate-provider-card-body {
+  align-items: center;
   display: flex;
-  width: 4rem;
-  min-height: 1.4rem !important;
-  font-size: 9px;
-  margin-bottom: 7px;
+  gap: 10px;
+  width: 100%;
 }
 
 #automl-wpml-bulk-translate-wrapper .automl-wpml-bulk-translate-provider-card-actions {
-  display: flex;
   align-items: center;
-  gap: 12px;
-  margin-top: 12px;
+  display: flex;
   flex-wrap: wrap;
+  margin-top: 7px;
+  width: 100%;
 }
 
 #automl-wpml-bulk-translate-wrapper .automl-wpml-bulk-translate-provider-card-docs {
   color: #64748b;
   display: inline-flex;
+  margin-right: auto;
 }
 
 #automl-wpml-bulk-translate-wrapper .automl-wpml-bulk-translate-provider-card-docs:hover {
@@ -1177,7 +1198,6 @@
 }
 
 .automl-wpml-bulk-translate-provider-card-error {
-  margin-top: 8px;
   font-size: 0.8125rem;
 }
 

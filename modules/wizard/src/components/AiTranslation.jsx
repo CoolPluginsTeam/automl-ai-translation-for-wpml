@@ -57,28 +57,26 @@ const AiTranslation = ({ onBack, onContinue }) => {
 				</p>
 
 				<div style={{ marginBottom: 16 }}>
-					<label htmlFor="wpml-at-wizard-openai-key" style={{ display: 'block', marginBottom: 6, fontWeight: 500 }}>
+					<label htmlFor="automl-ai-wizard-openai-key" style={{ display: 'block', marginBottom: 6, fontWeight: 500 }}>
 						{ __( 'OpenAI API key', 'automl-ai-translation-for-wpml' ) }
 					</label>
 					<input
-						id="wpml-at-wizard-openai-key"
+						id="automl-ai-wizard-openai-key"
 						type="password"
 						value={ openaiKey }
 						onChange={ ( e ) => setOpenaiKey( e.target.value ) }
-						placeholder="sk-..."
 						style={{ width: '100%', maxWidth: 400, padding: '8px 12px', fontSize: 14 }}
 					/>
 				</div>
 				<div style={{ marginBottom: 16 }}>
-					<label htmlFor="wpml-at-wizard-google-key" style={{ display: 'block', marginBottom: 6, fontWeight: 500 }}>
+					<label htmlFor="automl-ai-wizard-google-key" style={{ display: 'block', marginBottom: 6, fontWeight: 500 }}>
 						{ __( 'Google / Gemini API key', 'automl-ai-translation-for-wpml' ) }
 					</label>
 					<input
-						id="wpml-at-wizard-google-key"
+						id="automl-ai-wizard-google-key"
 						type="password"
 						value={ googleKey }
 						onChange={ ( e ) => setGoogleKey( e.target.value ) }
-						placeholder="..."
 						style={{ width: '100%', maxWidth: 400, padding: '8px 12px', fontSize: 14 }}
 					/>
 				</div>
