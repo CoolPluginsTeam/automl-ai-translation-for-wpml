@@ -324,7 +324,7 @@ const StatusModal = ({ postIds, selectedLanguages, prefix, onDestory }) => {
                                 <p className={`${prefix}-modal-desc`}>{__("Your content has been translated successfully.", 'automl-ai-translation-for-wpml')}</p>
                             )}
                     </div>
-                    <span className={`${prefix}-modal-close`} onClick={(e) => onModalClose(e)}>&times;</span>
+                    <button type="button" aria-label={__('Close', 'automl-ai-translation-for-wpml')} className={`${prefix}-modal-close`} onClick={(e) => onModalClose(e)}>&times;</button>
                 </div>
                 {(countInfo.totalPosts < 1 && countInfo.errorPosts < 1) && !isLoading ?
                     <p>{emptyPostMessage}</p> :

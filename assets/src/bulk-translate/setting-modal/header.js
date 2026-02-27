@@ -10,7 +10,7 @@ const SettingModalHeader = ({ setSettingVisibility, prefix }) => {
           <h2>{__("Select Translation Engine", 'automl-ai-translation-for-wpml')}</h2>
           <p className={`${prefix}-modal-desc`}>{__("Choose the Ai provider you want to use for your this translation batch.", 'automl-ai-translation-for-wpml')}</p>
          </div>
-            <span className={`${prefix}-modal-close`} onClick={(e) => setSettingVisibility(e)}>&times;</span>
+            <button type="button" aria-label={__('Close', 'automl-ai-translation-for-wpml')} className={`${prefix}-modal-close`} onClick={(e) => setSettingVisibility(e)}>&times;</button>
         </div>
     );
 }
