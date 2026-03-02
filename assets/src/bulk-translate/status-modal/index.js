@@ -22,7 +22,6 @@ const StatusModal = ({ postIds, selectedLanguages, prefix, onDestory }) => {
     const pendingPosts = useSelector(selectPendingPosts);
     const serviceProvider = useSelector(selectServiceProvider);
     const [progressBarVisibility, setProgressBarVisibility] = useState(true);
-    const [charactersCountVisibility, setCharactersCountVisibility] = useState(false);
     const [bulkStatus, setBulkStatus] = useState('status');
     const countInfo = useSelector(selectCountInfo);
     let [emptyPostMessage, setEmptyPostMessage] = useState(sprintf(__('Translations already exist for all selected %s in the chosen languages. There are no new %s to translate.', 'automl-ai-translation-for-wpml'), automl_wpml_bulk_translate_object.post_label, automl_wpml_bulk_translate_object.post_label));
@@ -131,7 +130,6 @@ const StatusModal = ({ postIds, selectedLanguages, prefix, onDestory }) => {
     }
 
     useEffect(() => {
-
         if (countInfo.totalPosts < 1 && !isLoading && bulkStatus !== 'status') {
             updateBulkStatus('status');
             return;
@@ -200,20 +198,14 @@ const StatusModal = ({ postIds, selectedLanguages, prefix, onDestory }) => {
         if (progressStatus >= 100 && pendingPosts.length < 1) {
             if (countInfo.postsTranslated < 1) {
                 setProgressBarVisibility(false);
-                setCharactersCountVisibility(false);
                 return;
             }
 
             if (countInfo.stringsTranslated > 0) {
                 setTimeout(() => {
-                    setCharactersCountVisibility(true);
-                }, 1000);
+                    setProgressBarVisibility(false);
+                }, 2000);
             }
-
-            setTimeout(() => {
-                setProgressBarVisibility(false);
-                setCharactersCountVisibility(false);
-            }, 7500);
         }
     }, [pendingPosts]);
 
@@ -331,20 +323,11 @@ const StatusModal = ({ postIds, selectedLanguages, prefix, onDestory }) => {
                     <>
                         {isLoading && <div className={`${prefix}-progress-skeleton`}></div>}
                         {(countInfo.totalPosts > 0) && progressBarVisibility && !isLoading ?
-                            <>
-                                {!charactersCountVisibility && <div className={`${prefix}-overall-progress`}>
+                                <div className={`${prefix}-overall-progress`}>
                                     <div className={`${prefix}-progress-bar`}>
                                         <div className={`${prefix}-progress`} style={{ width: progressStatus + '%' }}>{progressStatus + '%'}</div>
                                     </div>
-                                </div>}
-                                {charactersCountVisibility &&
-                                    <div className={`${prefix}-translator-strings-count`}>
-                                        {__('Wahooo! You have saved your valuable time via auto translating', 'automl-ai-translation-for-wpml')}
-                                        <strong className="totalChars"> {countInfo.charactersTranslated} </strong>{__('characters using', 'automl-ai-translation-for-wpml')}
-                                        <strong> {getServiceProviderLabel()}</strong>
-                                    </div>
-                                }
-                            </> : (countInfo.postsTranslated > 0 &&
+                                </div> : (countInfo.postsTranslated > 0 &&
                                 <div className={`${prefix}-count-container`}>
                                     <div className={`${prefix}-post-count`}>
                                         <span className={`${prefix}-count-text-heading`}>{__('Posts', 'automl-ai-translation-for-wpml')} </span><br />

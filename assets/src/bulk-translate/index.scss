@@ -483,14 +483,8 @@ $prefix: automl-wpml-bulk-translate;
                 border-radius: 13px;
                 margin-bottom: 15px;
                 background: #00000008;
+                border: 1px solid #00000012;
                 
-                // .#{$prefix}-post-count,
-                // .#{$prefix}-string-count,
-                // .#{$prefix}-char-count{
-                //     padding: .8rem 1rem;
-                //     border-radius: 8px;
-                // }
-
                 .#{$prefix}-count-text-heading {
                     color: #8c8585;
                     font-size: 12px;
@@ -717,6 +711,14 @@ $prefix: automl-wpml-bulk-translate;
 
                     &-title{
                         text-align: center;
+
+                        a{
+                            width: 100%;
+                            overflow: hidden;
+                            display: inline-block;
+                            white-space: nowrap;
+                            text-overflow: ellipsis;
+                        }
                     }
 
                     &-actions,

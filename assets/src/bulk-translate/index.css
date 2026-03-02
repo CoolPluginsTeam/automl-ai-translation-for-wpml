@@ -558,6 +558,7 @@
   border-radius: 13px;
   margin-bottom: 15px;
   background: #00000008;
+  border: 1px solid #00000012;
 }
 
 #automl-wpml-bulk-translate-wrapper #automl-wpml-bulk-translate-container #automl-wpml-bulk-translate-status-modal-container .automl-wpml-bulk-translate-count-container .automl-wpml-bulk-translate-count-text-heading {
@@ -815,6 +816,14 @@
 
 #automl-wpml-bulk-translate-wrapper #automl-wpml-bulk-translate-container #automl-wpml-bulk-translate-status-modal-container .automl-wpml-bulk-translate-status-table-container .automl-wpml-bulk-translate-status-target-post-title {
   text-align: center;
+}
+
+#automl-wpml-bulk-translate-wrapper #automl-wpml-bulk-translate-container #automl-wpml-bulk-translate-status-modal-container .automl-wpml-bulk-translate-status-table-container .automl-wpml-bulk-translate-status-target-post-title a {
+  width: 100%;
+  overflow: hidden;
+  display: inline-block;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 #automl-wpml-bulk-translate-wrapper #automl-wpml-bulk-translate-container #automl-wpml-bulk-translate-status-modal-container .automl-wpml-bulk-translate-status-table-container .automl-wpml-bulk-translate-status-target-post-actions, #automl-wpml-bulk-translate-wrapper #automl-wpml-bulk-translate-container #automl-wpml-bulk-translate-status-modal-container .automl-wpml-bulk-translate-status-table-container .automl-wpml-bulk-translate-status-target-post-error-button {
