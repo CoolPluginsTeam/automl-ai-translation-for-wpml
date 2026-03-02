@@ -376,7 +376,7 @@ class AIService {
         const key=keys[index];
 
         if (entry && entry !== '') {
-            const id = this.uniqueIds[key];
+            const id = this.uniqueIds[key-1];
             const value = data[index];
 
             this.completedStrings = this.completedStrings;
