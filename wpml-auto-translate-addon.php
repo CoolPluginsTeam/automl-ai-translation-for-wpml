@@ -103,6 +103,9 @@ final class AUTOML_Ai_Translate_Addon {
 	}
 
 	public function register_automl_ai_dashboard_menu() {
+		if ( ! get_option( 'automl_ai_setup_complete' ) ) {
+			return;
+		}
 		global $menu;
 	
 		// Fallback parent slug if we can't detect WPML explicitly.
@@ -121,8 +124,8 @@ final class AUTOML_Ai_Translate_Addon {
 	
 		add_submenu_page(
 			$parent_slug, // parent (WPML) menu slug
-			__( 'AUTOML Ai Translate', 'automl-ai-translation-for-wpml' ), // page title
-			__( 'AUTOML Ai Translate', 'automl-ai-translation-for-wpml' ),      // menu title
+			__( 'AUTOML AI Translate', 'automl-ai-translation-for-wpml' ), // page title
+			__( 'AutoML AI Translate', 'automl-ai-translation-for-wpml' ),      // menu title
 			'manage_options',       	                                  // capability
 			'automl_ai_dashboard',                                    // menu slug
 			array( \AUTOML_Ai_Dashboard::get_instance(), 'automl_ai_render_dashboard_page' ) // callback
@@ -230,7 +233,7 @@ final class AUTOML_Ai_Translate_Addon {
 		?>
 		<div class="notice notice-error">
 			<p>
-				<strong><?php esc_html_e( 'AUTOML Ai Translate Addon:', 'automl-ai-translation-for-wpml' ); ?></strong>
+				<strong><?php esc_html_e( 'AUTOML AI Translate Addon:', 'automl-ai-translation-for-wpml' ); ?></strong>
 				<?php esc_html_e( 'This plugin requires WPML to be installed and activated.', 'automl-ai-translation-for-wpml' ); ?>
 			</p>
 		</div>

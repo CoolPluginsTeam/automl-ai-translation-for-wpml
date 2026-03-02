@@ -324,12 +324,19 @@ if ( ! class_exists( 'Bulk_Translation_Route' ) ) :
                 $strings = array();
             }
         
-            // Get selected model for this provider from our option.
-            $models   = get_option( 'automl_ai_translation_models', array() );
-            $model_id = isset( $models[ $service_slug ] ) ? $models[ $service_slug ] : '';
-            if ( ! $model_id ) {
-                wp_send_json_error( 'No AI model selected for this provider.' );
-            }
+                       // Get selected model for this provider from our option, or fallback to defaults.
+					   $models   = get_option( 'automl_ai_translation_models', array() );
+					   $model_id = isset( $models[ $service_slug ] ) && $models[ $service_slug ] !== '' ? $models[ $service_slug ] : '';
+					   if ( ! $model_id ) {
+						   $default_models = array(
+							   'openai' => 'gpt-4o-mini',
+							   'google' => 'gemini-2.5-flash',
+						   );
+						   $model_id = isset( $default_models[ $service_slug ] ) ? $default_models[ $service_slug ] : '';
+					   }
+					   if ( ! $model_id ) {
+						   wp_send_json_error( 'No AI model selected for this provider.' );
+					   }
         
             if ( ! class_exists( '\WordPress\AiClient\AiClient' ) || ! class_exists( '\WordPress\AI_Client\AI_Client' ) ) {
                 wp_send_json_error( 'AI SDK is not available.' );

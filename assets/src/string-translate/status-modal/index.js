@@ -384,20 +384,6 @@ const StatusModal = ({ postIds, selectedLanguages, prefix, onDestory }) => {
                   </div>
                 )}
               </div>
-              {charactersCountVisibility && (
-                <div className={`${prefix}-translator-strings-count`}>
-                  {__(
-                    "Wahooo! You have saved your valuable time via auto translating",
-                    "automl-ai-translation-for-wpml",
-                  )}
-                  <strong className="totalChars">
-                    {" "}
-                    {countInfo.charactersTranslated}{" "}
-                  </strong>
-                  {__("characters using", "automl-ai-translation-for-wpml")}
-                  <strong> {getServiceProviderLabel()}</strong>
-                </div>
-              )}
             </>
           ) : (
             countInfo.stringsTranslated > 0 && (

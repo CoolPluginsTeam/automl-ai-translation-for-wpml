@@ -32,8 +32,6 @@ class Register_Assets {
 		$available_ai_services     = array();
 
 		// Enqueue translation dashboard/post list scripts.
-		if ( $needs_ai_services ) {
-
 			if ( $needs_ai_services ) {
 				// Build from saved credentials so button shows "Add API Key" when key is missing/empty.
 				$credentials = get_option( 'wp_ai_client_provider_credentials', array() );
@@ -45,7 +43,7 @@ class Register_Assets {
 					}
 				}
 			}
-			}
+
 
 			$selected_language = get_option( 'automl_ai_wizard_selected_language', array() );
 			$languages = WPML_AT_Helper::get_wpml_languages();
