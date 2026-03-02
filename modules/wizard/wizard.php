@@ -47,7 +47,7 @@ class AUTOML_Ai_Wizard {
 		add_submenu_page(
 			$parent_slug,
 			esc_html__( 'AutoML Setup Wizard', 'automl-ai-translation-for-wpml' ),
-			esc_html__( 'Setup Wizard', 'automl-ai-translation-for-wpml' ),
+			esc_html__( 'AutoML Setup', 'automl-ai-translation-for-wpml' ),
 			'manage_options',
 			'automl_ai_wizard',
 			array( $this, 'display_wizard_page' )
@@ -210,7 +210,7 @@ class AUTOML_Ai_Wizard {
                 'api_url'        => rest_url( 'automl-bulk-translate/' ),
                 'nonce'          => wp_create_nonce( 'wp_rest' ),
                 'admin_url'      => get_admin_url( null, 'admin.php' ),
-                'dashboard_url'  => add_query_arg( array( 'page' => 'automl_ai_dashboard' ), admin_url( 'admin.php' ) ),
+                'dashboard_url'  => add_query_arg( array( 'page' => 'automl_ai_dashboard&tab=settings' ), admin_url( 'admin.php' ) ),
                 'home_url'       => get_home_url(),
                 'wpml_languages' => $wpml_languages,
                 'default_language' => $default_language,

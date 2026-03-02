@@ -12,7 +12,7 @@ $automl_wpml_wizard_language_set = is_array( $automl_wpml_wizard_lang ) && ! emp
 <div class="automl_ai_dashboard-settings">
 	<div class="automl_ai_dashboard-settings-container">
 		<div class="header">
-			<h1><?php echo esc_html__( 'AUTOML Ai Translate Settings', 'automl-ai-translation-for-wpml' ); ?></h1>
+			<h1><?php echo esc_html__( 'AUTOML AI Translate Settings', 'automl-ai-translation-for-wpml' ); ?></h1>
 		</div>
 
 		<p class="description">
@@ -61,8 +61,8 @@ $automl_wpml_wizard_language_set = is_array( $automl_wpml_wizard_lang ) && ! emp
 
 					// Current selected models (saved by the addon).
 					$automl_wpml_current_models       = get_option( 'automl_ai_translation_models', array() );
-					$automl_wpml_current_openai_model = isset( $automl_wpml_current_models['openai'] ) ? $automl_wpml_current_models['openai'] : '';
-					$automl_wpml_current_google_model = isset( $automl_wpml_current_models['google'] ) ? $automl_wpml_current_models['google'] : '';
+					$automl_wpml_current_openai_model = isset( $automl_wpml_current_models['openai'] ) ? $automl_wpml_current_models['openai'] : 'gpt-4o-mini';
+					$automl_wpml_current_google_model = isset( $automl_wpml_current_models['google'] ) ? $automl_wpml_current_models['google'] : 'gemini-2.5-flash';
 					$automl_wpml_openai_api_key = isset( $automl_wpml_ai_credentials['openai'] ) ? $automl_wpml_ai_credentials['openai'] : '';
 					$automl_wpml_google_api_key = isset( $automl_wpml_ai_credentials['google'] ) ? $automl_wpml_ai_credentials['google'] : '';
                     if ( empty( $automl_wpml_current_openai_model ) && !empty( $automl_wpml_openai_api_key ) ) {
@@ -241,7 +241,7 @@ $automl_wpml_wizard_language_set = is_array( $automl_wpml_wizard_lang ) && ! emp
 						<hr style="margin: 2rem 0px;">
 
 						<div class="automl_ai_dashboard-save-btn-container">
-						<?php submit_button( __( 'Save (via WP AI Client & WPML Addon)', 'automl-ai-translation-for-wpml' ), 'primary', 'submit', true, $automl_wpml_wizard_language_set ? array() : array( 'disabled' => 'disabled' ) ); ?>
+						<?php submit_button( __( 'Save', 'automl-ai-translation-for-wpml' ), 'primary', 'submit', true, $automl_wpml_wizard_language_set ? array() : array( 'disabled' => 'disabled' ) ); ?>
 						</div>
 					</div><!-- .automl_ai_dashboard-api-settings-form -->
 				</form>

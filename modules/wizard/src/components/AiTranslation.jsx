@@ -6,7 +6,7 @@ import { getNonce } from '../utils';
 
 const AiTranslation = ({ onBack, onContinue }) => {
 	const data = window.wpml_at_setup || {};
-    const dashboardUrl = data.dashboard_url || ( ( data.admin_url || '' ).replace( 'admin.php', 'admin.php?page=automl_ai_dashboard' ) );
+    const dashboardUrl = data.dashboard_url || ( ( data.admin_url || '' ).replace( 'admin.php', 'admin.php?automl_ai_dashboard&tab=settings' ) );
     const saved_models = data.saved_models || {};
     const savedCreds = data.saved_credentials || {};
 
