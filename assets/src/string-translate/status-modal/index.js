@@ -528,7 +528,6 @@ const StatusModal = ({ postIds, selectedLanguages, prefix, onDestory }) => {
     )}
 
   {info.status === "error" && (
-    console.log(info),
     <>
         <button
           type="button"
