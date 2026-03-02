@@ -6,9 +6,9 @@ const VideoIntro = ({ onGetStarted }) => {
 	const videoUrl = data.video_url || 'https://www.youtube.com/embed/dst_bf7uiTc';
 
 	return (
-		<div className="wpml-at-wizard-card" style={{ maxWidth: 600, margin: '12px auto', padding: 40, minHeight: '38vh' }}>
+		<div className="automl-ai-wizard-card" style={{ maxWidth: 600, margin: '12px auto', padding: 20, minHeight: '38vh' }}>
 			<div style={{ textAlign: 'center', marginBottom: 24 }}>
-				<h3 className="wpml-at-wizard-card h2" style={{ fontSize: '1.5rem', marginBottom: 12 }}>
+				<h3 className="automl-ai-wizard-card h2" style={{ fontSize: '1.5rem', marginBottom: 12 }}>
 					{ __( 'Watch Setup Guide', 'automl-ai-translation-for-wpml' ) }
 				</h3>
 				<p style={{ color: '#6b7280', marginBottom: 24 }}>

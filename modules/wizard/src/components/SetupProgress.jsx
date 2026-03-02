@@ -14,9 +14,9 @@ const SetupProgress = ({ currentStep, setCurrentStep, onGetStarted, onFinish }) 
 	const currentIndex = STEPS.findIndex( ( s ) => s.key === currentStep );
 
 	return (
-		<div className="wpml-at-wizard-progress-wrap" style={{ paddingBottom: 40 }}>
+		<div className="automl-ai-wizard-progress-wrap" style={{ paddingBottom: 40 }}>
 			{ currentStep !== 'video_intro' && (
-				<div className="wpml-at-wizard-steps">
+				<div className="automl-ai-wizard-steps">
 					{ STEPS.map( ( step, index ) => {
 						const isActive = step.key === currentStep;
 						const isPast = index < currentIndex;
@@ -25,16 +25,16 @@ const SetupProgress = ({ currentStep, setCurrentStep, onGetStarted, onFinish }) 
 						const labelClass = isActive ? 'active' : isPast ? 'past' : 'inactive';
 						return (
 							<React.Fragment key={ step.key }>
-								<div className="wpml-at-wizard-step-item">
-									<span className={ `wpml-at-wizard-step-circle ${circleClass}` }>
+								<div className="automl-ai-wizard-step-item">
+									<span className={ `automl-ai-wizard-step-circle ${circleClass}` }>
 										{ isPast ? '✓' : index + 1 }
 									</span>
-									<span className={ `wpml-at-wizard-step-label ${labelClass}` }>
+									<span className={ `automl-ai-wizard-step-label ${labelClass}` }>
 										{ step.label }
 									</span>
 								</div>
 								{ index < STEPS.length - 1 && (
-									<div className="wpml-at-wizard-step-connector" aria-hidden="true" />
+									<div className="automl-ai-wizard-step-connector" aria-hidden="true" />
 								) }
 							</React.Fragment>
 						);

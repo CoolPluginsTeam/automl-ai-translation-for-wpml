@@ -179,7 +179,7 @@ class AUTOML_Ai_Wizard {
 		$asset_path = AUTOML_AI_PLUGIN_DIR . 'admin/assets/frontend/setup/setup.asset.php';
 		if ( ! file_exists( $asset_path ) ) {
 			wp_enqueue_style(
-				'wpml-at-wizard',
+				'automl-ai-wizard',
 				AUTOML_AI_PLUGIN_URL . 'modules/wizard/assets/wizard.css',
 				array(),
 				AUTOML_AI_VERSION
@@ -226,7 +226,7 @@ class AUTOML_Ai_Wizard {
             )
         );
 		wp_enqueue_style(
-			'wpml-at-wizard',
+			'automl-ai-wizard',
 			AUTOML_AI_PLUGIN_URL . 'modules/wizard/assets/wizard.css',
 			array(),
 			AUTOML_AI_VERSION

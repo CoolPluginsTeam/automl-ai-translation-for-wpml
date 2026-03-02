@@ -677,10 +677,21 @@
 
 #automl-wpml-bulk-translate-wrapper #automl-wpml-bulk-translate-container .automl-wpml-bulk-translate-body .automl-wpml-bulk-translate-languages-disabled-lists {
   background: #0000000a;
+  border-radius: 8px;
+  padding: 1rem 25px;
+}
+
+#automl-wpml-bulk-translate-wrapper #automl-wpml-bulk-translate-container .automl-wpml-bulk-translate-body .automl-wpml-bulk-translate-languages-disabled-lists>div {
   display: grid;
   gap: 10px;
   grid-template-columns: repeat(3, 1fr);
-  padding: 1rem 25px;
+}
+
+#automl-wpml-bulk-translate-wrapper #automl-wpml-bulk-translate-container .automl-wpml-bulk-translate-body .automl-wpml-bulk-translate-languages-disabled-lists>p {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 15px;
+  padding: 0;
 }
 
 #automl-wpml-bulk-translate-wrapper #automl-wpml-bulk-translate-container .automl-wpml-bulk-translate-body .automl-wpml-bulk-translate-languages .automl-wpml-bulk-translate-language.automl-wpml-bulk-translate-language-item--selected {

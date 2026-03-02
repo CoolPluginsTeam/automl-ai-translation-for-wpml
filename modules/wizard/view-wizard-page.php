@@ -10,6 +10,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 ?>
 
-<div class="wrap wpml-at-wizard-styles">
-	<div id="wpml-at-setup"></div>
+<div class="wrap automl-ai-wizard-styles">
+	<div id="automl-ai-setup"></div>
 </div>

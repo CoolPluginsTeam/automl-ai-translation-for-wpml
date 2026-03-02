@@ -49,11 +49,11 @@ const AiTranslation = ({ onBack, onContinue }) => {
 	};
 
 	return (
-		<div className="wpml-at-wizard-card" style={{ maxWidth: 600, margin: '0 auto', padding: 40, minHeight: '40vh' }}>
+		<div className="automl-ai-wizard-card" style={{ maxWidth: 600, margin: '0 auto', padding: 20, minHeight: '40vh' }}>
 			<div style={{ flex: 1 }}>
 				<h2 style={{ marginTop: 0 }}>{ __( 'AI Translation', 'automl-ai-translation-for-wpml' ) }</h2>
 				<p style={{ fontSize: 14, marginBottom: 12 }}>
-					{ __( 'AutoML lets you translate content using AI. Add your API keys below; they are saved to the same settings as AUTOML Ai Translate Settings.', 'automl-ai-translation-for-wpml' ) }
+					{ __( 'AutoML lets you translate content using AI. Add your API keys below; they are saved to the same settings as AUTOML AI Translate Settings.', 'automl-ai-translation-for-wpml' ) }
 				</p>
 
 				<div style={{ marginBottom: 16 }}>
@@ -88,10 +88,10 @@ const AiTranslation = ({ onBack, onContinue }) => {
 				) }
 
 				<p style={{ fontSize: 14, marginBottom: 24 }}>
-					{ __( 'You can also add or change keys and models later in AUTOML Ai Translate → Settings.', 'automl-ai-translation-for-wpml' ) }
+					{ __( 'You can also add or change keys and models later in AUTOML AI Translate → Settings.', 'automl-ai-translation-for-wpml' ) }
 				</p>
 			</div>
-			<div className="wpml-at-wizard-footer" style={{ display: 'flex', justifyContent: 'space-between', marginTop: 24 }}>
+			<div className="automl-ai-wizard-footer" style={{ display: 'flex', justifyContent: 'space-between', marginTop: 24 }}>
 				<SetupBackButton onClick={ onBack } />
                 <SetupContinueButton
 					onClick={ async () => {

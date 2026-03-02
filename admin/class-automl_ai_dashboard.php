@@ -41,6 +41,20 @@ if ( ! class_exists( 'AUTOML_Ai_Dashboard' ) ) {
 		 */
 		private function __construct() {
 			add_action( 'admin_enqueue_scripts', array( $this, 'wpml_auto_enqueue_dashboard_assets' ) );
+			add_action( 'admin_init', array( $this, 'suppress_admin_notices' ), 9999 );
+		}
+
+		/**
+		 * Suppress WordPress admin notices on the dashboard and wizard pages only.
+		 */
+		public function suppress_admin_notices() {
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
+			$no_notice_pages = array( 'automl_ai_dashboard', 'automl_ai_wizard' );
+			if ( in_array( $page, $no_notice_pages, true ) ) {
+				remove_all_actions( 'admin_notices' );
+				remove_all_actions( 'all_admin_notices' );
+			}
 		}
 
 		/**

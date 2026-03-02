@@ -303,6 +303,11 @@ const App = ({ onDestory, prefix, postIds }) => {
       </div>
 
       <div className={`${prefix}-languages-disabled-lists`}>
+      <p>{__('Multiple language translation available in Pro.', 'automl-ai-translation-for-wpml')}
+       &nbsp;
+      <a href='#' title={__('Buy Pro Version to Unlock All Languages', 'automl-ai-translation-for-wpml')} className={`${prefix}-buy-pro-version-link`}>{__('Upgrade now', 'automl-ai-translation-for-wpml')}</a>
+      </p>
+      <div>
         {(() => {
           const defaultSlug = automl_wpml_bulk_translate_object.default_language_slug;
           const allCodes = Object.keys(languageObject).filter(
@@ -385,6 +390,7 @@ const App = ({ onDestory, prefix, postIds }) => {
             );
           });
         })()}
+        </div>
       </div>
     </div>
   ) : (

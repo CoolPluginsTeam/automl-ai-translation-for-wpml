@@ -1,6 +1,6 @@
 /* Page wrapper – Linguator-style */
-.wpml-at-wizard-styles,
-.wpml-at-wizard-styles.lmat-styles {
+.automl-ai-wizard-styles,
+.automl-ai-wizard-styles.lmat-styles {
 	margin: 0;
 	padding: 0;
 	background-color: #f6f7f7;
@@ -8,18 +8,18 @@
 	min-height: 100vh;
 }
 
-#wpml-at-setup {
+#automl-ai-setup {
 	min-width: 100%;
 	min-height: 100vh;
 	background-color: #f6f7f7;
 }
 
-.wpml-at-wizard-styles .setup-body {
+.automl-ai-wizard-styles .setup-body {
 	background-color: #f6f7f7;
 	overflow: hidden;
 }
 
-.wpml-at-wizard-wrap {
+.automl-ai-wizard-wrap {
 	margin: 0;
 	padding: 0;
 	background-color: #f6f7f7;
@@ -27,7 +27,7 @@
 }
 
 /* Page title – centered, Linguator-style */
-.wpml-at-wizard-wrap h1 {
+.automl-ai-wizard-wrap h1 {
 	background-color: #f6f7f7;
 	color: #333333;
 	margin: 0;
@@ -38,10 +38,10 @@
 }
 
 /* Content card – white, rounded, subtle shadow */
-.wpml-at-wizard-card {
+.automl-ai-wizard-card {
 	max-width: 600px;
 	margin: 12px auto;
-	padding: 40px;
+	padding-bottom: 20px;
 	background-color: #ffffff;
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 	border-radius: 8px;
@@ -49,15 +49,15 @@
 	flex-direction: column;
 }
 
-.wpml-at-wizard-card h2 {
+.automl-ai-wizard-card h2 {
 	margin: 0 0 0.5rem;
 	font-size: 1.25rem;
 	font-weight: 600;
 	color: #333333;
 }
 
-.wpml-at-wizard-card .wpml-at-wizard-intro,
-.wpml-at-wizard-card p {
+.automl-ai-wizard-card .automl-ai-wizard-intro,
+.automl-ai-wizard-card p {
 	color: #333333;
 	font-size: 0.875rem;
 	line-height: 1.5;
@@ -65,12 +65,12 @@
 }
 
 /* Progress – Linguator-style: numbered circles + connecting lines */
-.wpml-at-wizard-progress-wrap {
+.automl-ai-wizard-progress-wrap {
 	padding-bottom: 40px;
 	background-color: #f6f7f7;
 }
 
-.wpml-at-wizard-steps {
+.automl-ai-wizard-steps {
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -80,13 +80,13 @@
 	font-size: 0.875rem;
 }
 
-.wpml-at-wizard-step-item {
+.automl-ai-wizard-step-item {
 	display: flex;
 	align-items: center;
 	gap: 8px;
 }
 
-.wpml-at-wizard-step-circle {
+.automl-ai-wizard-step-circle {
 	width: 28px;
 	height: 28px;
 	border-radius: 50%;
@@ -98,40 +98,40 @@
 	flex-shrink: 0;
 }
 
-.wpml-at-wizard-step-circle.active {
+.automl-ai-wizard-step-circle.active {
 	background-color: #2196f3;
 	color: #fff;
 	border: none;
 }
 
-.wpml-at-wizard-step-circle.past {
+.automl-ai-wizard-step-circle.past {
 	background-color: #4caf50;
 	color: #fff;
 	border: none;
 }
 
-.wpml-at-wizard-step-circle.inactive {
+.automl-ai-wizard-step-circle.inactive {
 	background-color: #fff;
 	color: #bbbbbb;
 	border: 1px solid #d1d5db;
 }
 
-.wpml-at-wizard-step-label.active {
+.automl-ai-wizard-step-label.active {
 	color: #2196f3;
 	font-weight: 600;
 }
 
-.wpml-at-wizard-step-label.past {
+.automl-ai-wizard-step-label.past {
 	color: #4caf50;
 	font-weight: 500;
 }
 
-.wpml-at-wizard-step-label.inactive {
+.automl-ai-wizard-step-label.inactive {
 	color: #bbbbbb;
 	font-weight: 400;
 }
 
-.wpml-at-wizard-step-connector {
+.automl-ai-wizard-step-connector {
 	width: 40px;
 	height: 2px;
 	background-color: #e0e0e0;
@@ -140,7 +140,7 @@
 }
 
 /* Footer (Back / Continue) */
-.wpml-at-wizard-footer {
+.automl-ai-wizard-footer {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
@@ -149,12 +149,12 @@
 	border-top: 1px solid #e5e7eb;
 }
 
-.wpml-at-wizard-footer .button {
+.automl-ai-wizard-footer .button {
 	margin-right: 0.5em;
 }
 
 /* Back = outline; Continue = green (Linguator-style) */
-.wpml-at-wizard-card .button:not(.button-primary) {
+.automl-ai-wizard-card .button:not(.button-primary) {
 	background: #fff;
 	border: 1px solid #2271b1;
 	color: #2271b1;
@@ -162,13 +162,13 @@
 	padding: 8px 16px;
 }
 
-.wpml-at-wizard-card .button:not(.button-primary):hover {
+.automl-ai-wizard-card .button:not(.button-primary):hover {
 	background: #f0f6fc;
 	color: #2271b1;
 }
 
-.wpml-at-wizard-card .button-primary,
-.wpml-at-wizard-card .wpml-at-wizard-continue {
+.automl-ai-wizard-card .button-primary,
+.automl-ai-wizard-card .automl-ai-wizard-continue {
 	background: #4caf50;
 	border-color: #4caf50;
 	color: #fff;
@@ -178,23 +178,23 @@
 	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
-.wpml-at-wizard-card .button-primary:hover,
-.wpml-at-wizard-card .wpml-at-wizard-continue:hover {
+.automl-ai-wizard-card .button-primary:hover,
+.automl-ai-wizard-card .automl-ai-wizard-continue:hover {
 	background: #43a047;
 	border-color: #43a047;
 	color: #fff;
 }
 
-.wpml-at-wizard-card .button-hero {
+.automl-ai-wizard-card .button-hero {
 	padding: 12px 24px;
 	font-size: 1rem;
 }
 
 /* Select / input – Linguator-style */
-.wpml-at-wizard-select,
-.wpml-at-wizard-card input[type="text"],
-.wpml-at-wizard-card input[type="password"],
-.wpml-at-wizard-card select {
+.automl-ai-wizard-select,
+.automl-ai-wizard-card input[type="text"],
+.automl-ai-wizard-card input[type="password"],
+.automl-ai-wizard-card select {
 	width: 100%;
 	max-width: 400px;
 	padding: 8px 12px;
@@ -238,3 +238,38 @@
 	border-left: 1px solid #d1d5db;
 	border-right: 1px solid #d1d5db;
 }
+
+.automl-ai-wizard-card .automl-ai-wizard-language-container .components-dropdown{
+	width: 100%;
+	max-width: 400px;
+}
+
+.automl-ai-wizard-language-menu {
+	padding: 4px 0;
+  }
+  
+  .automl-ai-wizard-language-option {
+	padding: 8px 12px;
+	font-size: 14px;
+	cursor: pointer;
+	color: #111827;
+  }
+  
+  .automl-ai-wizard-language-option:hover {
+	background: #f3f4f6;
+  }
+  
+  .automl-ai-wizard-language-option--selected {
+	background: #eff6ff;
+	color: #1d4ed8;
+	font-weight: 500;
+  }
+
+  .automl-ai-wizard-language-dropdown{
+	width: 100%;
+
+  }
+  .automl-ai-wizard-language-dropdown .components-popover__content{
+	max-width: 400px;
+	width: 100%;
+  }
