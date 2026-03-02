@@ -1133,6 +1133,7 @@
 .automl-wpml-bulk-translate-provider-card--disabled .automl-wpml-bulk-translate-provider-card-error .automl-wpml-bulk-translate-provider-error{
   color: #64748b;
   display: inline-flex;
+  cursor: pointer;
 }
 
 #automl-wpml-bulk-translate-wrapper #automl-wpml-bulk-translate-container #automl-wpml-bulk-translate-setting-modal-container .automl-wpml-bulk-translate-setting-modal-content .automl-wpml-bulk-translate-provider-card-body {

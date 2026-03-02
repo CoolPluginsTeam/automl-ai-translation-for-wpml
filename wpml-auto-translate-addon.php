@@ -125,7 +125,7 @@ final class AUTOML_Ai_Translate_Addon {
 		add_submenu_page(
 			$parent_slug, // parent (WPML) menu slug
 			__( 'AUTOML AI Translate', 'automl-ai-translation-for-wpml' ), // page title
-			__( 'AutoML AI Translate', 'automl-ai-translation-for-wpml' ),      // menu title
+			__( 'AutoML AI', 'automl-ai-translation-for-wpml' ),      // menu title
 			'manage_options',       	                                  // capability
 			'automl_ai_dashboard',                                    // menu slug
 			array( \AUTOML_Ai_Dashboard::get_instance(), 'automl_ai_render_dashboard_page' ) // callback
