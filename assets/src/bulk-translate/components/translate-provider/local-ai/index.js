@@ -108,7 +108,7 @@ class LocalAiTranslate {
 
         }
 
-        let totalProgress = this.completedPostStatus + (completedPercentage / this.pendingPosts);
+        let totalProgress = this.completedPostStatus + (completedPercentage / this.totalPosts);
         const totalProgressBar = document.querySelector(`.${this.prefix}-overall-progress .${this.prefix}-progress`);
         if (totalProgressBar) {
 
