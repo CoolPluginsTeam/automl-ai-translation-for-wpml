@@ -18,7 +18,8 @@ class LocalAiTranslate {
         this.textContentObjectKeys = Object.keys(this.textContentObject);
         this.translateKeysLength = this.textContentObjectKeys.length;
         this.updateContent = updateContent;
-        this.totalPosts = totalPosts;
+        this.pendingPosts = totalPosts;
+        this.totalPosts=Object.keys(selectTranslatePostInfo(store.getState())).length;
         this.storeDispatch = storeDispatch;
         this.completedPostStatus = 0;
         this.postId = postId;
@@ -107,7 +108,7 @@ class LocalAiTranslate {
 
         }
 
-        let totalProgress = this.completedPostStatus + (completedPercentage / this.totalPosts);
+        let totalProgress = this.completedPostStatus + (completedPercentage / this.pendingPosts);
         const totalProgressBar = document.querySelector(`.${this.prefix}-overall-progress .${this.prefix}-progress`);
         if (totalProgressBar) {
 
@@ -129,7 +130,7 @@ class LocalAiTranslate {
 
             this.storeDispatch(updateTranslatePostInfo({ [this.postId + '_' + this.activeTargetLangs]: { duration: previousDuration + duration } }));
 
-            this.storeDispatch(updateProgressStatus(100 / this.totalPosts));
+            this.storeDispatch(updateProgressStatus((100 / this.totalPosts)));
         }
     }
 

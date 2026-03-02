@@ -19,7 +19,8 @@ class AIService {
         this.activeTargetLangs = '';
         this.sourceLang = sourceLang;
         this.targetLangs = targetLangs;
-        this.totalPosts = totalPosts;
+        this.pendingPosts = totalPosts;
+        this.totalPosts=Object.keys(selectTranslatePostInfo(store.getState())).length;
         this.prefix = prefix;
         this.storeDispatch = storeDispatch;
         this.updateContent = updateContent;
@@ -436,7 +437,7 @@ class AIService {
                 </div>`;
 
 
-        this.storeDispatch(updateTranslatePostInfo({ [this.activePostId + '_' + this.activeTargetLangs]: { status: 'error', messageClass: 'error', errorMessage: __('Translation failed.', 'automl-ai-translation-for-wpml'), errorHtml: message, aiError: true, nonce: this.createTranslatePostNonce, completedStrings, totalPosts: this.totalPosts} }));
+        this.storeDispatch(updateTranslatePostInfo({ [this.activePostId + '_' + this.activeTargetLangs]: { status: 'error', messageClass: 'error', errorMessage: __('Translation failed.', 'automl-ai-translation-for-wpml'), errorHtml: message, aiError: true, nonce: this.createTranslatePostNonce, completedStrings, totalPosts: this.pendingPosts} }));
     }
 
     static translateComplete = async({postId, targetLang, storeDispatch, prefix, updateDestoryHandler, nonce, closeErrorModal, totalPosts, completedStrings}) => {
