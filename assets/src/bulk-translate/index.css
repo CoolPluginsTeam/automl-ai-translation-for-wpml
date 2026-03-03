@@ -871,30 +871,30 @@
   width: 30px;
 }
 
-#automl-wpml-bulk-translate-wrapper #automl-wpml-bulk-translate-container #automl-wpml-bulk-translate-status-modal-container .automl-wpml-bulk-translate-status-table-container .automl-wpml-bulk-translate-td-in-progress .automl-wpml-bulk-translate-in-progress-text {
-  background-color: #3db63d;
-  border-color: #33a133;
-  color: #fff;
+#automl-wpml-bulk-translate-wrapper #automl-wpml-bulk-translate-container #automl-wpml-bulk-translate-status-modal-container .automl-wpml-bulk-translate-status-table-container .automl-wpml-bulk-translate-in-progress-text {
+  color: #2271b1;
+  background: #2271b126;
+  border-color: #2271b1;
   display: -webkit-inline-box;
   display: -ms-inline-flexbox;
   display: inline-flex;
   -webkit-box-align: end;
       -ms-flex-align: end;
           align-items: end;
-  font-weight: 600;
+  font-weight: 500;
   width: auto;
   padding: .1rem .5rem;
   border-radius: 27px;
 }
 
-#automl-wpml-bulk-translate-wrapper #automl-wpml-bulk-translate-container #automl-wpml-bulk-translate-status-modal-container .automl-wpml-bulk-translate-status-table-container .automl-wpml-bulk-translate-td-in-progress .automl-wpml-bulk-translate-in-progress-text span {
+#automl-wpml-bulk-translate-wrapper #automl-wpml-bulk-translate-container #automl-wpml-bulk-translate-status-modal-container .automl-wpml-bulk-translate-status-table-container .automl-wpml-bulk-translate-in-progress-text span {
   width: 15px;
   aspect-ratio: 3;
-  background: radial-gradient(circle closest-side, #fff 40%, #0000 90%) 0/calc(100%/3) 100% space;
+  background: radial-gradient(circle closest-side, #2271b1 40%, #0000 90%) 0/calc(100%/3) 100% space;
   -webkit-clip-path: inset(0 100% 0 0);
           clip-path: inset(0 100% 0 0);
-  -webkit-animation: blink 1s steps(4) infinite;
-          animation: blink 1s steps(4) infinite;
+  -webkit-animation: automl-wpml-bulk-translate-blink 1s steps(4) infinite;
+          animation: automl-wpml-bulk-translate-blink 1s steps(4) infinite;
   display: -webkit-inline-box;
   display: -ms-inline-flexbox;
   display: inline-flex;
@@ -905,14 +905,14 @@
   margin-left: 1px;
 }
 
-@-webkit-keyframes blink {
+@-webkit-keyframes automl-wpml-bulk-translate-blink {
   to {
     -webkit-clip-path: inset(0 -34% 0 0);
             clip-path: inset(0 -34% 0 0);
   }
 }
 
-@keyframes blink {
+@keyframes automl-wpml-bulk-translate-blink {
   to {
     -webkit-clip-path: inset(0 -34% 0 0);
             clip-path: inset(0 -34% 0 0);

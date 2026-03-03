@@ -475,7 +475,7 @@ const StatusModal = ({ postIds, selectedLanguages, prefix, onDestory }) => {
                                                                     <a href={info.postLink} target="_blank" rel="noopener noreferrer">{info.targetPostTitle}</a> :
                                                                     (info.status === 'in-progress' ?
                                                                         <div className={`${prefix}-${info.messageClass}-text`}>{__('In Progress', 'automl-ai-translation-for-wpml')}<span></span></div> :
-                                                                        <div className={`${prefix}-progress-skeleton short`}></div>)
+                                                                        <div className={`${prefix}-progress-skeleton short`} style={{ marginInline: 'auto' }}></div>)
                                                                 }
                                                             </>
                                                         </div>

@@ -759,14 +759,13 @@ $prefix: automl-wpml-bulk-translate;
                     }
                 }
 
-                .#{$prefix}-td-in-progress {
                     .#{$prefix}-in-progress-text {
-                        background-color: #3db63d;
-                        border-color: #33a133;
-                        color: #fff;
+                        color: #2271b1;
+                        background: #2271b126;
+                        border-color: #2271b1;
                         display: inline-flex;
                         align-items: end;
-                        font-weight: 600;
+                        font-weight: 500;
                         width: auto;
                         padding: .1rem .5rem;
                         border-radius: 27px;
@@ -774,9 +773,9 @@ $prefix: automl-wpml-bulk-translate;
                         span {
                             width: 15px;
                             aspect-ratio: 3;
-                            background: radial-gradient(circle closest-side, #fff 40%, #0000 90%) 0/calc(100%/3) 100% space;
+                            background: radial-gradient(circle closest-side, #2271b1 40%, #0000 90%) 0/calc(100%/3) 100% space;
                             clip-path: inset(0 100% 0 0);
-                            animation: blink 1s steps(4) infinite;
+                            animation: automl-wpml-bulk-translate-blink 1s steps(4) infinite;
                             display: inline-flex;
                             line-height: 1;
                             padding: 0px;
@@ -785,13 +784,12 @@ $prefix: automl-wpml-bulk-translate;
                             margin-left: 1px;
                         }
 
-                        @keyframes blink {
+                        @keyframes automl-wpml-bulk-translate-blink {
                             to {
                                 clip-path: inset(0 -34% 0 0)
                             }
                         }
                     }
-                }
             }
 
             .#{$prefix}-progress-footer {
