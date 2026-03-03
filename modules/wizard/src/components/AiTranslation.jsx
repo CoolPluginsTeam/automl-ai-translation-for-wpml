@@ -49,11 +49,12 @@ const AiTranslation = ({ onBack, onContinue }) => {
 	};
 
 	return (
-		<div className="automl-ai-wizard-card" style={{ maxWidth: 600, margin: '0 auto', padding: 20, minHeight: '40vh' }}>
-			<div style={{ flex: 1 }}>
-				<h2 style={{ marginTop: 0 }}>{ __( 'AI Translation', 'automl-ai-translation-for-wpml' ) }</h2>
-				<p style={{ fontSize: 14, marginBottom: 12 }}>
-					{ __( 'AutoML lets you translate content using AI. Add your API keys below; they are saved to the same settings as AUTOML AI Translate Settings.', 'automl-ai-translation-for-wpml' ) }
+		<>
+		<div className="automl-ai-wizard-card" style={{ maxWidth: 600, margin: '0 auto', minHeight: '40vh' }}>
+			<div className="automl-ai-wizard-language-container" style={{ flex: 1 }}>
+				<h2 style={{ marginTop: 0 }}>{ __( 'Connect AI Provider', 'automl-ai-translation-for-wpml' ) }</h2>
+				<p style={{ marginBottom: 12, color: '#6b7280' }}>
+					{ __( 'To start using AI translation, connect at least one AI provider below. Add your AI provider API key to start translating your website with AutoML.', 'automl-ai-translation-for-wpml' ) }
 				</p>
 
 				<div style={{ marginBottom: 16 }}>
@@ -65,7 +66,7 @@ const AiTranslation = ({ onBack, onContinue }) => {
 						type="password"
 						value={ openaiKey }
 						onChange={ ( e ) => setOpenaiKey( e.target.value ) }
-						style={{ width: '100%', maxWidth: 400, padding: '8px 12px', fontSize: 14 }}
+						style={{ width: '100%', padding: '8px 12px', fontSize: 14 }}
 					/>
 				</div>
 				<div style={{ marginBottom: 16 }}>
@@ -77,7 +78,7 @@ const AiTranslation = ({ onBack, onContinue }) => {
 						type="password"
 						value={ googleKey }
 						onChange={ ( e ) => setGoogleKey( e.target.value ) }
-						style={{ width: '100%', maxWidth: 400, padding: '8px 12px', fontSize: 14 }}
+						style={{ width: '100%', padding: '8px 12px', fontSize: 14 }}
 					/>
 				</div>
 
@@ -87,8 +88,49 @@ const AiTranslation = ({ onBack, onContinue }) => {
 					</p>
 				) }
 
-				<p style={{ fontSize: 14, marginBottom: 24 }}>
-					{ __( 'You can also add or change keys and models later in AUTOML AI Translate → Settings.', 'automl-ai-translation-for-wpml' ) }
+				<div className="automl-ai-wizard-card-language-footer">
+				<span
+						className="automl-ai-wizard-card-language-footer-icon"
+						aria-hidden="true"
+					>
+						<img
+							src={
+								(data.home_url || '') +
+								'/wp-content/plugins/automl-ai-translation-for-wpml/assets/images/star-icons.png'
+							}
+							alt=""
+							width={18}
+							height={18}
+							style={{ display: 'block' }}
+						/>
+					</span>
+					<div className="automl-ai-wizard-card-language-footer-content">
+						<p>
+							<strong>
+								{ __( 'Chrome Built-in AI', 'automl-ai-translation-for-wpml' ) }
+							</strong>
+							{ ' — ' }
+							{ __(
+								'Translate on your device using local AI, no API key required, unlimited translations, save 100% on API usage costs.',
+								'automl-ai-translation-for-wpml'
+							) }
+						</p>
+						<a
+							href={ data.upgrade_url || '#' }
+							target="_blank"
+							rel="noopener noreferrer"
+							className="automl-ai-wizard-card-language-footer-link"
+						>
+							{ __( 'Upgrade to Pro →', 'automl-ai-translation-for-wpml' ) }
+						</a>
+					</div>
+				</div>
+
+				<p className="automl-ai-wizard-api-note">
+					{ __(
+						'API keys are saved securely and can be updated anytime in WPML → AutoML AI → Settings.',
+						'automl-ai-translation-for-wpml'
+					) }
 				</p>
 			</div>
 			<div className="automl-ai-wizard-footer" style={{ display: 'flex', justifyContent: 'space-between', marginTop: 24 }}>
@@ -111,6 +153,13 @@ const AiTranslation = ({ onBack, onContinue }) => {
 				/>
 			</div>
 		</div>
+		<div className="automl-ai-wizard-card-footer">
+			{ __( 'Need help? Visit our', 'automl-ai-translation-for-wpml' ) }{ ' ' }
+			<a href={ '#' } target="_blank" rel="noopener noreferrer">
+				{ __( 'Documentation', 'automl-ai-translation-for-wpml' ) }
+			</a>
+		</div>
+		</>
 	);
 };
 

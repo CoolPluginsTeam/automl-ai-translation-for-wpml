@@ -41,25 +41,93 @@
 .automl-ai-wizard-card {
 	max-width: 600px;
 	margin: 12px auto;
-	padding: 12px;
-	background-color: #ffffff;
-	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 	border-radius: 8px;
 	display: flex;
 	flex-direction: column;
+	box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.05);
 }
 
-.automl-ai-wizard-card h2 {
+.automl-ai-wizard-card-title {
 	margin: 0 0 0.5rem;
 	font-size: 1.25rem;
-	font-weight: 600;
+	font-weight: 700;	
 	color: #333333;
+}
+
+/* Footer – below card, centered, green doc link */
+.automl-ai-wizard-card-footer {
+	text-align: center;
+	margin-top: 24px;
+	padding-top: 16px;
+	font-size: 0.875rem;
+	color: #6b7280;
+}
+
+.automl-ai-wizard-card-footer a {
+	color: #4caf50;
+	text-decoration: none;
+	font-weight: 500;
+}
+/* Upgrade to Pro – light blue-grey box with icon */
+.automl-ai-wizard-card-language-footer {
+	display: flex;
+	align-items: flex-start;
+	gap: 12px;
+	margin-top: 20px;
+	padding: 16px;
+	background: #f0f9ff;
+	border: 1px solid #bde4ff;
+	border-radius: 8px;
+}
+
+.automl-ai-wizard-card-language-footer-icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 1.25rem;
+	line-height: 1;
+	flex-shrink: 0;
+}
+
+.automl-ai-wizard-card-language-footer-content {
+	flex: 1;
+	min-width: 0;
+}
+
+.automl-ai-wizard-card-language-footer-content p {
+	margin: 0 0 8px;
+	font-size: 0.875rem;
+	line-height: 1.5;
+	color: #333;
+}
+
+.automl-ai-wizard-card-language-footer-link {
+	color: #2196f3;
+	text-decoration: none;
+	font-size: 0.875rem;
+	font-weight: 500;
+}
+
+.automl-ai-wizard-card-language-footer-link:hover {
+	color: #1976d2;
+	text-decoration: underline;
+}
+
+/* Select toggle – match card inputs */
+.automl-ai-wizard-select-toggle {
+	border: 1px solid #d1d5db !important;
+	border-radius: 6px !important;
+}
+
+.automl-ai-wizard-card-footer a:hover {
+	color: #43a047;
+	text-decoration: underline;
 }
 
 .automl-ai-wizard-card .automl-ai-wizard-intro,
 .automl-ai-wizard-card p {
 	color: #333333;
-	font-size: 0.875rem;
+	font-size: .85rem;
 	line-height: 1.5;
 	margin-bottom: 0.5rem;
 }
@@ -111,8 +179,8 @@
 }
 
 .automl-ai-wizard-step-circle.inactive {
-	background-color: #fff;
-	color: #bbbbbb;
+	background-color: #EBEBEB;
+	color: #606277;
 	border: 1px solid #d1d5db;
 }
 
@@ -132,11 +200,15 @@
 }
 
 .automl-ai-wizard-step-connector {
-	width: 40px;
+	width: 100px;
 	height: 2px;
 	background-color: #e0e0e0;
 	flex-shrink: 0;
 	margin: 0 4px;
+	transition: background-color 0.2s ease;
+}
+.automl-ai-wizard-step-connector--filled {
+	background-color: #4caf50;
 }
 
 /* Footer (Back / Continue) */
@@ -150,23 +222,25 @@
 }
 
 .automl-ai-wizard-footer .button {
-	margin-right: 0.5em;
+	margin: 0 2em 1.5em 2em;
 }
 
-/* Back = outline; Continue = green (Linguator-style) */
-.automl-ai-wizard-card .button:not(.button-primary) {
-	background: #fff;
-	border: 1px solid #2271b1;
-	color: #2271b1;
-	border-radius: 6px;
-	padding: 8px 16px;
+.automl-ai-wizard-back-button {
+	background: #fff !important;
+	border: 1px solid #D1D5DB !important;
+	font-weight: 600 !important;
+	color: #4B5563 !important;
+	border-radius: 6px !important;
+	padding: 8px 16px !important;
+	line-height: 1.2 !important;
+	min-height: 30px !important;
 }
 
-.automl-ai-wizard-card .button:not(.button-primary):hover {
-	background: #f0f6fc;
-	color: #2271b1;
+.automl-ai-wizard-card .button:not(.automl-ai-wizard-continue):not(.button-primary):hover {
+	background: #f9fafb !important;
+	border-color: #D1D5DB !important;
+	color: #4B5563 !important;
 }
-
 .automl-ai-wizard-card .button-primary,
 .automl-ai-wizard-card .automl-ai-wizard-continue {
 	background: #4caf50;
@@ -176,6 +250,8 @@
 	padding: 8px 20px;
 	font-weight: 600;
 	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+	line-height: 1.2 !important;
+	min-height: 30px !important;
 }
 
 .automl-ai-wizard-card .button-primary:hover,
@@ -196,13 +272,32 @@
 .automl-ai-wizard-card input[type="password"],
 .automl-ai-wizard-card select {
 	width: 100%;
-	max-width: 400px;
 	padding: 8px 12px;
 	font-size: 1rem;
 	border: 1px solid #d1d5db;
 	border-radius: 6px;
 	background: #fff;
 	color: #333;
+}
+input#automl-ai-wizard-openai-key:focus {
+  border: 2px solid #4caf50 !important;
+  outline: none !important;
+  outline-color: #4caf50 !important;
+  box-shadow: 0 0 0 1px #4caf50 !important;
+}
+input#automl-ai-wizard-google-key:focus {
+  border: 2px solid #4caf50 !important;
+  outline: none !important;
+  outline-color: #4caf50 !important;
+  box-shadow: 0 0 0 1px #4caf50 !important;
+}
+
+.automl-ai-wizard-api-note {
+	margin-top: 16px !important;
+	font-size: 0.8125rem !important;
+	font-style: italic !important;
+	color: #6b7280 !important;
+	text-align: center !important;
 }
 
 /* Ready table (if used) */
@@ -242,6 +337,15 @@
 .automl-ai-wizard-card .automl-ai-wizard-language-container .components-dropdown{
 	width: 100%;
 	max-width: 400px;
+}
+.automl-ai-wizard-language-container{
+	padding: 35px 20px 0px 32px;
+}
+.automl-ai-wizard-language-container h2{
+	font-size: 1.5rem;
+	font-weight: 700;
+	color: #333333;
+	margin-bottom: 12px;
 }
 
 .automl-ai-wizard-language-menu {

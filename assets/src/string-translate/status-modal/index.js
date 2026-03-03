@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { bulkTranslateStrings, initBulkTranslateStrings } from "../bulk-translate";
+import {
+  bulkTranslateStrings,
+  initBulkTranslateStrings,
+} from "../bulk-translate";
 import { useSelector, useDispatch } from "react-redux";
 import {
   selectTranslatePostInfo,
@@ -111,7 +114,9 @@ const StatusModal = ({ postIds, selectedLanguages, prefix, onDestory }) => {
     const hasErrors =
       countInfo.errorPosts > 0 ||
       (translatePostInfo &&
-        Object.values(translatePostInfo).some((info) => info?.status === "error"));
+        Object.values(translatePostInfo).some(
+          (info) => info?.status === "error",
+        ));
     if (bulkStatus === "completed" && hasStrings && !hasErrors) {
       window.location.reload();
     }
@@ -258,7 +263,8 @@ const StatusModal = ({ postIds, selectedLanguages, prefix, onDestory }) => {
   const hasCompletedStringAggregate =
     translatePostInfo &&
     Object.entries(translatePostInfo).some(
-      ([key, info]) => key.startsWith("strings_") && info.status === "completed",
+      ([key, info]) =>
+        key.startsWith("strings_") && info.status === "completed",
     );
   return errorModal ? (
     <ErrorModalBox
@@ -288,32 +294,58 @@ const StatusModal = ({ postIds, selectedLanguages, prefix, onDestory }) => {
     </ErrorModalBox>
   ) : (
     <div id={`${prefix}-status-modal-container`}>
-       <div className={`${prefix}-header`}>
-         <div className={`${prefix}-modal-header-inner`}>
+      <div className={`${prefix}-header`}>
+        <div className={`${prefix}-modal-header-inner`}>
           <span className={`${prefix}-step-label`}>
             {__("STEP 3 OF 3", "automl-ai-translation-for-wpml")}
           </span>
           <h2 className={`${prefix}-bulk-status-heading ${bulkStatus}`}>
-        {sprintf(
-          __("Bulk Translation %s", "automl-ai-translation-for-wpml"),
-          getBulkStatus(),
-        )}
-        {bulkStatus === "running" && (
-          <span className={`${prefix}-bulk-status-running`}></span>
-        )}
-      </h2>
-      {bulkStatus !== "completed" && !(countInfo.totalPosts < 1 && countInfo.errorPosts < 1 && countInfo.stringsTranslated < 1 && !isLoading) && (
-          <p className={`${prefix}-modal-desc`}>{__("Your content is being translated. Please wait for a moment.", 'automl-ai-translation-for-wpml')}</p>
-        )}
-        {bulkStatus === "completed" &&
-          countInfo.errorPosts < 1 &&
-          !(translatePostInfo && Object.values(translatePostInfo).some((info) => info?.status === "error")) &&
-          countInfo.stringsTranslated > 0 && (
-            <p className={`${prefix}-modal-desc`}>{__("Your content has been translated successfully.", 'automl-ai-translation-for-wpml')}</p>
-          )}
-         </div>
-            <span className={`${prefix}-modal-close`} onClick={(e) => onModalClose(e)}>&times;</span>
+            {sprintf(
+              __("Bulk Translation %s", "automl-ai-translation-for-wpml"),
+              getBulkStatus(),
+            )}
+            {bulkStatus === "running" && (
+              <span className={`${prefix}-bulk-status-running`}></span>
+            )}
+          </h2>
+          {bulkStatus !== "completed" &&
+            !(
+              countInfo.totalPosts < 1 &&
+              countInfo.errorPosts < 1 &&
+              countInfo.stringsTranslated < 1 &&
+              !isLoading
+            ) && (
+              <p className={`${prefix}-modal-desc`}>
+                {__(
+                  "Your content is being translated. Please wait for a moment.",
+                  "automl-ai-translation-for-wpml",
+                )}
+              </p>
+            )}
+          {bulkStatus === "completed" &&
+            countInfo.errorPosts < 1 &&
+            !(
+              translatePostInfo &&
+              Object.values(translatePostInfo).some(
+                (info) => info?.status === "error",
+              )
+            ) &&
+            countInfo.stringsTranslated > 0 && (
+              <p className={`${prefix}-modal-desc`}>
+                {__(
+                  "Your content has been translated successfully.",
+                  "automl-ai-translation-for-wpml",
+                )}
+              </p>
+            )}
         </div>
+        <span
+          className={`${prefix}-modal-close`}
+          onClick={(e) => onModalClose(e)}
+        >
+          &times;
+        </span>
+      </div>
       {countInfo.totalPosts < 1 &&
       countInfo.errorPosts < 1 &&
       countInfo.stringsTranslated < 1 &&
@@ -322,7 +354,17 @@ const StatusModal = ({ postIds, selectedLanguages, prefix, onDestory }) => {
       ) : (
         <>
           {isLoading && <div className={`${prefix}-progress-skeleton`}></div>}
-          {countInfo.totalPosts >= 1 && progressBarVisibility && !isLoading && !(pendingPosts.length < 1 && (countInfo.errorPosts > 0 || (translatePostInfo && Object.values(translatePostInfo).some((info) => info?.status === "error")))) ? (
+          {countInfo.totalPosts >= 1 &&
+          progressBarVisibility &&
+          !isLoading &&
+          !(
+            pendingPosts.length < 1 &&
+            (countInfo.errorPosts > 0 ||
+              (translatePostInfo &&
+                Object.values(translatePostInfo).some(
+                  (info) => info?.status === "error",
+                )))
+          ) ? (
             <>
               <div className={`${prefix}-overall-progress`}>
                 <div className={`${prefix}-progress-bar`}>
@@ -335,50 +377,56 @@ const StatusModal = ({ postIds, selectedLanguages, prefix, onDestory }) => {
                 </div>
                 {/* Skeleton in same layout as count stats while progress bar is visible */}
                 {!charactersCountVisibility && !hasCompletedStringAggregate && (
-                  <div className={`${prefix}-count-container`}>
-                    <div className={`${prefix}-count-stat-cell`}>
-                      <span className={`${prefix}-count-stat-label`}>
-                        <span
-                          className={`${prefix}-progress-skeleton`}
-                          style={{ display: "inline-block", width: "80px" }}
-                        ></span>
-                      </span>
-                      <br />
-                      <span className={`${prefix}-count-stat-value`}>
-                        <span
-                          className={`${prefix}-progress-skeleton`}
-                          style={{ display: "inline-block", width: "80px" }}
-                        ></span>
-                      </span>
+                  <div className={`${prefix}-td-pending`}>
+                    <div className={`${prefix}-status-flag`}>
+                      <div className={`${prefix}-status-flag-inner`}>
+                        <div className={`${prefix}-status-flag-inner-left`}>
+                          <span
+                            className={`${prefix}-progress-skeleton`}
+                            style={{
+                              display: "inline-block",
+                              width: 20,
+                              height: 14,
+                            }}
+                          />
+                        </div>
+                        <div className={`${prefix}-status-flag-inner-right`}>
+                          <span
+                            className={`${prefix}-progress-skeleton`}
+                            style={{
+                              display: "inline-block",
+                              width: 80,
+                              height: 14,
+                            }}
+                          />
+                        </div>
+                      </div>
                     </div>
-                    <div className={`${prefix}-count-stat-cell`}>
-                      <span className={`${prefix}-count-stat-label`}>
-                        <span
-                          className={`${prefix}-progress-skeleton`}
-                          style={{ display: "inline-block", width: "80px" }}
-                        ></span>
-                      </span>
-                      <br />
+
+                    <div className={`${prefix}-status-content`}>
+                      <div className={`${prefix}-status-content-inner`}>
+                        <span className={`${prefix}-status`}>
+                          <span
+                            className={`${prefix}-progress-skeleton`}
+                            style={{
+                              display: "inline-block",
+                              width: 70,
+                              height: 14,
+                            }}
+                          />
+                        </span>
+                      </div>
+
                       <span className={`${prefix}-count-stat-value`}>
                         <span
                           className={`${prefix}-progress-skeleton`}
-                          style={{ display: "inline-block", width: "80px" }}
-                        ></span>
-                      </span>
-                    </div>
-                    <div className={`${prefix}-count-stat-cell ${prefix}-count-stat-cell--time`}>
-                      <span className={`${prefix}-count-stat-label`}>
-                        <span
-                          className={`${prefix}-progress-skeleton`}
-                          style={{ display: "inline-block", width: "80px" }}
-                        ></span>
-                      </span>
-                      <br />
-                      <span className={`${prefix}-count-stat-value`}>
-                        <span
-                          className={`${prefix}-progress-skeleton`}
-                          style={{ display: "inline-block", width: "60px" }}
-                        ></span>
+                          style={{
+                            display: "inline-block",
+                            width: 100,
+                            height: 14,
+                            marginTop: 4,
+                          }}
+                        />
                       </span>
                     </div>
                   </div>
@@ -406,7 +454,9 @@ const StatusModal = ({ postIds, selectedLanguages, prefix, onDestory }) => {
                     {countInfo.charactersTranslated}
                   </span>
                 </div>
-                <div className={`${prefix}-count-stat-cell ${prefix}-count-stat-cell--time`}>
+                <div
+                  className={`${prefix}-count-stat-cell ${prefix}-count-stat-cell--time`}
+                >
                   <span className={`${prefix}-count-stat-label`}>
                     {__("TIME TAKEN", "automl-ai-translation-for-wpml")}
                   </span>
@@ -421,8 +471,7 @@ const StatusModal = ({ postIds, selectedLanguages, prefix, onDestory }) => {
               </div>
             )
           )}
-          {(
-            (!isLoading && pendingPosts.length === 0)) && (
+          {!isLoading && pendingPosts.length === 0 && (
             <div className={`${prefix}-status-table-container`}>
               <div>
                 <div className={`${prefix}-status-table`}>
@@ -510,35 +559,38 @@ const StatusModal = ({ postIds, selectedLanguages, prefix, onDestory }) => {
                             </div>
                             <div className={`${prefix}-status-content`}>
                               <div className={`${prefix}-status-content-inner`}>
-                              <span
-  className={`${prefix}-status ${
-    info.messageClass || ""
-  } ${info.status || ""}`}
->
-  {info.status === "completed" &&
-    __(
-      "Completed",
-      "automl-ai-translation-for-wpml",
-    )}
+                                <span
+                                  className={`${prefix}-status ${
+                                    info.messageClass || ""
+                                  } ${info.status || ""}`}
+                                >
+                                  {info.status === "completed" &&
+                                    __(
+                                      "Completed",
+                                      "automl-ai-translation-for-wpml",
+                                    )}
 
-  {info.status === "pending" &&
-    __(
-      "Pending",
-      "automl-ai-translation-for-wpml",
-    )}
+                                  {info.status === "pending" &&
+                                    __(
+                                      "Pending",
+                                      "automl-ai-translation-for-wpml",
+                                    )}
 
-  {info.status === "error" && (
-    <>
-        <button
-          type="button"
-          className={`${prefix}-status-error-button`}
-          onClick={() => handleErrorModal(info)}
-        >
-          {__("Error Details", "automl-ai-translation-for-wpml")}
-        </button>
-    </>
-  )}
-</span>
+                                  {info.status === "error" && (
+                                    <>
+                                      <button
+                                        type="button"
+                                        className={`${prefix}-status-error-button`}
+                                        onClick={() => handleErrorModal(info)}
+                                      >
+                                        {__(
+                                          "Error Details",
+                                          "automl-ai-translation-for-wpml",
+                                        )}
+                                      </button>
+                                    </>
+                                  )}
+                                </span>
                               </div>
                               {info.status === "completed"
                                 ? `${total} ${__(
