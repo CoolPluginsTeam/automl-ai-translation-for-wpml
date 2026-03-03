@@ -8,8 +8,6 @@ composer.lock
 *.map
 dist/
 build/
-*.min.js
-*.min.css
 
 # WordPress specific
 .DS_Store
