@@ -127,13 +127,13 @@
 }
 
 #automl-wpml-bulk-translate-wrapper #automl-wpml-bulk-translate-container.automl-wpml-bulk-translate-status-modal-active.automl-wpml-bulk-translate-empty-posts p {
-  font-size: 1.2rem;
-  color: red;
-  font-weight: 600;
+  font-size: 1rem;
+  color: #1d2327;
+  font-weight: 500;
   text-align: center;
-  margin: 0;
   padding: 0;
-  margin-top: 0;
+  margin-inline: 22px;
+  margin-block: 15px;
 }
 
 #automl-wpml-bulk-translate-wrapper #automl-wpml-bulk-translate-container.automl-wpml-bulk-translate-status-modal-active .automl-wpml-bulk-translate-progress-skeleton {
@@ -681,7 +681,7 @@
 }
 
 #automl-wpml-bulk-translate-wrapper #automl-wpml-bulk-translate-container #automl-wpml-bulk-translate-status-modal-container .automl-wpml-bulk-translate-status-table-container .automl-wpml-bulk-translate-status-inner-item.automl-wpml-bulk-translate-status-target-post-error .automl-wpml-bulk-translate-status-target-post-error {
-  color: red;
+  color: #1d2327;
   font-size: .8rem;
   font-weight: 500;
   text-align: center;
@@ -970,7 +970,7 @@
 }
 
 #automl-wpml-bulk-translate-wrapper #automl-wpml-bulk-translate-container .automl-wpml-bulk-translate-error-message {
-  color: red;
+  color: #1d2327;
   padding: 1rem;
   font-weight: 600;
   font-size: 16px;
