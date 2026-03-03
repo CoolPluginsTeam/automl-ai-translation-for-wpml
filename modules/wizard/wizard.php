@@ -201,7 +201,18 @@ class AUTOML_Ai_Wizard {
             $default_language = \WPML_AT_Helper::get_default_language();
 		}
         $saved_credentials = get_option( 'wp_ai_client_provider_credentials', array() );
-
+		$home_url_with_lang = get_home_url();      // e.g. http://wpml-plugin.local/en/
+		$lang_code          = defined( 'ICL_LANGUAGE_CODE' ) ? ICL_LANGUAGE_CODE : '';
+		$base_home_url      = $home_url_with_lang;
+		
+		if ( $lang_code ) {
+			// Remove trailing /{lang}/ or /{lang} from the home URL.
+			$base_home_url = preg_replace(
+				'#/' . preg_quote( $lang_code, '#' ) . '/?$#',
+				'/',
+				untrailingslashit( $home_url_with_lang )
+			);
+		}
         $saved_models = get_option( 'automl_ai_translation_models', array() );
 		wp_localize_script(
             'wpml_at_setup',
@@ -211,7 +222,7 @@ class AUTOML_Ai_Wizard {
                 'nonce'          => wp_create_nonce( 'wp_rest' ),
                 'admin_url'      => get_admin_url( null, 'admin.php' ),
                 'dashboard_url'  => add_query_arg( array( 'page' => 'automl_ai_dashboard&tab=settings' ), admin_url( 'admin.php' ) ),
-                'home_url'       => get_home_url(),
+                'home_url'       => $base_home_url,
                 'wpml_languages' => $wpml_languages,
                 'default_language' => $default_language,
                 'saved_language' => get_option( 'automl_ai_wizard_selected_language', array() ),

@@ -409,41 +409,237 @@ if ( ! class_exists( 'Bulk_Translation_Route' ) ) :
 	 * @return \WP_REST_Response|\WP_Error
 	 */
 	public function wizard_save_credentials( $request ) {
-		$openai_key  = $request->get_param( 'openai_key' );
-		$google_key  = $request->get_param( 'google_key' );
+		$openai_key   = $request->get_param( 'openai_key' );
+		$google_key   = $request->get_param( 'google_key' );
 		$openai_model = $request->get_param( 'openai_model' );
 		$google_model = $request->get_param( 'google_model' );
-
-		$credentials = get_option( 'wp_ai_client_provider_credentials', array() );
-		if ( ! is_array( $credentials ) ) {
-			$credentials = array();
+	
+		// Flags: what the user is actually enabling in THIS request.
+		$has_openai = ( $openai_key !== null && trim( $openai_key ) !== '' );
+		$has_google = ( $google_key !== null && trim( $google_key ) !== '' );
+	
+		// Keep previous values so we can restore if validation fails.
+		$previous_credentials = get_option( 'wp_ai_client_provider_credentials', array() );
+		if ( ! is_array( $previous_credentials ) ) {
+			$previous_credentials = array();
 		}
-
-		if ( $openai_key !== null && $openai_key !== '' ) {
-			$credentials['openai'] = $openai_key;
+		$previous_models = get_option( 'automl_ai_translation_models', array() );
+		if ( ! is_array( $previous_models ) ) {
+			$previous_models = array();
 		}
-		if ( $google_key !== null && $google_key !== '' ) {
-			$credentials['google'] = $google_key;
+	
+		$credentials = $previous_credentials;
+		$models      = $previous_models;
+	
+		// Require at least one provider to be enabled.
+		if ( ! $has_openai && ! $has_google ) {
+			return new \WP_Error(
+				'automl_no_api_key',
+				__( 'Please enter at least one API key (OpenAI or Google).', 'automl-ai-translation-for-wpml' ),
+				array( 'status' => 400 )
+			);
 		}
-
+	
+		// === Update credentials ===
+	
+		// OpenAI: if user typed something -> set; if they cleared field -> unset.
+		if ( $openai_key !== null ) {
+			if ( $has_openai ) {
+				$credentials['openai'] = $openai_key;
+			} else {
+				unset( $credentials['openai'] );
+			}
+		}
+	
+		// Google: same logic.
+		if ( $google_key !== null ) {
+			if ( $has_google ) {
+				$credentials['google'] = $google_key;
+			} else {
+				unset( $credentials['google'] );
+			}
+		}
+	
 		update_option( 'wp_ai_client_provider_credentials', $credentials );
-
-		$models = get_option( 'automl_ai_translation_models', array() );
-		if ( ! is_array( $models ) ) {
-			$models = array();
+	
+		// === Update models (optional) ===
+	
+		if ( $openai_model !== null ) {
+			if ( trim( $openai_model ) !== '' ) {
+				$models['openai'] = $openai_model;
+			} else {
+				unset( $models['openai'] );
+			}
 		}
-		if ( $openai_model !== null && $openai_model !== '' ) {
-			$models['openai'] = $openai_model;
+	
+		if ( $google_model !== null ) {
+			if ( trim( $google_model ) !== '' ) {
+				$models['google'] = $google_model;
+			} else {
+				unset( $models['google'] );
+			}
 		}
-		if ( $google_model !== null && $google_model !== '' ) {
-			$models['google'] = $google_model;
-		}
+	
 		if ( ! empty( $models ) ) {
 			update_option( 'automl_ai_translation_models', $models );
+		} else {
+			delete_option( 'automl_ai_translation_models' );
 		}
-
+	
+		// === Validate ONLY providers the user is enabling now, via test calls ===
+	
+		$errors = array();
+	
+		if ( $has_openai && ! empty( $credentials['openai'] ) ) {
+			$result = $this->validate_provider_api_key( 'openai', $credentials['openai'] );
+			if ( is_array( $result ) && ! empty( $result['message'] ) ) {
+				$errors['openai'] = $result['message'];
+			}
+		}
+	
+		if ( $has_google && ! empty( $credentials['google'] ) ) {
+			$result = $this->validate_provider_api_key( 'google', $credentials['google'] );
+			if ( is_array( $result ) && ! empty( $result['message'] ) ) {
+				$errors['google'] = $result['message'];
+			}
+		}
+	
+		if ( ! empty( $errors ) ) {
+			// Restore previous values so invalid keys/models are not persisted.
+			if ( ! empty( $previous_credentials ) ) {
+				update_option( 'wp_ai_client_provider_credentials', $previous_credentials );
+			} else {
+				delete_option( 'wp_ai_client_provider_credentials' );
+			}
+	
+			if ( ! empty( $previous_models ) ) {
+				update_option( 'automl_ai_translation_models', $previous_models );
+			} else {
+				delete_option( 'automl_ai_translation_models' );
+			}
+	
+			return new \WP_Error(
+				'automl_invalid_api_key',
+				__( 'One or more API keys are invalid.', 'automl-ai-translation-for-wpml' ),
+				array(
+					'status' => 400,
+					'errors' => $errors, // ['openai' => '...', 'google' => '...']
+				)
+			);
+		}
+	
 		return new \WP_REST_Response( array( 'success' => true ), 200 );
 	}
+
+	// inside class Bulk_Translation_Route
+public static function validate_provider_api_key_static( $provider_id, $api_key ) {
+	$instance = new self( 'automl-bulk-translate' ); // or reuse existing instance
+	return $instance->validate_provider_api_key( $provider_id, $api_key );
+}
+
+	/**
+ * Validate a provider API key by doing a tiny test call.
+ *
+ * @param string $provider_id Provider ID as used by the WP AI SDK (e.g. 'openai', 'google').
+ * @param string $api_key     API key to test.
+ * @return true|array         true on success, or ['message' => 'error text'] on failure.
+ */
+private function validate_provider_api_key( $provider_id, $api_key ) {
+	if ( ! $provider_id || ! $api_key ) {
+		return array( 'message' => __( 'Provider and API key are required.', 'automl-ai-translation-for-wpml' ) );
+	}
+
+	if ( ! class_exists( 'WordPress\AI_Client\AI_Client' ) || ! class_exists( 'WordPress\AiClient\AiClient' ) ) {
+		return array( 'message' => __( 'AI client is not available.', 'automl-ai-translation-for-wpml' ) );
+	}
+
+	$registry = \WordPress\AiClient\AiClient::defaultRegistry();
+	if ( ! $registry->hasProvider( $provider_id ) ) {
+		return array( 'message' => __( 'Invalid AI provider.', 'automl-ai-translation-for-wpml' ) );
+	}
+
+	// Simple cooldown per provider (avoid hammering APIs while user tests).
+	$is_gemini = ( 'google' === strtolower( $provider_id ) ) || str_contains( strtolower( $provider_id ), 'gemini' );
+	$cooldown  = $is_gemini ? 60 : 5;
+	$lock_key  = 'automl_ai_test_lock_' . md5( $provider_id );
+
+	if ( get_transient( $lock_key ) ) {
+		return array(
+			'message' => $is_gemini
+				? __( 'Gemini rate limit reached. Please wait a minute and try again.', 'automl-ai-translation-for-wpml' )
+				: __( 'Please wait a few seconds before testing again.', 'automl-ai-translation-for-wpml' ),
+		);
+	}
+	set_transient( $lock_key, 1, $cooldown );
+
+	// Inject the API key into the provider.
+	$auth_class = 'WordPress\AiClient\Providers\Http\DTO\ApiKeyRequestAuthentication';
+	$registry->setProviderRequestAuthentication(
+		$provider_id,
+		new $auth_class( $api_key )
+	);
+
+	// Choose a default test model per provider.
+	$provider_id_lower = strtolower( $provider_id );
+	$test_model_id     = '';
+	if ( str_contains( $provider_id_lower, 'openai' ) ) {
+		$test_model_id = 'gpt-4o-mini';
+	} elseif ( str_contains( $provider_id_lower, 'anthropic' ) ) {
+		$test_model_id = 'claude-3-haiku-20240307';
+	} elseif ( str_contains( $provider_id_lower, 'google' ) ) {
+		$test_model_id = 'gemini-2.5-flash';
+	}
+
+	try {
+		$ai_prompt = \WordPress\AI_Client\AI_Client::prompt_with_wp_error( 'OK' )
+			->using_provider( $provider_id );
+
+		// Ensure the test model exists; otherwise fall back to discovery.
+		if ( ! empty( $test_model_id ) ) {
+			try {
+				$registry->getProviderModel( $provider_id, $test_model_id );
+			} catch ( \Exception $e ) {
+				$test_model_id = '';
+			}
+		}
+
+		if ( empty( $test_model_id )
+			&& class_exists( 'WordPress\AiClient\Providers\Models\DTO\ModelRequirements' )
+			&& class_exists( 'WordPress\AiClient\Providers\Models\Enums\CapabilityEnum' )
+		) {
+			$requirements    = new \WordPress\AiClient\Providers\Models\DTO\ModelRequirements(
+				array( \WordPress\AiClient\Providers\Models\Enums\CapabilityEnum::textGeneration() ),
+				array()
+			);
+			$models_metadata = $registry->findProviderModelsMetadataForSupport( $provider_id, $requirements );
+			if ( ! empty( $models_metadata ) ) {
+				$first         = reset( $models_metadata );
+				$test_model_id = $first->getId();
+			}
+		}
+
+		if ( ! empty( $test_model_id ) ) {
+			$model_instance = $registry->getProviderModel( $provider_id, $test_model_id );
+			$ai_prompt->using_model( $model_instance );
+		}
+
+		$result = $ai_prompt->generate_text();
+	} catch ( \Exception $e ) {
+		return array( 'message' => $e->getMessage() );
+	}
+
+	if ( is_wp_error( $result ) ) {
+		$error_message = $result->get_error_message();
+		if ( str_contains( strtolower( $error_message ), '429' ) ) {
+			$error_message = $is_gemini
+				? __( 'Gemini free tier rate limit exceeded. Please wait and try again.', 'automl-ai-translation-for-wpml' )
+				: __( 'Rate limit exceeded. Please try again later.', 'automl-ai-translation-for-wpml' );
+		}
+		return array( 'message' => $error_message );
+	}
+
+	return true;
+}
 
 	/**
 	 * Save the language selected in the wizard (used e.g. for string translation).

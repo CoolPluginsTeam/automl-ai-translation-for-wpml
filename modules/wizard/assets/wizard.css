@@ -88,6 +88,15 @@
 	line-height: 1;
 	flex-shrink: 0;
 }
+.button-hero{
+	color: #fff !important;
+	border-radius: 6px !important;
+	padding: 8px 20px !important;
+	font-weight: 600 !important;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+	line-height: 2 !important;
+	min-height: 40px !important;
+}
 
 .automl-ai-wizard-card-language-footer-content {
 	flex: 1;
@@ -236,29 +245,10 @@
 	min-height: 30px !important;
 }
 
-.automl-ai-wizard-card .button:not(.automl-ai-wizard-continue):not(.button-primary):hover {
-	background: #f9fafb !important;
-	border-color: #D1D5DB !important;
-	color: #4B5563 !important;
-}
-.automl-ai-wizard-card .button-primary,
-.automl-ai-wizard-card .automl-ai-wizard-continue {
-	background: #4caf50;
-	border-color: #4caf50;
-	color: #fff;
-	border-radius: 6px;
-	padding: 8px 20px;
-	font-weight: 600;
-	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-	line-height: 1.2 !important;
-	min-height: 30px !important;
-}
-
-.automl-ai-wizard-card .button-primary:hover,
-.automl-ai-wizard-card .automl-ai-wizard-continue:hover {
-	background: #43a047;
-	border-color: #43a047;
-	color: #fff;
+.automl-ai-wizard-continue{
+	box-shadow: none !important;
+	border-radius: 6px !important;
+	font-weight: 600 !important;
 }
 
 .automl-ai-wizard-card .button-hero {
@@ -271,14 +261,25 @@
 .automl-ai-wizard-card input[type="text"],
 .automl-ai-wizard-card input[type="password"],
 .automl-ai-wizard-card select {
-	width: 100%;
+	width: 100% !important;
+	max-width: 100% !important;
 	padding: 8px 12px;
 	font-size: 1rem;
-	border: 1px solid #d1d5db;
+	border: 1px solid #D1D5DB !important;
 	border-radius: 6px;
 	background: #fff;
 	color: #333;
 }
+
+.automl-ai-wizard-select:focus {
+	border: 1px solid #000 !important;
+	border-radius: 6px !important;
+	background: #fff;
+	color: #333;
+	box-shadow: none !important;
+}
+
+
 input#automl-ai-wizard-openai-key:focus {
   border: 2px solid #4caf50 !important;
   outline: none !important;
@@ -334,10 +335,6 @@ input#automl-ai-wizard-google-key:focus {
 	border-right: 1px solid #d1d5db;
 }
 
-.automl-ai-wizard-card .automl-ai-wizard-language-container .components-dropdown{
-	width: 100%;
-	max-width: 400px;
-}
 .automl-ai-wizard-language-container{
 	padding: 35px 20px 0px 32px;
 }
@@ -372,8 +369,4 @@ input#automl-ai-wizard-google-key:focus {
   .automl-ai-wizard-language-dropdown{
 	width: 100%;
 
-  }
-  .automl-ai-wizard-language-dropdown .components-popover__content{
-	max-width: 400px;
-	width: 100%;
   }

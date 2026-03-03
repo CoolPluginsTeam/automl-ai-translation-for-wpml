@@ -6,7 +6,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 if ( ! current_user_can( 'manage_options' ) ) {
 	wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'automl-ai-translation-for-wpml' ) );
 }
-$automl_wpml_wizard_lang    = get_option( 'automl_ai_wizard_selected_language', array() );
+
+$automl_wpml_wizard_lang         = get_option( 'automl_ai_wizard_selected_language', array() );
 $automl_wpml_wizard_language_set = is_array( $automl_wpml_wizard_lang ) && ! empty( $automl_wpml_wizard_lang['code'] );
 ?>
 <div class="automl_ai_dashboard-settings">
@@ -23,6 +24,9 @@ $automl_wpml_wizard_language_set = is_array( $automl_wpml_wizard_lang ) && ! emp
 			);
 			?>
 		</p>
+
+		<?php settings_errors( 'wp-ai-client-settings' ); ?>
+
 		<?php if ( ! $automl_wpml_wizard_language_set ) : ?>
 			<div class="notice notice-warning" style="margin: 1rem 0;">
 				<p>
@@ -43,19 +47,19 @@ $automl_wpml_wizard_language_set = is_array( $automl_wpml_wizard_lang ) && ! emp
 			<div class="automl_ai_dashboard-api-settings">
 				<form method="post" action="options.php">
 					<?php
-                     // Dummy username field to satisfy browser heuristics; not used by backend.
-                        ?>
-                        <input
-                            type="text"
-                            name="automl_ai_dummy_api_key"
-                            autocomplete="api-key"
-                            style="display:none;"
-                            aria-hidden="true"
-                        />
-                        <?php
+					// Dummy username field to satisfy browser heuristics; not used by backend.
+					?>
+					<input
+						type="text"
+						name="automl_ai_dummy_api_key"
+						autocomplete="api-key"
+						style="display:none;"
+						aria-hidden="true"
+					/>
+					<?php
 					// AI SDK credentials (wp-ai-client).
-                    settings_fields( 'wp-ai-client-settings' );
-          
+					settings_fields( 'wp-ai-client-settings' );
+
 					// Current AI SDK credentials.
 					$automl_wpml_ai_credentials = get_option( 'wp_ai_client_provider_credentials', array() );
 
@@ -63,17 +67,18 @@ $automl_wpml_wizard_language_set = is_array( $automl_wpml_wizard_lang ) && ! emp
 					$automl_wpml_current_models       = get_option( 'automl_ai_translation_models', array() );
 					$automl_wpml_current_openai_model = isset( $automl_wpml_current_models['openai'] ) ? $automl_wpml_current_models['openai'] : 'gpt-4o-mini';
 					$automl_wpml_current_google_model = isset( $automl_wpml_current_models['google'] ) ? $automl_wpml_current_models['google'] : 'gemini-2.5-flash';
-					$automl_wpml_openai_api_key = isset( $automl_wpml_ai_credentials['openai'] ) ? $automl_wpml_ai_credentials['openai'] : '';
-					$automl_wpml_google_api_key = isset( $automl_wpml_ai_credentials['google'] ) ? $automl_wpml_ai_credentials['google'] : '';
-                    if ( empty( $automl_wpml_current_openai_model ) && !empty( $automl_wpml_openai_api_key ) ) {
+					$automl_wpml_openai_api_key       = isset( $automl_wpml_ai_credentials['openai'] ) ? $automl_wpml_ai_credentials['openai'] : '';
+					$automl_wpml_google_api_key       = isset( $automl_wpml_ai_credentials['google'] ) ? $automl_wpml_ai_credentials['google'] : '';
+
+					if ( empty( $automl_wpml_current_openai_model ) && ! empty( $automl_wpml_openai_api_key ) ) {
 						$automl_wpml_current_openai_model = 'gpt-4o-mini';
 						update_option( 'automl_ai_translation_models', array( 'openai' => $automl_wpml_current_openai_model ) );
 					}
-					if ( empty( $automl_wpml_current_google_model ) && !empty( $automl_wpml_google_api_key ) ) {
+					if ( empty( $automl_wpml_current_google_model ) && ! empty( $automl_wpml_google_api_key ) ) {
 						$automl_wpml_current_google_model = 'gemini-2.5-flash';
 						update_option( 'automl_ai_translation_models', array( 'google' => $automl_wpml_current_google_model ) );
 					}
-					
+
 					$automl_wpml_openai_models = array();
 					$automl_wpml_google_models = array();
 
@@ -84,7 +89,7 @@ $automl_wpml_wizard_language_set = is_array( $automl_wpml_wizard_lang ) && ! emp
 					if ( class_exists( '\WordPress\AiClient\AiClient' ) ) {
 						$automl_wpml_registry = \WordPress\AiClient\AiClient::defaultRegistry();
 
-						// OpenAI models (cached 1 hour to avoid API request on every refresh).
+						// OpenAI text-generation models (cached to avoid repeated API requests).
 						if ( $automl_wpml_has_openai_key ) {
 							$automl_wpml_cache_key = 'automl_wpml_openai_models';
 							$automl_wpml_cached    = get_transient( $automl_wpml_cache_key );
@@ -92,26 +97,35 @@ $automl_wpml_wizard_language_set = is_array( $automl_wpml_wizard_lang ) && ! emp
 								$automl_wpml_openai_models = $automl_wpml_cached;
 							} else {
 								try {
-									$automl_wpml_openai_class = $automl_wpml_registry->getProviderClassName( 'openai' );
-									$automl_wpml_directory    = $automl_wpml_openai_class::modelMetadataDirectory();
-									$automl_wpml_openai_models = array_map(
-										static function ( $model ) {
-											/** @var \WordPress\AiClient\Providers\Models\DTO\ModelMetadata $model */
-											return $model->getId();
-										},
-										$automl_wpml_directory->listModelMetadata()
-									);
-									set_transient( $automl_wpml_cache_key, $automl_wpml_openai_models, 24 * HOUR_IN_SECONDS );
+									if (
+										class_exists( '\WordPress\AiClient\Providers\Models\DTO\ModelRequirements' ) &&
+										class_exists( '\WordPress\AiClient\Providers\Models\Enums\CapabilityEnum' )
+									) {
+										$requirements     = new \WordPress\AiClient\Providers\Models\DTO\ModelRequirements(
+											array( \WordPress\AiClient\Providers\Models\Enums\CapabilityEnum::textGeneration() ),
+											array()
+										);
+										$models_metadata = $automl_wpml_registry->findProviderModelsMetadataForSupport( 'openai', $requirements );
+
+										$automl_wpml_openai_models = array_map(
+											static function ( $model ) {
+												/** @var \WordPress\AiClient\Providers\Models\DTO\ModelMetadata $model */
+												return $model->getId();
+											},
+											$models_metadata
+										);
+										set_transient( $automl_wpml_cache_key, $automl_wpml_openai_models, 24 * HOUR_IN_SECONDS );
+									}
 								} catch ( \Throwable $e ) {
 									$automl_wpml_openai_models = array();
 								}
 							}
-						}else{
+						} else {
 							$automl_wpml_cache_key = 'automl_wpml_openai_models';
 							delete_transient( $automl_wpml_cache_key );
 						}
 
-						// Google / Gemini models (cached 1 hour to avoid API request on every refresh).
+						// Google / Gemini text-generation models (cached to avoid repeated API requests).
 						if ( $automl_wpml_has_google_key ) {
 							$automl_wpml_cache_key = 'automl_wpml_google_models';
 							$automl_wpml_cached    = get_transient( $automl_wpml_cache_key );
@@ -119,26 +133,34 @@ $automl_wpml_wizard_language_set = is_array( $automl_wpml_wizard_lang ) && ! emp
 								$automl_wpml_google_models = $automl_wpml_cached;
 							} else {
 								try {
-									$automl_wpml_google_class = $automl_wpml_registry->getProviderClassName( 'google' );
-									$automl_wpml_directory    = $automl_wpml_google_class::modelMetadataDirectory();
-									$automl_wpml_google_models = array_map(
-										static function ( $model ) {
-											/** @var \WordPress\AiClient\Providers\Models\DTO\ModelMetadata $model */
-											return $model->getId();
-										},
-										$automl_wpml_directory->listModelMetadata()
-									);
-									set_transient( $automl_wpml_cache_key, $automl_wpml_google_models, 24 * HOUR_IN_SECONDS );
+									if (
+										class_exists( '\WordPress\AiClient\Providers\Models\DTO\ModelRequirements' ) &&
+										class_exists( '\WordPress\AiClient\Providers\Models\Enums\CapabilityEnum' )
+									) {
+										$requirements     = new \WordPress\AiClient\Providers\Models\DTO\ModelRequirements(
+											array( \WordPress\AiClient\Providers\Models\Enums\CapabilityEnum::textGeneration() ),
+											array()
+										);
+										$models_metadata = $automl_wpml_registry->findProviderModelsMetadataForSupport( 'google', $requirements );
+
+										$automl_wpml_google_models = array_map(
+											static function ( $model ) {
+												/** @var \WordPress\AiClient\Providers\Models\DTO\ModelMetadata $model */
+												return $model->getId();
+											},
+											$models_metadata
+										);
+										set_transient( $automl_wpml_cache_key, $automl_wpml_google_models, 24 * HOUR_IN_SECONDS );
+									}
 								} catch ( \Throwable $e ) {
 									$automl_wpml_google_models = array();
 								}
 							}
-						}else{
+						} else {
 							$automl_wpml_cache_key = 'automl_wpml_google_models';
 							delete_transient( $automl_wpml_cache_key );
 						}
 					}
-
 					?>
 					<div class="automl_ai_dashboard-api-settings-form">
 						<?php
@@ -150,7 +172,7 @@ $automl_wpml_wizard_language_set = is_array( $automl_wpml_wizard_lang ) && ! emp
 								'placeholder' => 'sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
 							),
 							'google' => array(
-								'name'        => 'Google / Gemini',
+								'name'        => 'Google Gemini',
 								'doc_url'     => 'https://developer.wordpress.org/docs/ai/#google-gemini',
 								'placeholder' => 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
 							),
@@ -168,22 +190,23 @@ $automl_wpml_wizard_language_set = is_array( $automl_wpml_wizard_lang ) && ! emp
 								?>
 							</label>
 							<div class="input-group">
-                            <input
-                                type="password"
-                                id="<?php echo esc_attr( $automl_wpml_api_key ); ?>-api"
-                                name="wp_ai_client_provider_credentials[<?php echo esc_attr( $automl_wpml_api_key ); ?>]"
-                                value="<?php echo isset( $automl_wpml_ai_credentials[ $automl_wpml_api_key ] ) ? esc_attr( $automl_wpml_ai_credentials[ $automl_wpml_api_key ] ) : ''; ?>"
-                                placeholder="<?php echo esc_attr( $automl_wpml_settings['placeholder'] ); ?>"
-                                autocomplete="new-password"
-								<?php echo $automl_wpml_wizard_language_set ? '' : ' disabled="disabled"'; ?>
-                            />
+								<input
+									type="password"
+									id="<?php echo esc_attr( $automl_wpml_api_key ); ?>-api"
+									name="wp_ai_client_provider_credentials[<?php echo esc_attr( $automl_wpml_api_key ); ?>]"
+									value="<?php echo isset( $automl_wpml_ai_credentials[ $automl_wpml_api_key ] ) ? esc_attr( $automl_wpml_ai_credentials[ $automl_wpml_api_key ] ) : ''; ?>"
+									placeholder="<?php echo esc_attr( $automl_wpml_settings['placeholder'] ); ?>"
+									autocomplete="new-password"
+									<?php echo $automl_wpml_wizard_language_set ? '' : ' disabled="disabled"'; ?>
+								/>
 							</div>
 
 							<?php
 							$automl_wpml_has_key = ! empty( $automl_wpml_ai_credentials[ $automl_wpml_api_key ] );
 
 							// OpenAI model selector.
-							if ( 'openai' === $automl_wpml_api_key && $automl_wpml_has_key && ! empty( $automl_wpml_openai_models ) ) : ?>
+							if ( 'openai' === $automl_wpml_api_key && $automl_wpml_has_key && ! empty( $automl_wpml_openai_models ) ) :
+								?>
 								<div class="automl_ai_dashboard-api-settings-openai-model">
 									<label for="automl_ai_selected_openai_model" class="api-settings-label">
 										<?php esc_html_e( 'Select OpenAI Model', 'automl-ai-translation-for-wpml' ); ?>
@@ -202,11 +225,12 @@ $automl_wpml_wizard_language_set = is_array( $automl_wpml_wizard_lang ) && ! emp
 										<?php endforeach; ?>
 									</select>
 								</div>
-							<?php
+								<?php
 							endif;
 
 							// Google / Gemini model selector.
-							if ( 'google' === $automl_wpml_api_key && $automl_wpml_has_key && ! empty( $automl_wpml_google_models ) ) : ?>
+							if ( 'google' === $automl_wpml_api_key && $automl_wpml_has_key && ! empty( $automl_wpml_google_models ) ) :
+								?>
 								<div class="automl_ai_dashboard-api-settings-google-model">
 									<label for="automl_ai_selected_google_model" class="api-settings-label">
 										<?php esc_html_e( 'Select Gemini Model', 'automl-ai-translation-for-wpml' ); ?>
@@ -225,7 +249,7 @@ $automl_wpml_wizard_language_set = is_array( $automl_wpml_wizard_lang ) && ! emp
 										<?php endforeach; ?>
 									</select>
 								</div>
-							<?php
+								<?php
 							endif;
 
 							printf(
@@ -241,7 +265,7 @@ $automl_wpml_wizard_language_set = is_array( $automl_wpml_wizard_lang ) && ! emp
 						<hr style="margin: 2rem 0px;">
 
 						<div class="automl_ai_dashboard-save-btn-container">
-						<?php submit_button( __( 'Save', 'automl-ai-translation-for-wpml' ), 'primary', 'submit', true, $automl_wpml_wizard_language_set ? array() : array( 'disabled' => 'disabled' ) ); ?>
+							<?php submit_button( __( 'Save', 'automl-ai-translation-for-wpml' ), 'primary', 'submit', true, $automl_wpml_wizard_language_set ? array() : array( 'disabled' => 'disabled' ) ); ?>
 						</div>
 					</div><!-- .automl_ai_dashboard-api-settings-form -->
 				</form>
