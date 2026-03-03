@@ -2,6 +2,15 @@
     const enableBulkTranslateBtn=()=>{
         const AutoMlSubsubsubList = jQuery('.automl_wpml_subsubsub');
         const AutoMlBulkTranslateBtn = jQuery('.automl-wpml-bulk-translate-btn');
+
+        const automl_wpml_admin_object = window.automl_wpml_admin_object;
+        const wizardLanguage = automl_wpml_admin_object.wizardLanguage;
+        const currentLanguage = automl_wpml_admin_object.currentLanguage;
+
+        if(currentLanguage === wizardLanguage) {
+            AutoMlBulkTranslateBtn.prop('disabled', true);
+            AutoMlBulkTranslateBtn.prop('title', 'Bulk translate is unavailable in (' + currentLanguage + ') language.');
+        }
     
         if(AutoMlSubsubsubList.length){
             const $defaultSubsubsub = jQuery('ul.subsubsub:not(.automl_wpml_subsubsub_list)');

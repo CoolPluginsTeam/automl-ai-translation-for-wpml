@@ -36,7 +36,25 @@ class Register_Assets {
 			return;
 		}
 
+		$automl_current_language=apply_filters( 'wpml_current_language', null );
+		$wizard_lang = WPML_AT_Helper::get_wizard_allowed_language_code();
+
 		wp_enqueue_script( 'automl-admin', AUTOML_AI_PLUGIN_URL . 'assets/js/automl-admin.min.js', array(), AUTOML_AI_VERSION, true );
+		wp_localize_script(
+			'automl-admin',
+			'automl_wpml_admin_object',
+			array(
+				'wizardLanguage' => $wizard_lang,
+				'currentLanguage' => $automl_current_language,
+			)
+		);
+
+
+		if(isset($automl_current_language) && !empty($automl_current_language)) {
+			if($automl_current_language === $wizard_lang) {
+				return;
+			}
+		}
 
 		$post_label    = __( 'Pages', 'automl-ai-translation-for-wpml' );
 		$taxonomy_page = false;
