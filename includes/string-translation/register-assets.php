@@ -4,7 +4,6 @@ namespace AUTOML_WPML\Includes\String_Translation;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-use AUTOML_WPML\Helper\Helper;
 use WPML_AT_Helper;
 /**
  * Register_Assets

@@ -1,18 +1,5 @@
 $prefix: automl-wpml-bulk-translate;
 
-.#{$prefix}-btn, .#{$prefix}-btn_re_translation {
-    background: #3db63d !important;
-    color: #fff !important;
-    border-color: #33a133 !important;
-    transition: all .3s ease-in-out;
-
-    &:hover {
-        background: #37a737 !important;
-        color: #fff !important;
-        border-color: #238b23 !important;
-    }
-}
-
 .#{$prefix}-btn_re_translation{
     
     margin-left: 10px !important;
@@ -839,7 +826,7 @@ $prefix: automl-wpml-bulk-translate;
 
         .#{$prefix}-error-message {
             color: #1d2327;
-            padding: 1rem;
+            padding: 15px 22px;
             font-weight: 600;
             font-size: 16px;
             text-align: center;
@@ -1045,9 +1032,8 @@ $prefix: automl-wpml-bulk-translate;
                 color: #fff;
 
                 &:disabled {
-                    background: #5493c5 !important;
-                    border: 1px solid #3f8dcf !important;
-                    color: white !important;
+                    cursor: not-allowed;
+                    opacity: .6;
                 }
             }
 

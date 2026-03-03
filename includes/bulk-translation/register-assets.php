@@ -6,8 +6,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-use AUTOML_WPML\Helper\Helper;
 use WPML_AT_Helper;
+
 /**
  * Register_Assets
  *
@@ -25,7 +25,7 @@ class Register_Assets {
 			return;
 		}
 
-		if ( ! class_exists( Helper::class ) || ! Helper::tranlastable_post_type( $current_screen ) ) {
+		if ( ! class_exists( WPML_AT_Helper::class ) || ! WPML_AT_Helper::tranlastable_post_type( $current_screen ) ) {
 			return;
 		}
 
@@ -34,6 +34,26 @@ class Register_Assets {
 
 		if ( 'trash' === $post_status ) {
 			return;
+		}
+
+		$automl_current_language=apply_filters( 'wpml_current_language', null );
+		$wizard_lang = WPML_AT_Helper::get_wizard_allowed_language_code();
+
+		wp_enqueue_script( 'automl-admin', AUTOML_AI_PLUGIN_URL . 'assets/js/automl-admin.min.js', array(), AUTOML_AI_VERSION, true );
+		wp_localize_script(
+			'automl-admin',
+			'automl_wpml_admin_object',
+			array(
+				'wizardLanguage' => $wizard_lang,
+				'currentLanguage' => $automl_current_language,
+			)
+		);
+
+
+		if(isset($automl_current_language) && !empty($automl_current_language)) {
+			if($automl_current_language === $wizard_lang) {
+				return;
+			}
 		}
 
 		$post_label    = __( 'Pages', 'automl-ai-translation-for-wpml' );

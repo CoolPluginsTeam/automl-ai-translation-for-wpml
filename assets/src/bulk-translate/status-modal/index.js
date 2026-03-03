@@ -402,7 +402,7 @@ const StatusModal = ({ postIds, selectedLanguages, prefix, onDestory }) => {
                                     !isLoading && Object.keys(translatePostInfo).length > 0 &&
                                     <div className={`${prefix}-status-header-container`}>
                                         <div className={`${prefix}-status-flag-th`}>
-                                            <span className={`${prefix}-status-header-label`}>{__('Flag', 'automl-ai-translation-for-wpml')}</span>
+                                            <span className={`${prefix}-status-header-label`}>{__('Language', 'automl-ai-translation-for-wpml')}</span>
                                         </div>
                                         <div className={`${prefix}-status-status-th`}>
                                             <span className={`${prefix}-status-header-label`}>{__('Status', 'automl-ai-translation-for-wpml')}</span>
