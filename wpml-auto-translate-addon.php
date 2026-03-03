@@ -40,6 +40,7 @@ if ( file_exists( $automl_ai_autoload ) ) {
 use WordPress\AI_Client\AI_Client;
 
 use AUTOML_WPML\Includes\Routes\Bulk_Translation_Route;
+use AUTOML_WPML\Helper\Helper;
 
 /**
  * Main plugin class.
@@ -80,12 +81,6 @@ final class AUTOML_Ai_Translate_Addon {
 		add_action( 'admin_init', array( $this, 'register_ai_model_setting' ) );
 		add_action( 'admin_menu', array( $this, 'register_automl_ai_dashboard_menu' ), 20 );
 		add_action( 'admin_menu', array( $this, 'hide_wp_ai_client_menu' ), 99 );
-		add_filter(
-			'pre_update_option_wp_ai_client_provider_credentials',
-			array( $this, 'validate_dashboard_ai_credentials' ),
-			10,
-			3
-		);
 	}
 
 	public function register_ai_model_setting() {
@@ -109,63 +104,6 @@ final class AUTOML_Ai_Translate_Addon {
 				},
 			)
 		);
-	}
-
-	public function validate_dashboard_ai_credentials( $new_value, $old_value, $option ) {
-		if ( ! is_array( $new_value ) ) {
-			$new_value = array();
-		}
-		if ( ! is_array( $old_value ) ) {
-			$old_value = array();
-		}
-	
-		$openai_key = isset( $new_value['openai'] ) ? trim( $new_value['openai'] ) : '';
-		$google_key = isset( $new_value['google'] ) ? trim( $new_value['google'] ) : '';
-	
-		// Allow clearing both keys from Settings.
-		if ( $openai_key === '' && $google_key === '' ) {
-			return $new_value;
-		}
-	
-		$errors = array();
-	
-		// Use your existing validator (or isConfigured) for each provider.
-		if ( $openai_key !== '' ) {
-			$result = \AUTOML_WPML\Includes\Routes\Bulk_Translation_Route::validate_provider_api_key_static( 'openai', $openai_key );
-			if ( is_array( $result ) && ! empty( $result['message'] ) ) {
-				$errors['openai'] = $result['message'];
-			}
-		}
-	
-		if ( $google_key !== '' ) {
-			$result = \AUTOML_WPML\Includes\Routes\Bulk_Translation_Route::validate_provider_api_key_static( 'google', $google_key );
-			if ( is_array( $result ) && ! empty( $result['message'] ) ) {
-				$errors['google'] = $result['message'];
-			}
-		}
-	
-		if ( function_exists( 'add_settings_error' ) ) {
-			foreach ( $errors as $provider => $message ) {
-				add_settings_error(
-					'wp-ai-client-settings', // same group id as settings_fields()
-					'automl_invalid_' . $provider . '_key',
-					sprintf(
-						/* translators: 1: provider label, 2: message */
-						__( '%1$s: %2$s', 'automl-ai-translation-for-wpml' ),
-						$provider === 'openai'
-							? __( 'OpenAI', 'automl-ai-translation-for-wpml' )
-							: __( 'Google Gemini', 'automl-ai-translation-for-wpml' ),
-						$message
-					),
-					'error'
-				);
-			}
-	
-			// WordPress standard: do NOT save invalid data.
-			return $old_value;
-		}
-	
-		return $new_value;
 	}
 
 		/**
@@ -239,6 +177,7 @@ final class AUTOML_Ai_Translate_Addon {
 	 */
 	private function load_dependencies() {
 		$files = array(
+			'helper/helper.php',
 			'helper/sanitized-content.php',
 			'includes/wpml/builder/gutenberg/update-block-config.php',
 			'includes/wpml/get-package-content.php',
