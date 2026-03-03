@@ -11,6 +11,7 @@ use WPML_Package_Helper;
 use DOMDocument;
 use DOMXPath;
 use WPML_Package;
+use Exception;
 use AUTOML_WPML\Helper\Helper;
 use AUTOML_WPML\Includes\Wpml\Builder\Gutenberg\Update_Block_Config;
 
@@ -41,7 +42,7 @@ class Get_Package_Content {
 		$automl_wpml_file_exists = $this->include_required_files();
 
 		if ( ! $automl_wpml_file_exists ) {
-			throw new Exception( 'WPML Element Translation Package file not found' );
+			throw new Exception( 'WPML Element Translation Package file not found Please check "WPML String Translation" plugin is installed and activated' );
 		}
 
 		$this->create_package();
