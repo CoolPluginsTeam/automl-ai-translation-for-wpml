@@ -36,6 +36,8 @@ class Register_Assets {
 			return;
 		}
 
+		wp_enqueue_script( 'automl-admin', AUTOML_AI_PLUGIN_URL . 'assets/js/automl-admin.min.js', array(), AUTOML_AI_VERSION, true );
+
 		$post_label    = __( 'Pages', 'automl-ai-translation-for-wpml' );
 		$taxonomy_page = false;
 
