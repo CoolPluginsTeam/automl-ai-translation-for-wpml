@@ -138,7 +138,18 @@ class Create_Translated_Post {
 
 		$this->create_translated_post();
 		$this->update_translate_strings();
+
+		$this->update_post_translation_status();
+
 		return $this->translated_post_id;
+	}
+
+	private function update_post_translation_status(): void {
+		if(function_exists('wpml_get_post_status_helper')){
+			$post_status_helper = wpml_get_post_status_helper();
+			$post_status_helper->set_status( $this->translated_post_id, 10 );
+			update_post_meta( $this->translated_post_id, '_automl_translation_editor_native', $this->translated_post_id );
+		};
 	}
 
 	private function is_create_post() {

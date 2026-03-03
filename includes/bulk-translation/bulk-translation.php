@@ -31,6 +31,7 @@ class Bulk_Translation {
 
 	public function __construct() {
 		add_action( 'current_screen', array( $this, 'bulk_translate_btn' ) );
+		add_filter('wpml_tm_show_page_builders_translation_editor_warning', array( $this, 'hide_page_builders_translation_editor_warning' ), 10, 2);
 	}
 
 	public function bulk_translate_btn( $screen ) {
@@ -58,6 +59,16 @@ class Bulk_Translation {
 
 	public function bulk_translate_container() {
 		echo "<div id='automl-wpml-bulk-translate-wrapper'></div>";
+	}
+
+	public function hide_page_builders_translation_editor_warning( $show, $post_id ) {
+		$status = get_post_meta( $post_id, '_automl_translation_editor_native', true );
+		
+		if($post_id === $status) {
+			return false;
+		}
+
+		return $show;
 	}
 }
 
