@@ -6,13 +6,16 @@ const VideoIntro = ({ onGetStarted }) => {
 	const videoUrl = data.video_url || 'https://www.youtube.com/embed/dst_bf7uiTc';
 
 	return (
+		<>
 		<div className="automl-ai-wizard-card" style={{ maxWidth: 600, margin: '12px auto', padding: 20, minHeight: '38vh' }}>
 			<div style={{ textAlign: 'center', marginBottom: 24 }}>
-				<h3 className="automl-ai-wizard-card h2" style={{ fontSize: '1.5rem', marginBottom: 12 }}>
+				<h3 className="automl-ai-wizard-card-title h3" style={{ fontSize: '1.5rem', marginBottom: 12 }}>
 					{ __( 'Watch Setup Guide', 'automl-ai-translation-for-wpml' ) }
 				</h3>
-				<p style={{ color: '#6b7280', marginBottom: 24 }}>
-					{ __( 'Learn how to configure AutoML for AI translation with WPML.', 'automl-ai-translation-for-wpml' ) }
+				<p style={{ color: '#6b7280', marginBottom: 24, textAlign: 'center' }}>
+					{ __( 'Learn how to set up AutoML and start translating your pages', 'automl-ai-translation-for-wpml' ) }
+					<br />
+					{ __( 'automatically using AI.', 'automl-ai-translation-for-wpml' ) }
 				</p>
 			</div>
 			<div style={{ position: 'relative', width: '100%', paddingBottom: '56.25%', marginBottom: 24 }}>
@@ -31,6 +34,13 @@ const VideoIntro = ({ onGetStarted }) => {
 				</button>
 			</div>
 		</div>
+		<div className="automl-ai-wizard-card-footer">
+			{ __( 'Need help? Visit our', 'automl-ai-translation-for-wpml' ) }{ ' ' }
+			<a href={ '#' } target="_blank" rel="noopener noreferrer">
+				{ __( 'Documentation', 'automl-ai-translation-for-wpml' ) }
+			</a>
+		</div>
+		</>
 	);
 };
 

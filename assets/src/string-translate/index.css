@@ -342,21 +342,22 @@
   margin-bottom: 10px;
   margin-top: 5px;
 }
+#automl-wpml-bulk-translate-wrapper #automl-wpml-bulk-translate-container #automl-wpml-bulk-translate-status-modal-container .automl-wpml-bulk-translate-header+div {
+  margin-top: 16px;
+}
 
 #automl-wpml-bulk-translate-wrapper #automl-wpml-bulk-translate-container #automl-wpml-bulk-translate-status-modal-container .automl-wpml-bulk-translate-count-container {
-  display: -ms-grid;
+  background: #00000008;
+  border: 1px solid #00000012;
+  border-radius: 13px;
   display: grid;
-  -ms-grid-columns: auto auto auto;
-      grid-template-columns: auto auto auto;
-  gap: .8rem .3rem;
-  padding: 0px 24px;
-  border-radius: 8px 8px 0 0;
   font-size: 1rem;
-  margin-top: 8px;
-  border-bottom: 0px;
-  -webkit-box-pack: justify;
-      -ms-flex-pack: justify;
-          justify-content: space-between;
+  gap: .8rem .3rem;
+  grid-template-columns: auto auto auto;
+  justify-content: space-between;
+  margin-inline: 24px;
+  margin-bottom: 15px;
+  padding: .7rem 1rem;
 }
 
 .automl-wpml-bulk-translate-count-container .automl-wpml-bulk-translate-count-stat-cell .automl-wpml-bulk-translate-count-stat-value{
@@ -383,14 +384,39 @@
 /* Grid with fixed left column so flag+language and badge+count align across all cards */
 .automl-wpml-bulk-translate-status-table .automl-wpml-bulk-translate-status-table-inner .automl-wpml-bulk-translate-td-completed,
 .automl-wpml-bulk-translate-status-table .automl-wpml-bulk-translate-status-table-inner .automl-wpml-bulk-translate-td-error {
-  padding: 10px;
-  display: grid;
-  grid-template-columns: 200px 1fr;
-  gap: 16px;
-  align-items: center;
-  border: 1px solid #ddd;
-  margin: 15px 36px;
+  background: #00000008;
+  border: 1px solid #00000012;
   border-radius: 13px;
+  display: grid;
+  font-size: 1rem;
+  gap: .8rem .3rem;
+  grid-template-columns: auto auto auto;
+  justify-content: space-between;
+  margin-inline: 24px;
+  margin-bottom: 15px;
+  padding: .7rem 1rem;
+}
+
+ .automl-wpml-bulk-translate-td-pending {
+  background: #00000008;
+  border: 1px solid #00000012;
+  border-radius: 13px;
+  display: grid;
+  font-size: 1rem;
+  gap: .8rem .3rem;
+  grid-template-columns: auto auto auto;
+  justify-content: space-between;
+  margin-inline: 24px;
+  margin-bottom: 15px;
+  padding: .7rem 1rem;
+}
+
+/* Skeleton only: status-content grid layout */
+.automl-wpml-bulk-translate-overall-progress .automl-wpml-bulk-translate-td-pending .automl-wpml-bulk-translate-status-content {
+  display: grid;
+  grid-template-columns: 170px 1fr;
+  gap: 12px;
+  align-items: center;
 }
 
 /* Right section: badge + count - fixed column widths so they align across cards */
@@ -822,7 +848,6 @@
 }
 #automl-wpml-bulk-translate-wrapper #automl-wpml-bulk-translate-container .automl-wpml-bulk-translate-header h2{
   background: 0 0;
-  border: none;
   font-size: 18px;
   font-weight: 600;
   height: unset;

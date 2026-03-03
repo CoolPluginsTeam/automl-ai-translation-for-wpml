@@ -12,7 +12,7 @@ $automl_wpml_wizard_language_set = is_array( $automl_wpml_wizard_lang ) && ! emp
 <div class="automl_ai_dashboard-settings">
 	<div class="automl_ai_dashboard-settings-container">
 		<div class="header">
-			<h1><?php echo esc_html__( 'AUTOML AI Translate Settings', 'automl-ai-translation-for-wpml' ); ?></h1>
+			<h1><?php echo esc_html__( 'AutoML AI Translate Settings', 'automl-ai-translation-for-wpml' ); ?></h1>
 		</div>
 
 		<p class="description">
