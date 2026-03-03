@@ -249,7 +249,7 @@ const bulkTranslateEntries = async ({ ids, langs, storeDispatch }) => {
     }
 
     if (!untranslatedPostsData) {
-        return { success: false, message: __('Untranslated data undefined', 'automl-ai-translation-for-wpml') };
+        return { success: false, message: __('No posts to translate data undefined', 'automl-ai-translation-for-wpml') };
     }
 
     if (!untranslatedPostsData.success) {
@@ -257,11 +257,15 @@ const bulkTranslateEntries = async ({ ids, langs, storeDispatch }) => {
     }
 
     if (!untranslatedPostsData.data) {
-        return { success: false, message: __('Untranslated data not found', 'automl-ai-translation-for-wpml') };
+        return { success: false, message: __('No posts to translate untranslated data not found', 'automl-ai-translation-for-wpml') };
+    }
+
+    if (!untranslatedPostsData.data.posts || Object.keys(untranslatedPostsData.data.posts).length === 0) {
+        return { success: false, message: sprintf(__('Translations already exist for all selected %s in the chosen languages. There are no new %s to translate.', 'automl-ai-translation-for-wpml'), automl_wpml_bulk_translate_object.post_label, automl_wpml_bulk_translate_object.post_label) };
     }
 
     if (!untranslatedPostsData.data.CreateTranslatePostNonce) {
-        return { success: false, message: __('Create translate post nonce not found', 'automl-ai-translation-for-wpml') };
+        return { success: false, message: __('No create translate post nonce', 'automl-ai-translation-for-wpml') };
     }
 
     const posts = untranslatedPostsData.data.posts;

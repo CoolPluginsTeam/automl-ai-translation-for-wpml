@@ -8,7 +8,7 @@ import AIService from '../components/translate-provider/ai-services';
 import { store } from '../redux-store/store';
 import DOMPurify from 'dompurify';
 import LoopCallback from '../components/loop-callback';
-import { updatePendingPosts, updateCountInfo, updateTranslatePostInfo } from '../redux-store/features/actions';
+import { updatePendingPosts, updateCountInfo, updateTranslatePostInfo, unsetPendingPost } from '../redux-store/features/actions';
 
 const StatusModal = ({ postIds, selectedLanguages, prefix, onDestory }) => {
 
@@ -35,12 +35,24 @@ const StatusModal = ({ postIds, selectedLanguages, prefix, onDestory }) => {
 
         const translatePosts = async (pendingPostsInfo) => {
 
-            const processPostIds = async (postId) => {
+            const processPostIds = async (postId, index) => {
+
+                if(!pendingPostsInfo[postId]?.languages || pendingPostsInfo[postId]?.languages?.length < 1) {
+                    return;
+                }
 
                 const response = await bulkTranslateEntries({ ids: [postId], langs: pendingPostsInfo[postId].languages, storeDispatch });
 
-                if (!response.success && false === response.success && response.message && !postFound) {
+                if (!response.success && response.message && !postFound) {
+                    pendingPostsInfo[postId].languages.forEach(lang => {
+                        storeDispatch(unsetPendingPost(postId + '_' + lang));
+                        storeDispatch(updateTranslatePostInfo({ [postId + '_' + lang]: { status: 'error', messageClass: 'error', errorHtml: response.message } }));
+                    });
                     setEmptyPostMessage(response.message);
+
+                    if(index === Object.keys(pendingPostsInfo).length - 1 && progressStatus <= 0) {
+                        setProgressBarVisibility(false);
+                    }
                     return;
                 }
 
