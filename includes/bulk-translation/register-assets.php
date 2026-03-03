@@ -6,8 +6,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-use AUTOML_WPML\Helper\Helper;
 use WPML_AT_Helper;
+
 /**
  * Register_Assets
  *
@@ -25,7 +25,7 @@ class Register_Assets {
 			return;
 		}
 
-		if ( ! class_exists( Helper::class ) || ! Helper::tranlastable_post_type( $current_screen ) ) {
+		if ( ! class_exists( WPML_AT_Helper::class ) || ! WPML_AT_Helper::tranlastable_post_type( $current_screen ) ) {
 			return;
 		}
 

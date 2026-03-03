@@ -40,7 +40,6 @@ if ( file_exists( $automl_ai_autoload ) ) {
 use WordPress\AI_Client\AI_Client;
 
 use AUTOML_WPML\Includes\Routes\Bulk_Translation_Route;
-use AUTOML_WPML\Helper\Helper;
 
 /**
  * Main plugin class.
@@ -148,7 +147,6 @@ final class AUTOML_Ai_Translate_Addon {
 	 */
 	private function load_dependencies() {
 		$files = array(
-			'helper/helper.php',
 			'helper/sanitized-content.php',
 			'includes/wpml/builder/gutenberg/update-block-config.php',
 			'includes/wpml/get-package-content.php',

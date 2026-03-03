@@ -10,7 +10,7 @@ use AUTOML_WPML\Includes\Wpml\Get_Package_Content;
 use AUTOML_WPML\Includes\Wpml\Builder\Elementor\Elementor_Update;
 use AUTOML_WPML\Includes\Wpml\Builder\Gutenberg\Gutenberg_Update;
 use AUTOML_WPML\Includes\Wpml\Builder\Content_Update_Base;
-use AUTOML_WPML\Helper\Helper;
+use WPML_AT_Helper;
 use AUTOML_WPML\Helper\Sanitized_Content;
 
 /**
@@ -71,7 +71,7 @@ class Create_Translated_Post {
 			exit;
 		}
 
-		if ( ! in_array( $editor_type, Helper::supported_editors() ) ) {
+		if ( ! in_array( $editor_type, WPML_AT_Helper::supported_editors() ) ) {
 			$this->post_translation_status = false;
 			wp_send_json_error( 'Unsupported editor type' );
 			exit;

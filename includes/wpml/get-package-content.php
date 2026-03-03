@@ -12,7 +12,7 @@ use DOMDocument;
 use DOMXPath;
 use WPML_Package;
 use Exception;
-use AUTOML_WPML\Helper\Helper;
+use WPML_AT_Helper;
 use AUTOML_WPML\Includes\Wpml\Builder\Gutenberg\Update_Block_Config;
 
 /**
@@ -136,7 +136,7 @@ class Get_Package_Content {
 		$translation_package = array();
 
 		foreach ( $this->package as $package ) {
-			if ( ! isset( $package->kind ) || ! in_array( $package->kind, Helper::supported_editors(), true ) ) {
+			if ( ! isset( $package->kind ) || ! in_array( $package->kind, WPML_AT_Helper::supported_editors(), true ) ) {
 				continue;
 			}
 

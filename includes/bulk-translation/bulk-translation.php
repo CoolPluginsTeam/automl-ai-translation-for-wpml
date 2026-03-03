@@ -6,7 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-use AUTOML_WPML\Helper\Helper;
+use WPML_AT_Helper;
 use AUTOML_Ai_Cpt_Dashboard;
 
 /**
@@ -35,7 +35,7 @@ class Bulk_Translation {
 	}
 
 	public function bulk_translate_btn( $screen ) {
-		if ( ! class_exists( Helper::class ) || ! Helper::tranlastable_post_type( $screen ) ) {
+		if ( ! class_exists( WPML_AT_Helper::class ) || ! WPML_AT_Helper::tranlastable_post_type( $screen ) ) {
 			return;
 		}
 
@@ -52,7 +52,7 @@ class Bulk_Translation {
 	}
 
 	public function automl_wpml_bulk_translate_button( $views ) {
-		echo "<button class='button automl-wpml-bulk-translate-btn' style='display:none;'>AI Translate</button>";
+		echo "<button class='button automl-wpml-bulk-translate-btn button-primary' style='display:none;'>AI Translate</button>";
 
 		return $views;
 	}
