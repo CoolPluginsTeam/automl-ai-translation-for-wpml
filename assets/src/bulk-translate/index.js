@@ -161,52 +161,11 @@ import LocalAITranslate from './components/translate-provider/local-ai/local-ai-
         );
     }
 
-    const enableBulkTranslateBtn=()=>{
-        const AutoMlSubsubsubList = jQuery('.automl_wpml_subsubsub');
-        const AutoMlBulkTranslateBtn = jQuery('.automl-wpml-bulk-translate-btn');
     
-        if(AutoMlSubsubsubList.length){
-            const $defaultSubsubsub = jQuery('ul.subsubsub:not(.automl_wpml_subsubsub_list)');
-    
-            if($defaultSubsubsub.length){
-                $defaultSubsubsub.after(AutoMlSubsubsubList);
-                AutoMlSubsubsubList.show();
-            }
-        }
-    
-        const appendButton=(btn)=>{
-            if(!btn.length || btn.length < 0){
-                return;
-            }
-    
-            const $defaultFilter = jQuery('.actions:not(.bulkactions)');
-            const $bulkAction=jQuery('.actions.bulkactions');
-    
-            if($defaultFilter.length){
-                $defaultFilter.each(function(){
-                    const clone=btn.clone(true);
-                    jQuery(this).append(clone);
-                    clone.show();
-                });
-    
-                btn.remove();
-            }else if($bulkAction.length){
-                $bulkAction.each(function(){
-                    const clone=btn.clone(true);
-                    jQuery(this).after(clone);
-                    clone.show();
-                });
-            }
-        }
-    
-        appendButton(AutoMlBulkTranslateBtn);
-    }
 
 
     window.addEventListener('load', async () => {
         const prefix = 'automl-wpml-bulk-translate';
-
-        enableBulkTranslateBtn();
 
         await new Promise(resolve => setTimeout(resolve, 500));
 
