@@ -1,7 +1,7 @@
 <?php
 /**
- * Plugin Name: AutoML - AI Translation for WPML
- * Description: Adds "Translate with Google" bulk and per-row actions to WPML Translation Dashboard, using Google Translate for saving translations and Google website widget for preview.
+ * Plugin Name: AutoML – AI Translation for WPML
+ * Description: AutoML – AI translation addon for WPML that helps translate WordPress pages and posts content faster and more accurately.
  * Version: 1.0.0
  * Author: Cool Plugins
  * Text Domain: automl-ai-translation-for-wpml
