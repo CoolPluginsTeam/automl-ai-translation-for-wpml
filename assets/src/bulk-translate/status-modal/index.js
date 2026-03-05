@@ -408,7 +408,7 @@ const StatusModal = ({ postIds, selectedLanguages, prefix, onDestory }) => {
                                             <span className={`${prefix}-status-header-label`}>{__('Status', 'automl-ai-translation-for-wpml')}</span>
                                         </div>
                                         <div className={`${prefix}-status-title-th`}>
-                                            <span className={`${prefix}-status-header-label`}>{__('Title', 'automl-ai-translation-for-wpml')}</span>
+                                            <span className={`${prefix}-status-header-label`}>{__('Preview', 'automl-ai-translation-for-wpml')}</span>
                                         </div>
                                         <div className={`${prefix}-status-actions-th`}>
                                             <span className={`${prefix}-status-header-label`}>{__('Actions', 'automl-ai-translation-for-wpml')}</span>
