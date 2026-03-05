@@ -45,20 +45,8 @@ $automl_wpml_wizard_language_set = is_array( $automl_wpml_wizard_lang ) && ! emp
 
 		<div class="automl_ai_dashboard-api-settings-container">
 			<div class="automl_ai_dashboard-api-settings">
-				<form method="post" action="options.php">
+				<form id="automl-ai-settings-credentials-form" method="post" action="#">
 					<?php
-					// Dummy username field to satisfy browser heuristics; not used by backend.
-					?>
-					<input
-						type="text"
-						name="automl_ai_dummy_api_key"
-						autocomplete="api-key"
-						style="display:none;"
-						aria-hidden="true"
-					/>
-					<?php
-					// AI SDK credentials (wp-ai-client).
-					settings_fields( 'wp-ai-client-settings' );
 
 					// Current AI SDK credentials.
 					$automl_wpml_ai_credentials = get_option( 'wp_ai_client_provider_credentials', array() );
@@ -69,6 +57,20 @@ $automl_wpml_wizard_language_set = is_array( $automl_wpml_wizard_lang ) && ! emp
 					$automl_wpml_current_google_model = isset( $automl_wpml_current_models['google'] ) ? $automl_wpml_current_models['google'] : 'gemini-2.5-flash';
 					$automl_wpml_openai_api_key       = isset( $automl_wpml_ai_credentials['openai'] ) ? $automl_wpml_ai_credentials['openai'] : '';
 					$automl_wpml_google_api_key       = isset( $automl_wpml_ai_credentials['google'] ) ? $automl_wpml_ai_credentials['google'] : '';
+
+					// Helper function to mask API keys for display
+					if ( ! function_exists( 'automl_mask_api_key' ) ) {
+						function automl_mask_api_key( $api_key ) {
+							if ( empty( $api_key ) || strlen( $api_key ) < 8 ) {
+								return $api_key;
+							}
+							$start = substr( $api_key, 0, 6 );
+							$end = substr( $api_key, -6 );
+							$middle_length = strlen( $api_key ) - 12;
+							$masked_middle = str_repeat( '*', min( $middle_length, 24 ) ); // Limit stars to 24 for readability
+							return $start . $masked_middle . $end;
+						}
+					}
 
 					if ( empty( $automl_wpml_current_openai_model ) && ! empty( $automl_wpml_openai_api_key ) ) {
 						$automl_wpml_current_openai_model = 'gpt-4o-mini';
@@ -101,18 +103,18 @@ $automl_wpml_wizard_language_set = is_array( $automl_wpml_wizard_lang ) && ! emp
 										class_exists( '\WordPress\AiClient\Providers\Models\DTO\ModelRequirements' ) &&
 										class_exists( '\WordPress\AiClient\Providers\Models\Enums\CapabilityEnum' )
 									) {
-										$requirements     = new \WordPress\AiClient\Providers\Models\DTO\ModelRequirements(
+										$automl_requirements     = new \WordPress\AiClient\Providers\Models\DTO\ModelRequirements(
 											array( \WordPress\AiClient\Providers\Models\Enums\CapabilityEnum::textGeneration() ),
 											array()
 										);
-										$models_metadata = $automl_wpml_registry->findProviderModelsMetadataForSupport( 'openai', $requirements );
+										$automl_models_metadata = $automl_wpml_registry->findProviderModelsMetadataForSupport( 'openai', $automl_requirements );
 
 										$automl_wpml_openai_models = array_map(
 											static function ( $model ) {
 												/** @var \WordPress\AiClient\Providers\Models\DTO\ModelMetadata $model */
 												return $model->getId();
 											},
-											$models_metadata
+											$automl_models_metadata
 										);
 										set_transient( $automl_wpml_cache_key, $automl_wpml_openai_models, 24 * HOUR_IN_SECONDS );
 									}
@@ -137,18 +139,18 @@ $automl_wpml_wizard_language_set = is_array( $automl_wpml_wizard_lang ) && ! emp
 										class_exists( '\WordPress\AiClient\Providers\Models\DTO\ModelRequirements' ) &&
 										class_exists( '\WordPress\AiClient\Providers\Models\Enums\CapabilityEnum' )
 									) {
-										$requirements     = new \WordPress\AiClient\Providers\Models\DTO\ModelRequirements(
+										$automl_requirements     = new \WordPress\AiClient\Providers\Models\DTO\ModelRequirements(
 											array( \WordPress\AiClient\Providers\Models\Enums\CapabilityEnum::textGeneration() ),
 											array()
 										);
-										$models_metadata = $automl_wpml_registry->findProviderModelsMetadataForSupport( 'google', $requirements );
+										$automl_models_metadata = $automl_wpml_registry->findProviderModelsMetadataForSupport( 'google', $automl_requirements );
 
 										$automl_wpml_google_models = array_map(
 											static function ( $model ) {
 												/** @var \WordPress\AiClient\Providers\Models\DTO\ModelMetadata $model */
 												return $model->getId();
 											},
-											$models_metadata
+											$automl_models_metadata
 										);
 										set_transient( $automl_wpml_cache_key, $automl_wpml_google_models, 24 * HOUR_IN_SECONDS );
 									}
@@ -159,6 +161,14 @@ $automl_wpml_wizard_language_set = is_array( $automl_wpml_wizard_lang ) && ! emp
 						} else {
 							$automl_wpml_cache_key = 'automl_wpml_google_models';
 							delete_transient( $automl_wpml_cache_key );
+						}
+
+						// If we have a key but model list is empty (e.g. fetch failed), show selector with default so user can still save.
+						if ( $automl_wpml_has_openai_key && empty( $automl_wpml_openai_models ) ) {
+							$automl_wpml_openai_models = array( 'gpt-4o-mini' );
+						}
+						if ( $automl_wpml_has_google_key && empty( $automl_wpml_google_models ) ) {
+							$automl_wpml_google_models = array( 'gemini-2.5-flash' );
 						}
 					}
 					?>
@@ -190,16 +200,40 @@ $automl_wpml_wizard_language_set = is_array( $automl_wpml_wizard_lang ) && ! emp
 								?>
 							</label>
 							<div class="input-group">
-								<input
-									type="password"
-									id="<?php echo esc_attr( $automl_wpml_api_key ); ?>-api"
-									name="wp_ai_client_provider_credentials[<?php echo esc_attr( $automl_wpml_api_key ); ?>]"
-									value="<?php echo isset( $automl_wpml_ai_credentials[ $automl_wpml_api_key ] ) ? esc_attr( $automl_wpml_ai_credentials[ $automl_wpml_api_key ] ) : ''; ?>"
-									placeholder="<?php echo esc_attr( $automl_wpml_settings['placeholder'] ); ?>"
-									autocomplete="new-password"
-									<?php echo $automl_wpml_wizard_language_set ? '' : ' disabled="disabled"'; ?>
-								/>
+								<?php
+								$automl_wpml_has_existing_key = isset( $automl_wpml_ai_credentials[ $automl_wpml_api_key ] ) && ! empty( $automl_wpml_ai_credentials[ $automl_wpml_api_key ] );
+								$automl_wpml_masked_key = $automl_wpml_has_existing_key ? automl_mask_api_key( $automl_wpml_ai_credentials[ $automl_wpml_api_key ] ) : '';
+								?>
+								<div style="display: flex; align-items: center; gap: 8px; width: 100%;">
+									<input
+										type="text"
+										id="<?php echo esc_attr( $automl_wpml_api_key ); ?>-api"
+										name="wp_ai_client_provider_credentials[<?php echo esc_attr( $automl_wpml_api_key ); ?>]"
+										value="<?php echo $automl_wpml_has_existing_key ? esc_attr( $automl_wpml_masked_key ) : ''; ?>"
+										placeholder="<?php echo ! $automl_wpml_has_existing_key ? esc_attr( $automl_wpml_settings['placeholder'] ) : ''; ?>"
+										autocomplete="new-password"
+										<?php echo $automl_wpml_wizard_language_set ? '' : ' disabled="disabled"'; ?>
+										data-has-key="<?php echo $automl_wpml_has_existing_key ? '1' : '0'; ?>"
+										data-original-masked="<?php echo $automl_wpml_has_existing_key ? esc_attr( $automl_wpml_masked_key ) : ''; ?>"
+										style="flex: 1;"
+										<?php echo $automl_wpml_has_existing_key ? 'readonly' : ''; ?>
+									/>
+									<?php if ( $automl_wpml_has_existing_key ) : ?>
+										<span style="color: #46b450; font-size: 14px; margin-right: 4px;">✓</span>
+										<button 
+											type="button" 
+											class="button automl-reset-key-btn" 
+											data-provider="<?php echo esc_attr( $automl_wpml_api_key ); ?>"
+											title="<?php esc_attr_e( 'Reset API key', 'automl-ai-translation-for-wpml' ); ?>"
+											style="padding: 4px 8px; font-size: 12px; line-height: 1; min-height: auto;"
+											<?php echo $automl_wpml_wizard_language_set ? '' : ' disabled="disabled"'; ?>
+										>
+											<?php esc_html_e( 'Reset', 'automl-ai-translation-for-wpml' ); ?>
+										</button>
+									<?php endif; ?>
+								</div>
 							</div>
+							<div id="automl-ai-settings-message-<?php echo esc_attr( $automl_wpml_api_key ); ?>" class="automl_ai_dashboard-settings-message" style="margin-top: 4px; margin-bottom: 12px; display: none; color: #b32d2e; font-size: 13px;" role="alert"></div>
 
 							<?php
 							$automl_wpml_has_key = ! empty( $automl_wpml_ai_credentials[ $automl_wpml_api_key ] );
@@ -263,7 +297,6 @@ $automl_wpml_wizard_language_set = is_array( $automl_wpml_wizard_lang ) && ! emp
 						?>
 
 						<hr style="margin: 2rem 0px;">
-
 						<div class="automl_ai_dashboard-save-btn-container">
 							<?php submit_button( __( 'Save', 'automl-ai-translation-for-wpml' ), 'primary', 'submit', true, $automl_wpml_wizard_language_set ? array() : array( 'disabled' => 'disabled' ) ); ?>
 						</div>
@@ -273,3 +306,198 @@ $automl_wpml_wizard_language_set = is_array( $automl_wpml_wizard_lang ) && ! emp
 		</div>
 	</div>
 </div>
+<?php
+// Submit settings via same REST endpoint as wizard so validate_provider_api_key is used.
+if ( $automl_wpml_wizard_language_set ) :
+	?>
+<script>
+(function() {
+	var form = document.getElementById('automl-ai-settings-credentials-form');
+	var msgOpenai = document.getElementById('automl-ai-settings-message-openai');
+	var msgGoogle = document.getElementById('automl-ai-settings-message-google');
+	if (!form || !msgOpenai || !msgGoogle) return;
+	function clearMessages() {
+		msgOpenai.textContent = '';
+		msgOpenai.style.display = 'none';
+		msgGoogle.textContent = '';
+		msgGoogle.style.display = 'none';
+	}
+	
+	// Handle input field clicks - make editable when clicked
+	document.addEventListener('click', function(e) {
+		if (e.target.type === 'text' && e.target.getAttribute('data-has-key') === '1') {
+			var input = e.target;
+			var originalMasked = input.getAttribute('data-original-masked');
+			
+			// If showing masked key, clear it and make editable
+			if (input.value === originalMasked) {
+				input.value = '';
+				input.type = 'password';
+				input.removeAttribute('readonly');
+				input.placeholder = '<?php echo esc_js( __( 'Enter new key to update', 'automl-ai-translation-for-wpml' ) ); ?>';
+				input.focus();
+			}
+		}
+	});
+	
+	// Handle input field blur - restore masked view if empty
+	document.addEventListener('blur', function(e) {
+		if (e.target.type === 'password' && e.target.getAttribute('data-has-key') === '1') {
+			var input = e.target;
+			var originalMasked = input.getAttribute('data-original-masked');
+			
+			// If field is empty, restore masked view
+			if (input.value.trim() === '') {
+				input.value = originalMasked;
+				input.type = 'text';
+				input.setAttribute('readonly', 'readonly');
+				input.placeholder = '';
+			}
+		}
+	}, true);
+	
+	// Handle reset button clicks - immediately delete the API key
+	document.addEventListener('click', function(e) {
+		if (e.target.classList.contains('automl-reset-key-btn')) {
+			e.preventDefault();
+			var provider = e.target.getAttribute('data-provider');
+			
+			// Disable the button during request
+			e.target.disabled = true;
+			e.target.textContent = '<?php echo esc_js( __( 'Deleting...', 'automl-ai-translation-for-wpml' ) ); ?>';
+			
+			// Prepare delete request - send empty string to remove the key
+			var deleteData = {};
+			deleteData[provider + '_key'] = '';
+			
+			// Send delete request
+			fetch('<?php echo esc_js( rest_url( 'automl-bulk-translate/' ) ); ?>wizard-save-credentials', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					'X-WP-Nonce': '<?php echo esc_js( wp_create_nonce( 'wp_rest' ) ); ?>'
+				},
+				body: JSON.stringify(deleteData)
+			})
+			.then(function(res) { return res.json().then(function(data) { return { ok: res.ok, data: data }; }, function() { return { ok: res.ok, data: {} }; }); })
+			.then(function(result) {
+				if (result.ok && result.data && result.data.success) {
+					// Success - reload page to show updated state
+					window.location.reload();
+				} else {
+					// Error - show error message
+					var err = result.data || {};
+					var errorMsg = (err.message) ? err.message : '<?php echo esc_js( __( 'Failed to delete API key. Please try again.', 'automl-ai-translation-for-wpml' ) ); ?>';
+					var msgElement = document.getElementById('automl-ai-settings-message-' + provider);
+					if (msgElement) {
+						msgElement.textContent = errorMsg;
+						msgElement.style.display = 'block';
+						msgElement.style.color = '#d63638';
+					}
+					// Re-enable button
+					e.target.disabled = false;
+					e.target.textContent = '<?php echo esc_js( __( 'Reset', 'automl-ai-translation-for-wpml' ) ); ?>';
+				}
+			})
+			.catch(function() {
+				// Network error
+				var msgElement = document.getElementById('automl-ai-settings-message-' + provider);
+				if (msgElement) {
+					msgElement.textContent = '<?php echo esc_js( __( 'Network error. Please try again.', 'automl-ai-translation-for-wpml' ) ); ?>';
+					msgElement.style.display = 'block';
+					msgElement.style.color = '#d63638';
+				}
+				// Re-enable button
+				e.target.disabled = false;
+				e.target.textContent = '<?php echo esc_js( __( 'Reset', 'automl-ai-translation-for-wpml' ) ); ?>';
+			});
+		}
+	});
+	
+	form.addEventListener('submit', function(e) {
+		e.preventDefault();
+		var openaiInput = document.getElementById('openai-api');
+		var googleInput = document.getElementById('google-api');
+		var openaiKey = '';
+		var googleKey = '';
+		
+		// Handle OpenAI key - don't send if it's the masked version
+		if (openaiInput) {
+			var openaiMasked = openaiInput.getAttribute('data-original-masked');
+			var openaiValue = openaiInput.value.trim();
+			if (openaiValue !== '' && openaiValue !== openaiMasked) {
+				openaiKey = openaiValue;
+			} else if (openaiValue === '' && openaiInput.getAttribute('data-has-key') === '1') {
+				// Empty field with existing key = reset request
+				openaiKey = '';
+			}
+		}
+		
+		// Handle Google key - don't send if it's the masked version  
+		if (googleInput) {
+			var googleMasked = googleInput.getAttribute('data-original-masked');
+			var googleValue = googleInput.value.trim();
+			if (googleValue !== '' && googleValue !== googleMasked) {
+				googleKey = googleValue;
+			} else if (googleValue === '' && googleInput.getAttribute('data-has-key') === '1') {
+				// Empty field with existing key = reset request
+				googleKey = '';
+			}
+		}
+		
+		var openaiModel = document.getElementById('automl_ai_selected_openai_model') ? document.getElementById('automl_ai_selected_openai_model').value : '';
+		var googleModel = document.getElementById('automl_ai_selected_google_model') ? document.getElementById('automl_ai_selected_google_model').value : '';
+		
+		// Build request data - only include keys that should be updated
+		var requestData = {
+			openai_model: openaiModel || null,
+			google_model: googleModel || null
+		};
+		
+		if (openaiInput && (openaiKey !== '' || (openaiInput.getAttribute('data-has-key') === '1' && openaiInput.value.trim() === ''))) {
+			requestData.openai_key = openaiKey;
+		}
+		if (googleInput && (googleKey !== '' || (googleInput.getAttribute('data-has-key') === '1' && googleInput.value.trim() === ''))) {
+			requestData.google_key = googleKey;
+		}
+		
+		var submitBtn = form.querySelector('input[type="submit"]');
+		if (submitBtn) submitBtn.disabled = true;
+		clearMessages();
+		fetch('<?php echo esc_js( rest_url( 'automl-bulk-translate/' ) ); ?>wizard-save-credentials', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				'X-WP-Nonce': '<?php echo esc_js( wp_create_nonce( 'wp_rest' ) ); ?>'
+			},
+			body: JSON.stringify(requestData)
+		})
+		.then(function(res) { return res.json().then(function(data) { return { ok: res.ok, data: data }; }, function() { return { ok: res.ok, data: {} }; }); })
+		.then(function(result) {
+			if (result.ok && result.data && result.data.success) {
+				window.location.reload();
+				return;
+			}
+			var err = result.data || {};
+			var errors = (err.data && err.data.errors) ? err.data.errors : {};
+			if (errors.openai) {
+				msgOpenai.textContent = errors.openai;
+				msgOpenai.style.display = 'block';
+			}
+			if (errors.google) {
+				msgGoogle.textContent = errors.google;
+				msgGoogle.style.display = 'block';
+			}
+		})
+		.catch(function() {
+			var fallback = '<?php echo esc_js( __( 'Request failed. Please try again.', 'automl-ai-translation-for-wpml' ) ); ?>';
+			msgOpenai.textContent = fallback;
+			msgOpenai.style.display = 'block';
+		})
+		.finally(function() {
+			if (submitBtn) submitBtn.disabled = false;
+		});
+	});
+})();
+</script>
+<?php endif; ?>

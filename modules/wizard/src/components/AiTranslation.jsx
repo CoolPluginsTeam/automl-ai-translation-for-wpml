@@ -12,8 +12,24 @@ const AiTranslation = ({ onBack, onContinue }) => {
 	const saved_models = data.saved_models || {};
 	const savedCreds   = data.saved_credentials || {};
 
-	const [openaiKey, setOpenaiKey]       = React.useState( savedCreds.openai_key || '' );
-	const [googleKey, setGoogleKey]       = React.useState( savedCreds.google_key || '' );
+	// Helper function to mask API keys
+	const maskApiKey = (apiKey) => {
+		if (!apiKey || apiKey.length < 8) {
+			return apiKey;
+		}
+		const start = apiKey.substring(0, 6);
+		const end = apiKey.substring(apiKey.length - 6);
+		const middleLength = apiKey.length - 12;
+		const maskedMiddle = '*'.repeat(Math.min(middleLength, 24));
+		return start + maskedMiddle + end;
+	};
+
+	// Check if we have existing keys
+	const hasExistingOpenaiKey = !!(savedCreds.openai_key && savedCreds.openai_key.trim());
+	const hasExistingGoogleKey = !!(savedCreds.google_key && savedCreds.google_key.trim());
+
+	const [openaiKey, setOpenaiKey] = React.useState( hasExistingOpenaiKey ? maskApiKey(savedCreds.openai_key) : '' );
+	const [googleKey, setGoogleKey] = React.useState( hasExistingGoogleKey ? maskApiKey(savedCreds.google_key) : '' );
 	const [openaiModel, setOpenaiModel]   = React.useState( saved_models.openai_model || '' );
 	const [googleModel, setGoogleModel]   = React.useState( saved_models.google_model || '' );
 	const [saving, setSaving]             = React.useState( false );
@@ -22,12 +38,53 @@ const AiTranslation = ({ onBack, onContinue }) => {
 	const [generalMessage, setGeneralMessage] = React.useState( null ); // success / general error
 	const [isError, setIsError]               = React.useState( false );
 
+	// Track if fields are in edit mode
+	const [openaiEditMode, setOpenaiEditMode] = React.useState(!hasExistingOpenaiKey);
+	const [googleEditMode, setGoogleEditMode] = React.useState(!hasExistingGoogleKey);
+
+	// Store original masked values
+	const openaiMasked = hasExistingOpenaiKey ? maskApiKey(savedCreds.openai_key) : '';
+	const googleMasked = hasExistingGoogleKey ? maskApiKey(savedCreds.google_key) : '';
+
+	// Check if at least one API key is available (either existing or newly entered)
+	const hasValidApiKey = () => {
+		// Check OpenAI key
+		const hasOpenaiKey = hasExistingOpenaiKey || (openaiEditMode && openaiKey.trim() !== '' && openaiKey !== openaiMasked);
+		// Check Google key
+		const hasGoogleKey = hasExistingGoogleKey || (googleEditMode && googleKey.trim() !== '' && googleKey !== googleMasked);
+		
+		return hasOpenaiKey || hasGoogleKey;
+	};
+
 	const handleSave = async () => {
 		setSaving( true );
 		setOpenaiMessage( null );
 		setGoogleMessage( null );
 		setGeneralMessage( null );
 		setIsError( false );
+
+		// Prepare request data - only send keys that have been changed
+		const requestData = {
+			openai_model: openaiModel || null,
+			google_model: googleModel || null,
+			is_wizard: true, // Flag to indicate this is from wizard
+		};
+
+		// Only send OpenAI key if it's been edited and is not the masked version
+		if (openaiEditMode && openaiKey.trim() !== '' && openaiKey !== openaiMasked) {
+			requestData.openai_key = openaiKey;
+		} else if (openaiEditMode && openaiKey.trim() === '' && hasExistingOpenaiKey) {
+			// Empty field with existing key = reset request
+			requestData.openai_key = '';
+		}
+
+		// Only send Google key if it's been edited and is not the masked version
+		if (googleEditMode && googleKey.trim() !== '' && googleKey !== googleMasked) {
+			requestData.google_key = googleKey;
+		} else if (googleEditMode && googleKey.trim() === '' && hasExistingGoogleKey) {
+			// Empty field with existing key = reset request
+			requestData.google_key = '';
+		}
 
 		try {
 			await apiFetch( {
@@ -37,12 +94,7 @@ const AiTranslation = ({ onBack, onContinue }) => {
 					'Content-Type': 'application/json',
 					'X-WP-Nonce': getNonce(),
 				},
-				body: JSON.stringify( {
-					openai_key: openaiKey,
-					google_key: googleKey,
-					openai_model: openaiModel,
-					google_model: googleModel,
-				} ),
+				body: JSON.stringify( requestData ),
 			} );
 
 			// Success: show a single general success message
@@ -74,6 +126,68 @@ const AiTranslation = ({ onBack, onContinue }) => {
 			return false;
 		} finally {
 			setSaving( false );
+		}
+	};
+
+	// Handle input field clicks - make editable when showing masked key
+	const handleInputClick = (provider) => {
+		if (provider === 'openai' && !openaiEditMode && openaiKey === openaiMasked) {
+			setOpenaiEditMode(true);
+			setOpenaiKey('');
+		} else if (provider === 'google' && !googleEditMode && googleKey === googleMasked) {
+			setGoogleEditMode(true);
+			setGoogleKey('');
+		}
+	};
+
+	// Handle input blur - restore masked view if empty
+	const handleInputBlur = (provider) => {
+		if (provider === 'openai' && openaiEditMode && openaiKey.trim() === '' && hasExistingOpenaiKey) {
+			setOpenaiEditMode(false);
+			setOpenaiKey(openaiMasked);
+		} else if (provider === 'google' && googleEditMode && googleKey.trim() === '' && hasExistingGoogleKey) {
+			setGoogleEditMode(false);
+			setGoogleKey(googleMasked);
+		}
+	};
+
+	// Handle reset button clicks - immediately delete the API key
+	const handleReset = async (provider) => {
+		const requestData = {
+			is_reset: true, // Flag to indicate this is a reset operation - bypass validation
+		};
+		requestData[provider + '_key'] = '';
+
+		try {
+			await apiFetch({
+				path: 'automl-bulk-translate/wizard-save-credentials',
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					'X-WP-Nonce': getNonce(),
+				},
+				body: JSON.stringify(requestData),
+			});
+
+			// Success - update state to reflect deletion
+			if (provider === 'openai') {
+				setOpenaiKey('');
+				setOpenaiEditMode(true);
+			} else if (provider === 'google') {
+				setGoogleKey('');
+				setGoogleEditMode(true);
+			}
+
+			// Reload to get fresh data
+			window.location.reload();
+		} catch (err) {
+			// Show error message
+			const errorMsg = __('Failed to delete API key. Please try again.', 'automl-ai-translation-for-wpml');
+			if (provider === 'openai') {
+				setOpenaiMessage(errorMsg);
+			} else if (provider === 'google') {
+				setGoogleMessage(errorMsg);
+			}
 		}
 	};
 
@@ -113,13 +227,45 @@ const AiTranslation = ({ onBack, onContinue }) => {
 						>
 							{ __( 'OpenAI API key', 'automl-ai-translation-for-wpml' ) }
 						</label>
-						<input
-							id="automl-ai-wizard-openai-key"
-							type="password"
-							value={ openaiKey }
-							onChange={ ( e ) => setOpenaiKey( e.target.value ) }
-							style={{ width: '100%', padding: '8px 12px', fontSize: 14 }}
-						/>
+						<div style={{ display: 'flex', alignItems: 'center', gap: '8px', width: '100%' }}>
+							<input
+								id="automl-ai-wizard-openai-key"
+								type={ openaiEditMode ? 'password' : 'text' }
+								value={ openaiKey }
+								onChange={ ( e ) => setOpenaiKey( e.target.value ) }
+								onClick={ () => handleInputClick('openai') }
+								onBlur={ () => handleInputBlur('openai') }
+								readOnly={ !openaiEditMode }
+								placeholder={ openaiEditMode ? __( 'Enter OpenAI API key', 'automl-ai-translation-for-wpml' ) : '' }
+								style={{ 
+									flex: 1, 
+									padding: '8px 12px', 
+									fontSize: 14,
+									cursor: !openaiEditMode ? 'pointer' : 'text'
+								}}
+							/>
+							{ hasExistingOpenaiKey && !openaiEditMode && (
+								<>
+									<span style={{ color: '#46b450', fontSize: '14px', marginRight: '4px' }}>✓</span>
+									<button
+										type="button"
+										onClick={ () => handleReset('openai') }
+										style={{
+											padding: '4px 8px',
+											fontSize: '12px',
+											lineHeight: 1,
+											minHeight: 'auto',
+											border: '1px solid #ddd',
+											borderRadius: '3px',
+											background: '#f7f7f7',
+											cursor: 'pointer'
+										}}
+									>
+										{ __( 'Reset', 'automl-ai-translation-for-wpml' ) }
+									</button>
+								</>
+							) }
+						</div>
 						{ openaiMessage && (
 							<p
 								style={{
@@ -141,13 +287,45 @@ const AiTranslation = ({ onBack, onContinue }) => {
 						>
 							{ __( 'Google / Gemini API key', 'automl-ai-translation-for-wpml' ) }
 						</label>
-						<input
-							id="automl-ai-wizard-google-key"
-							type="password"
-							value={ googleKey }
-							onChange={ ( e ) => setGoogleKey( e.target.value ) }
-							style={{ width: '100%', padding: '8px 12px', fontSize: 14 }}
-						/>
+						<div style={{ display: 'flex', alignItems: 'center', gap: '8px', width: '100%' }}>
+							<input
+								id="automl-ai-wizard-google-key"
+								type={ googleEditMode ? 'password' : 'text' }
+								value={ googleKey }
+								onChange={ ( e ) => setGoogleKey( e.target.value ) }
+								onClick={ () => handleInputClick('google') }
+								onBlur={ () => handleInputBlur('google') }
+								readOnly={ !googleEditMode }
+								placeholder={ googleEditMode ? __( 'Enter Google API key', 'automl-ai-translation-for-wpml' ) : '' }
+								style={{ 
+									flex: 1, 
+									padding: '8px 12px', 
+									fontSize: 14,
+									cursor: !googleEditMode ? 'pointer' : 'text'
+								}}
+							/>
+							{ hasExistingGoogleKey && !googleEditMode && (
+								<>
+									<span style={{ color: '#46b450', fontSize: '14px', marginRight: '4px' }}>✓</span>
+									<button
+										type="button"
+										onClick={ () => handleReset('google') }
+										style={{
+											padding: '4px 8px',
+											fontSize: '12px',
+											lineHeight: 1,
+											minHeight: 'auto',
+											border: '1px solid #ddd',
+											borderRadius: '3px',
+											background: '#f7f7f7',
+											cursor: 'pointer'
+										}}
+									>
+										{ __( 'Reset', 'automl-ai-translation-for-wpml' ) }
+									</button>
+								</>
+							) }
+						</div>
 						{ googleMessage && (
 							<p
 								style={{
@@ -229,7 +407,7 @@ const AiTranslation = ({ onBack, onContinue }) => {
 							window.location.href = dashboardUrl;
 						} }
 						label={ __( 'Finish setup', 'automl-ai-translation-for-wpml' ) }
-						disabled={ saving }
+						disabled={ saving || !hasValidApiKey() }
 					/>
 				</div>
 			</div>

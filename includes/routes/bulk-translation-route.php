@@ -413,6 +413,8 @@ if ( ! class_exists( 'Bulk_Translation_Route' ) ) :
 		$google_key   = $request->get_param( 'google_key' );
 		$openai_model = $request->get_param( 'openai_model' );
 		$google_model = $request->get_param( 'google_model' );
+		$is_wizard    = $request->get_param( 'is_wizard' ); // Explicit flag from frontend
+		$is_reset     = $request->get_param( 'is_reset' );  // Flag for reset operations
 	
 		// Flags: what the user is actually enabling in THIS request.
 		$has_openai = ( $openai_key !== null && trim( $openai_key ) !== '' );
@@ -430,35 +432,48 @@ if ( ! class_exists( 'Bulk_Translation_Route' ) ) :
 	
 		$credentials = $previous_credentials;
 		$models      = $previous_models;
-	
-		// Require at least one provider to be enabled.
-		if ( ! $has_openai && ! $has_google ) {
+
+		// Build the final credentials array to check if at least one provider will be available
+		$final_credentials = $previous_credentials;
+		
+		// OpenAI: if user typed something -> set; if they cleared field -> unset.
+		if ( $openai_key !== null ) {
+			if ( $has_openai ) {
+				$final_credentials['openai'] = $openai_key;
+			} else {
+				unset( $final_credentials['openai'] );
+			}
+		}
+		
+		// Google: same logic.
+		if ( $google_key !== null ) {
+			if ( $has_google ) {
+				$final_credentials['google'] = $google_key;
+			} else {
+				unset( $final_credentials['google'] );
+			}
+		}
+		
+		// Check if this is a wizard request (requires at least one key)
+		$is_wizard_request = $is_wizard === true || $is_wizard === 'true';
+		$is_reset_request = $is_reset === true || $is_reset === 'true';
+		
+		// Require at least one provider for wizard, but allow deletion in settings and reset operations
+		$has_final_openai = ! empty( $final_credentials['openai'] );
+		$has_final_google = ! empty( $final_credentials['google'] );
+		
+		if ( $is_wizard_request && ! $is_reset_request && ! $has_final_openai && ! $has_final_google ) {
 			return new \WP_Error(
 				'automl_no_api_key',
 				__( 'Please enter at least one API key (OpenAI or Google).', 'automl-ai-translation-for-wpml' ),
 				array( 'status' => 400 )
 			);
 		}
-	
+		
+		// Update with the final credentials
+		$credentials = $final_credentials;
+
 		// === Update credentials ===
-	
-		// OpenAI: if user typed something -> set; if they cleared field -> unset.
-		if ( $openai_key !== null ) {
-			if ( $has_openai ) {
-				$credentials['openai'] = $openai_key;
-			} else {
-				unset( $credentials['openai'] );
-			}
-		}
-	
-		// Google: same logic.
-		if ( $google_key !== null ) {
-			if ( $has_google ) {
-				$credentials['google'] = $google_key;
-			} else {
-				unset( $credentials['google'] );
-			}
-		}
 	
 		update_option( 'wp_ai_client_provider_credentials', $credentials );
 	
@@ -528,14 +543,12 @@ if ( ! class_exists( 'Bulk_Translation_Route' ) ) :
 			);
 		}
 	
+		// Clear model list cache so Settings page refetches and shows model selectors after reload.
+		delete_transient( 'automl_wpml_openai_models' );
+		delete_transient( 'automl_wpml_google_models' );
+
 		return new \WP_REST_Response( array( 'success' => true ), 200 );
 	}
-
-	// inside class Bulk_Translation_Route
-public static function validate_provider_api_key_static( $provider_id, $api_key ) {
-	$instance = new self( 'automl-bulk-translate' ); // or reuse existing instance
-	return $instance->validate_provider_api_key( $provider_id, $api_key );
-}
 
 	/**
  * Validate a provider API key by doing a tiny test call.
@@ -558,10 +571,10 @@ private function validate_provider_api_key( $provider_id, $api_key ) {
 		return array( 'message' => __( 'Invalid AI provider.', 'automl-ai-translation-for-wpml' ) );
 	}
 
-	// Simple cooldown per provider (avoid hammering APIs while user tests).
+	// Simple cooldown per provider + key (so changing the key allows a fresh validation; same key is still rate-limited).
 	$is_gemini = ( 'google' === strtolower( $provider_id ) ) || str_contains( strtolower( $provider_id ), 'gemini' );
 	$cooldown  = $is_gemini ? 60 : 5;
-	$lock_key  = 'automl_ai_test_lock_' . md5( $provider_id );
+	$lock_key  = 'automl_ai_test_lock_' . md5( $provider_id . '|' . $api_key );
 
 	if ( get_transient( $lock_key ) ) {
 		return array(
@@ -570,16 +583,15 @@ private function validate_provider_api_key( $provider_id, $api_key ) {
 				: __( 'Please wait a few seconds before testing again.', 'automl-ai-translation-for-wpml' ),
 		);
 	}
-	set_transient( $lock_key, 1, $cooldown );
 
-	// Inject the API key into the provider.
+	// Inject the API key into the provider (must be done before any registry calls that need auth).
 	$auth_class = 'WordPress\AiClient\Providers\Http\DTO\ApiKeyRequestAuthentication';
 	$registry->setProviderRequestAuthentication(
 		$provider_id,
 		new $auth_class( $api_key )
 	);
 
-	// Choose a default test model per provider.
+	// Choose a default test model per provider (hardcoded to avoid discovery, which can use a stale cache).
 	$provider_id_lower = strtolower( $provider_id );
 	$test_model_id     = '';
 	if ( str_contains( $provider_id_lower, 'openai' ) ) {
@@ -590,40 +602,44 @@ private function validate_provider_api_key( $provider_id, $api_key ) {
 		$test_model_id = 'gemini-2.5-flash';
 	}
 
-	try {
-		$ai_prompt = \WordPress\AI_Client\AI_Client::prompt_with_wp_error( 'OK' )
-			->using_provider( $provider_id );
-
-		// Ensure the test model exists; otherwise fall back to discovery.
-		if ( ! empty( $test_model_id ) ) {
-			try {
-				$registry->getProviderModel( $provider_id, $test_model_id );
-			} catch ( \Exception $e ) {
-				$test_model_id = '';
-			}
-		}
-
-		if ( empty( $test_model_id )
-			&& class_exists( 'WordPress\AiClient\Providers\Models\DTO\ModelRequirements' )
-			&& class_exists( 'WordPress\AiClient\Providers\Models\Enums\CapabilityEnum' )
-		) {
-			$requirements    = new \WordPress\AiClient\Providers\Models\DTO\ModelRequirements(
-				array( \WordPress\AiClient\Providers\Models\Enums\CapabilityEnum::textGeneration() ),
-				array()
-			);
-			$models_metadata = $registry->findProviderModelsMetadataForSupport( $provider_id, $requirements );
-			if ( ! empty( $models_metadata ) ) {
-				$first         = reset( $models_metadata );
-				$test_model_id = $first->getId();
-			}
-		}
-
-		if ( ! empty( $test_model_id ) ) {
+	// Resolve model instance first (using our injected auth). Avoid using_provider() so the prompt
+	// builder never runs discovery and hits "No models found" from a stale cache.
+	$model_instance = null;
+	if ( ! empty( $test_model_id ) ) {
+		try {
 			$model_instance = $registry->getProviderModel( $provider_id, $test_model_id );
-			$ai_prompt->using_model( $model_instance );
+		} catch ( \Exception $e ) {
+			// Fall back to discovery only if the hardcoded model id is missing or invalid.
+			$model_instance = null;
 		}
+	}
+	if ( ! $model_instance
+		&& class_exists( 'WordPress\AiClient\Providers\Models\DTO\ModelRequirements' )
+		&& class_exists( 'WordPress\AiClient\Providers\Models\Enums\CapabilityEnum' )
+	) {
+		$requirements     = new \WordPress\AiClient\Providers\Models\DTO\ModelRequirements(
+			array( \WordPress\AiClient\Providers\Models\Enums\CapabilityEnum::textGeneration() ),
+			array()
+		);
+		$models_metadata  = $registry->findProviderModelsMetadataForSupport( $provider_id, $requirements );
+		if ( ! empty( $models_metadata ) ) {
+			$first          = reset( $models_metadata );
+			$test_model_id  = $first->getId();
+			$model_instance = $registry->getProviderModel( $provider_id, $test_model_id );
+		}
+	}
+	if ( ! $model_instance ) {
+		return array( 'message' => __( 'Invalid API key.', 'automl-ai-translation-for-wpml' ) );
+	}
 
-		$result = $ai_prompt->generate_text();
+	// Set cooldown only when we are about to call the API, so invalid-key attempts don't block retries.
+	set_transient( $lock_key, 1, $cooldown );
+
+	try {
+		$result = \WordPress\AI_Client\AI_Client::prompt_with_wp_error( 'OK' )
+			->using_model( $model_instance )
+			->generate_text();
+
 	} catch ( \Exception $e ) {
 		return array( 'message' => $e->getMessage() );
 	}
