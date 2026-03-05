@@ -754,6 +754,7 @@ ul.automl_ai_dashboard-sts-btm li span:first-child {
     border: 1px solid var(--border-color);
     border-radius: 5px;
     margin: 0;
+    letter-spacing: 0.05em;
 }
 
 .automl_ai_dashboard-api-settings input[type="text"] {
@@ -761,6 +762,7 @@ ul.automl_ai_dashboard-sts-btm li span:first-child {
     padding: 8px;
     border: 1px solid #ccc;
     border-radius: 5px;
+    letter-spacing: 0.05em;
 }
 
 .automl_ai_dashboard-feedback-row {

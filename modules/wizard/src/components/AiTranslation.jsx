@@ -235,7 +235,7 @@ const AiTranslation = ({ onBack, onContinue }) => {
 								onChange={ ( e ) => setOpenaiKey( e.target.value ) }
 								onClick={ () => handleInputClick('openai') }
 								onBlur={ () => handleInputBlur('openai') }
-								readOnly={ !openaiEditMode }
+								disabled={ !openaiEditMode }
 								placeholder={ openaiEditMode ? __( 'Enter OpenAI API key', 'automl-ai-translation-for-wpml' ) : '' }
 								style={{ 
 									flex: 1, 
@@ -295,7 +295,7 @@ const AiTranslation = ({ onBack, onContinue }) => {
 								onChange={ ( e ) => setGoogleKey( e.target.value ) }
 								onClick={ () => handleInputClick('google') }
 								onBlur={ () => handleInputBlur('google') }
-								readOnly={ !googleEditMode }
+								disabled={ !googleEditMode }
 								placeholder={ googleEditMode ? __( 'Enter Google API key', 'automl-ai-translation-for-wpml' ) : '' }
 								style={{ 
 									flex: 1, 

@@ -263,7 +263,7 @@ $automl_wpml_wizard_language_set = is_array( $automl_wpml_wizard_lang ) && ! emp
 										data-has-key="<?php echo $automl_wpml_has_existing_key ? '1' : '0'; ?>"
 										data-original-masked="<?php echo $automl_wpml_has_existing_key ? esc_attr( $automl_wpml_masked_key ) : ''; ?>"
 										style="flex: 1;"
-										<?php echo $automl_wpml_has_existing_key ? 'readonly' : ''; ?>
+										<?php echo $automl_wpml_has_existing_key ? 'disabled="disabled"' : ''; ?>
 									/>
 									<?php if ( $automl_wpml_has_existing_key ) : ?>
 										<span style="color: #46b450; font-size: 14px; margin-right: 4px;">✓</span>
@@ -380,7 +380,7 @@ if ( $automl_wpml_wizard_language_set ) :
 			if (input.value === originalMasked) {
 				input.value = '';
 				input.type = 'password';
-				input.removeAttribute('readonly');
+				input.removeAttribute('disabled');
 				input.placeholder = '<?php echo esc_js( __( 'Enter new key to update', 'automl-ai-translation-for-wpml' ) ); ?>';
 				input.focus();
 			}
@@ -397,7 +397,7 @@ if ( $automl_wpml_wizard_language_set ) :
 			if (input.value.trim() === '') {
 				input.value = originalMasked;
 				input.type = 'text';
-				input.setAttribute('readonly', 'readonly');
+				input.setAttribute('disabled', 'disabled');
 				input.placeholder = '';
 			}
 		}
