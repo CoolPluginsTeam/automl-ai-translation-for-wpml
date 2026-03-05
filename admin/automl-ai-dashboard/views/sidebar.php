@@ -135,7 +135,7 @@ endif;
 				$automl_wpml_all_translation_data['automl_ai'] = array();
 			}
 
-			$automl_valid_providers = array('openai_ai'=>'OpenAI Characters', 'google_ai'=>'Google Characters');
+			$automl_valid_providers = array('openai'=>'OpenAI Characters', 'google_ai'=>'Google Characters');
 			$totals = array_reduce(
 				$automl_wpml_all_translation_data['automl_ai'],
 				function ( $carry, $translation ) {
