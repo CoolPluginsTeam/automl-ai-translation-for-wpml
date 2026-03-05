@@ -370,14 +370,13 @@ class AIService {
     }
 
     updateData = async (index, data, keys) => {
-
         if(this.stopProcess) return;
 
         const entry = data[index];
-        const key=keys[index];
+        const key=keys[index - 1];
 
         if (entry && entry !== '') {
-            const id = this.uniqueIds[key-1];
+            const id = this.uniqueIds[key];
             const value = data[index];
 
             this.completedStrings = this.completedStrings;
