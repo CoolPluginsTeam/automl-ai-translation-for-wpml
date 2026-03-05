@@ -61,13 +61,13 @@ $automl_wpml_wizard_language_set = is_array( $automl_wpml_wizard_lang ) && ! emp
 					// Helper function to mask API keys for display
 					if ( ! function_exists( 'automl_mask_api_key' ) ) {
 						function automl_mask_api_key( $api_key ) {
-							if ( empty( $api_key ) || strlen( $api_key ) < 8 ) {
+							if ( empty( $api_key ) || strlen( $api_key ) < 12 ) {
 								return $api_key;
 							}
 							$start = substr( $api_key, 0, 6 );
 							$end = substr( $api_key, -6 );
 							$middle_length = strlen( $api_key ) - 12;
-							$masked_middle = str_repeat( '*', min( $middle_length, 24 ) ); // Limit stars to 24 for readability
+							$masked_middle = str_repeat( '*', min( max( $middle_length, 0 ), 24 ) ); // Ensure non-negative and limit stars to 24 for readability
 							return $start . $masked_middle . $end;
 						}
 					}

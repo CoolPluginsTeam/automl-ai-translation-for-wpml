@@ -14,13 +14,13 @@ const AiTranslation = ({ onBack, onContinue }) => {
 
 	// Helper function to mask API keys
 	const maskApiKey = (apiKey) => {
-		if (!apiKey || apiKey.length < 8) {
+		if (!apiKey || apiKey.length < 12) {
 			return apiKey;
 		}
 		const start = apiKey.substring(0, 6);
 		const end = apiKey.substring(apiKey.length - 6);
 		const middleLength = apiKey.length - 12;
-		const maskedMiddle = '*'.repeat(Math.min(middleLength, 24));
+		const maskedMiddle = '*'.repeat(Math.min(Math.max(middleLength, 0), 24));
 		return start + maskedMiddle + end;
 	};
 
