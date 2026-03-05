@@ -81,12 +81,6 @@ const Languages = ( { onBack, onContinue } ) => {
 		<>
 			<div
 				className="automl-ai-wizard-card"
-				style={ {
-					maxWidth: 600,
-					margin: '0 auto',
-					minHeight: '40vh',
-					background: '#fff',
-				} }
 			>
 				<div
 					className="automl-ai-wizard-language-container"

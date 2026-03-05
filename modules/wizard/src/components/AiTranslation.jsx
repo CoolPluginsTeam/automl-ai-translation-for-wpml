@@ -195,7 +195,6 @@ const AiTranslation = ({ onBack, onContinue }) => {
 		<>
 			<div
 				className="automl-ai-wizard-card"
-				style={{ maxWidth: 600, margin: '0 auto', minHeight: '40vh' }}
 			>
 				<div className="automl-ai-wizard-language-container" style={{ flex: 1 }}>
 					<h2 style={{ marginTop: 0 }}>

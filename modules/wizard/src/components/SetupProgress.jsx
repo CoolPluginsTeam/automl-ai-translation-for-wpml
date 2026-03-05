@@ -14,24 +14,25 @@ const SetupProgress = ({ currentStep, setCurrentStep, onGetStarted, onFinish }) 
 	const currentIndex = STEPS.findIndex( ( s ) => s.key === currentStep );
 
 	return (
-		<div className="automl-ai-wizard-progress-wrap" style={{ paddingBottom: 40 }}>
-			 <div className="automl-ai-wizard-steps">
+		<>
+			<div className="automl-ai-wizard-steps">
 				{ STEPS.map( ( step, index ) => {
 					const isActive = step.key === currentStep;
 					const isPast = index < currentIndex;
-					const isInactive = ! isActive && ! isPast;
 					const circleClass = isActive ? 'active' : isPast ? 'past' : 'inactive';
 					const labelClass = isActive ? 'active' : isPast ? 'past' : 'inactive';
+
 					return (
 						<React.Fragment key={ step.key }>
 							<div className="automl-ai-wizard-step-item">
-								<span className={ `automl-ai-wizard-step-circle ${circleClass}` }>
+								<span className={ `automl-ai-wizard-step-circle ${ circleClass }` }>
 									{ isPast ? '✓' : index + 1 }
 								</span>
-								<span className={ `automl-ai-wizard-step-label ${labelClass}` }>
+								<span className={ `automl-ai-wizard-step-label ${ labelClass }` }>
 									{ step.label }
 								</span>
 							</div>
+
 							{ index < STEPS.length - 1 && (
 								<div
 									className={ `automl-ai-wizard-step-connector${ currentIndex > index ? ' automl-ai-wizard-step-connector--filled' : '' }` }
@@ -42,14 +43,19 @@ const SetupProgress = ({ currentStep, setCurrentStep, onGetStarted, onFinish }) 
 					);
 				} ) }
 			</div>
+
 			<div>
-				{ currentStep === 'video_intro' && <VideoIntro onGetStarted={ onGetStarted } /> }
+				{ currentStep === 'video_intro' && (
+					<VideoIntro onGetStarted={ onGetStarted } />
+				) }
+
 				{ currentStep === 'languages' && (
 					<Languages
 						onBack={ () => setCurrentStep( 'video_intro' ) }
 						onContinue={ () => setCurrentStep( 'ai_translation' ) }
 					/>
 				) }
+
 				{ currentStep === 'ai_translation' && (
 					<AiTranslation
 						onBack={ () => setCurrentStep( 'languages' ) }
@@ -57,7 +63,7 @@ const SetupProgress = ({ currentStep, setCurrentStep, onGetStarted, onFinish }) 
 					/>
 				) }
 			</div>
-		</div>
+		</>
 	);
 };
 

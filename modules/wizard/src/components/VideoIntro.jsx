@@ -7,7 +7,7 @@ const VideoIntro = ({ onGetStarted }) => {
 
 	return (
 		<>
-		<div className="automl-ai-wizard-card" style={{ maxWidth: 600, margin: '12px auto', padding:'20px 40px', minHeight: '38vh' }}>
+		<div className="automl-ai-wizard-card">
 			<div style={{ textAlign: 'center', marginBottom: 24 }}>
 				<h3 className="automl-ai-wizard-card-title h3" style={{ fontSize: '1.5rem', marginBottom: 12, paddingTop: 24 }}>
 					{ __( 'Watch Setup Guide', 'automl-ai-translation-for-wpml' ) }
@@ -28,7 +28,7 @@ const VideoIntro = ({ onGetStarted }) => {
 					allowFullScreen
 				/>
 			</div>
-			<div style={{ display: 'flex', justifyContent: 'center', paddingTop: 16 }}>
+			<div style={{ display: 'flex', justifyContent: 'center', padding: '1.5em' }}>
 				<button type="button" className="button button-primary button-hero" onClick={ onGetStarted }>
 					{ __( 'Get Started', 'automl-ai-translation-for-wpml' ) }
 				</button>
