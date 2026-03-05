@@ -116,6 +116,30 @@ $automl_wpml_wizard_language_set = is_array( $automl_wpml_wizard_lang ) && ! emp
 											},
 											$automl_models_metadata
 										);
+										
+										// Filter out non-translation models (audio, transcribe, search, codex, etc.)
+										$automl_wpml_openai_models = array_filter( $automl_wpml_openai_models, function( $model_id ) {
+											$excluded_patterns = array(
+												'audio',
+												'transcribe',
+												'search',
+												'codex',
+												'diarize',
+												'whisper',
+												'tts',
+												'dall-e',
+												'embedding',
+												'image'
+											);
+											
+											$model_lower = strtolower( $model_id );
+											foreach ( $excluded_patterns as $pattern ) {
+												if ( strpos( $model_lower, $pattern ) !== false ) {
+													return false;
+												}
+											}
+											return true;
+										});
 										set_transient( $automl_wpml_cache_key, $automl_wpml_openai_models, 24 * HOUR_IN_SECONDS );
 									}
 								} catch ( \Throwable $e ) {
@@ -152,6 +176,29 @@ $automl_wpml_wizard_language_set = is_array( $automl_wpml_wizard_lang ) && ! emp
 											},
 											$automl_models_metadata
 										);
+										
+										// Filter out non-translation models (audio, transcribe, search, etc.)
+										$automl_wpml_google_models = array_filter( $automl_wpml_google_models, function( $model_id ) {
+											$excluded_patterns = array(
+												'audio',
+												'transcribe',
+												'search',
+												'vision',
+												'embedding',
+												'code',
+												'imagen',
+												'musiclm',
+												'image'
+											);
+											
+											$model_lower = strtolower( $model_id );
+											foreach ( $excluded_patterns as $pattern ) {
+												if ( strpos( $model_lower, $pattern ) !== false ) {
+													return false;
+												}
+											}
+											return true;
+										});
 										set_transient( $automl_wpml_cache_key, $automl_wpml_google_models, 24 * HOUR_IN_SECONDS );
 									}
 								} catch ( \Throwable $e ) {

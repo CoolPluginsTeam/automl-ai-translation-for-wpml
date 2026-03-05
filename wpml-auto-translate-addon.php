@@ -113,6 +113,11 @@ final class AUTOML_Ai_Translate_Addon {
 	 * @return array
 	 */
 	public function add_settings_action_link( $links ) {
+		// Only show settings link if wizard setup is complete
+		if ( ! get_option( 'automl_ai_setup_complete', false ) ) {
+			return $links;
+		}
+
 		$url  = add_query_arg(
 			array(
 				'page' => 'automl_ai_dashboard',
