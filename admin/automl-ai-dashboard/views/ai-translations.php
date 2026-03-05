@@ -32,7 +32,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 					'title'      => esc_html__( 'OpenAI Models', 'automl-ai-translation-for-wpml' ),
 					'description'=> esc_html__( 'Use OpenAI models (like GPT) via the AI SDK registry for context-aware translations.', 'automl-ai-translation-for-wpml' ),
 					'icon'       => 'open-ai-translate.png',
-					'url'        => 'https://developer.wordpress.org/docs/ai/#openai',
+					'url'        => 'https://youtu.be/ynJJGH2qpXE?si=6NaSMcta-igDe0QP',
 				),
 				array(
 					'logo'       => 'geminiai-logo.png',
@@ -40,15 +40,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 					'title'      => esc_html__( 'Google / Gemini Models', 'automl-ai-translation-for-wpml' ),
 					'description'=> esc_html__( 'Use Google / Gemini models registered in the AI SDK for fast and accurate translations.', 'automl-ai-translation-for-wpml' ),
 					'icon'       => 'gemini-translate.png',
-					'url'        => 'https://developer.wordpress.org/docs/ai/#google-gemini',
-				),
-				array(
-					'logo'       => 'chrome-built-in-ai-logo.png',
-					'alt'        => 'Other Providers',
-					'title'      => esc_html__( 'Other Providers', 'automl-ai-translation-for-wpml' ),
-					'description'=> esc_html__( 'Work with any supported AI provider exposed through the WordPress AI SDK.', 'automl-ai-translation-for-wpml' ),
-					'icon'       => 'chrome-ai-translate.png',
-					'url'        => 'https://developer.wordpress.org/docs/ai/',
+					'url'        => 'https://youtu.be/03Hcs6PnWU4',
 				),
 			);
 
