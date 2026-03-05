@@ -244,6 +244,8 @@ const bulkTranslateEntries = async ({ ids, langs, storeDispatch }) => {
             delete untranslatedPostsData.data.trace;
         }
         return { success: false, message: JSON.stringify(untranslatedPostsData.data) };
+    }else if(!untranslatedPostsData.success && untranslatedPostsData.data.error && untranslatedPostsData.data.error.message) {
+        return { success: false, message: untranslatedPostsData.data.error.message };
     } else if (!untranslatedPostsData.success && untranslatedPostsData.message) {
         return { success: false, message: untranslatedPostsData.message };
     }
