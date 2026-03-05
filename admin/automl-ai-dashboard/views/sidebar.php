@@ -135,12 +135,19 @@ endif;
 				$automl_wpml_all_translation_data['automl_ai'] = array();
 			}
 
+			$automl_valid_providers = array('openai_ai'=>'OpenAI Characters', 'google_ai'=>'Google Characters');
 			$totals = array_reduce(
 				$automl_wpml_all_translation_data['automl_ai'],
 				function ( $carry, $translation ) {
 					$carry['string_count']    += intval( $translation['string_count'] ?? 0 );
 					$carry['character_count'] += intval( $translation['character_count'] ?? 0 );
 					$carry['time_taken']      += intval( $translation['time_taken'] ?? 0 );
+
+					if(!isset($carry[$translation['service_provider']])){
+						$carry[$translation['service_provider']] = 0;
+					}
+
+					$carry[$translation['service_provider']] += intval( $translation['character_count'] ?? 0 );
 
 					if ( ! empty( $translation['post_id'] ) ) {
 						$carry['translation_count']++;
@@ -154,7 +161,6 @@ endif;
 					'translation_count' => 0,
 				)
 			);
-
 			$automl_wpml_time_taken_str = automl_ai_format_time_taken( $totals['time_taken'] );
 			?>
 			<span><?php echo esc_html( automl_ai_format_number( $totals['character_count'] ) ); ?></span>
@@ -165,6 +171,14 @@ endif;
 				<span><?php esc_html_e( 'Total Strings', 'automl-ai-translation-for-wpml' ); ?></span>
 				<span><?php echo esc_html( automl_ai_format_number( $totals['string_count'] ) ); ?></span>
 			</li>
+			<?php foreach($automl_valid_providers as $provider_key => $provider_name): ?>
+				<?php if(isset($totals[$provider_key])): ?>
+				<li>
+						<span><?php echo esc_html( ucfirst( $provider_name ) ); ?></span>
+						<span><?php echo esc_html( automl_ai_format_number( $totals[$provider_key] ) ); ?></span>
+					</li>
+				<?php endif; ?>
+			<?php endforeach; ?>
 			<li>
 				<span><?php esc_html_e( 'Total Translation Jobs', 'automl-ai-translation-for-wpml' ); ?></span>
 				<span><?php echo esc_html( $totals['translation_count'] ); ?></span>
