@@ -65,7 +65,7 @@ WPML Auto Dashboard - Admin Panel Styles
 .automl_ai_dashboard-logo-text{
     font-size: 20px;
     font-weight: 600;
-    color: var(--primary-color);
+    color: #000;
 }
 
 .automl_ai_dashboard-btn:focus {
