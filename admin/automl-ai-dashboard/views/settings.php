@@ -222,12 +222,12 @@ $automl_wpml_wizard_language_set = is_array( $automl_wpml_wizard_lang ) && ! emp
 						$automl_wpml_api_settings = array(
 							'openai' => array(
 								'name'        => 'OpenAI',
-								'doc_url'     => 'https://developer.wordpress.org/docs/ai/#openai',
+								'doc_url'     => 'https://docs.coolplugins.net/doc/generate-openai-api-key/',
 								'placeholder' => 'sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
 							),
 							'google' => array(
 								'name'        => 'Google Gemini',
-								'doc_url'     => 'https://developer.wordpress.org/docs/ai/#google-gemini',
+								'doc_url'     => 'https://docs.coolplugins.net/doc/generate-gemini-ai-api-key/',
 								'placeholder' => 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
 							),
 						);
