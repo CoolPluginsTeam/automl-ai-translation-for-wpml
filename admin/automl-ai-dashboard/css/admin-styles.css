@@ -725,11 +725,6 @@ ul.automl_ai_dashboard-sts-btm li span:first-child {
     margin: 25px 0px 18px 0px;
 }
 
-.automl_ai_dashboard-api-settings-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-}
 
 .automl_ai_dashboard-api-settings {
     width: 100%;

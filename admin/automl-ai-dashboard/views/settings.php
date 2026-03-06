@@ -42,8 +42,6 @@ $automl_wpml_wizard_language_set = is_array( $automl_wpml_wizard_lang ) && ! emp
 				</p>
 			</div>
 		<?php endif; ?>
-
-		<div class="automl_ai_dashboard-api-settings-container">
 			<div class="automl_ai_dashboard-api-settings">
 				<form id="automl-ai-settings-credentials-form" method="post" action="#">
 					<?php
@@ -219,7 +217,6 @@ $automl_wpml_wizard_language_set = is_array( $automl_wpml_wizard_lang ) && ! emp
 						}
 					}
 					?>
-					<div class="automl_ai_dashboard-api-settings-form">
 						<?php
 						// Providers shown in the UI.
 						$automl_wpml_api_settings = array(
@@ -269,10 +266,9 @@ $automl_wpml_wizard_language_set = is_array( $automl_wpml_wizard_lang ) && ! emp
 										<span style="color: #46b450; font-size: 14px; margin-right: 4px;">✓</span>
 										<button 
 											type="button" 
-											class="button automl-reset-key-btn" 
+											class="button button-primary automl-reset-key-btn" 
 											data-provider="<?php echo esc_attr( $automl_wpml_api_key ); ?>"
 											title="<?php esc_attr_e( 'Reset API key', 'automl-ai-translation-for-wpml' ); ?>"
-											style="padding: 4px 8px; font-size: 12px; line-height: 1; min-height: auto;"
 											<?php echo $automl_wpml_wizard_language_set ? '' : ' disabled="disabled"'; ?>
 										>
 											<?php esc_html_e( 'Reset', 'automl-ai-translation-for-wpml' ); ?>
@@ -343,14 +339,12 @@ $automl_wpml_wizard_language_set = is_array( $automl_wpml_wizard_lang ) && ! emp
 						endforeach;
 						?>
 
-						<hr style="margin: 2rem 0px;">
+						<hr>
 						<div class="automl_ai_dashboard-save-btn-container">
 							<?php submit_button( __( 'Save', 'automl-ai-translation-for-wpml' ), 'primary', 'submit', true, $automl_wpml_wizard_language_set ? array() : array( 'disabled' => 'disabled' ) ); ?>
 						</div>
-					</div><!-- .automl_ai_dashboard-api-settings-form -->
 				</form>
 			</div>
-		</div>
 	</div>
 </div>
 <?php

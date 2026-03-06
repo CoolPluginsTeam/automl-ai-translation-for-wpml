@@ -249,16 +249,7 @@ const AiTranslation = ({ onBack, onContinue }) => {
 									<button
 										type="button"
 										onClick={ () => handleReset('openai') }
-										style={{
-											padding: '4px 8px',
-											fontSize: '12px',
-											lineHeight: 1,
-											minHeight: 'auto',
-											border: '1px solid #ddd',
-											borderRadius: '3px',
-											background: '#f7f7f7',
-											cursor: 'pointer'
-										}}
+										className="button button-primary automl-reset-key-btn"
 									>
 										{ __( 'Reset', 'automl-ai-translation-for-wpml' ) }
 									</button>
@@ -309,16 +300,7 @@ const AiTranslation = ({ onBack, onContinue }) => {
 									<button
 										type="button"
 										onClick={ () => handleReset('google') }
-										style={{
-											padding: '4px 8px',
-											fontSize: '12px',
-											lineHeight: 1,
-											minHeight: 'auto',
-											border: '1px solid #ddd',
-											borderRadius: '3px',
-											background: '#f7f7f7',
-											cursor: 'pointer'
-										}}
+										className="button button-primary automl-reset-key-btn"
 									>
 										{ __( 'Reset', 'automl-ai-translation-for-wpml' ) }
 									</button>
