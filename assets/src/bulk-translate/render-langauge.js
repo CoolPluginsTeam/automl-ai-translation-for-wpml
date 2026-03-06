@@ -1,6 +1,7 @@
 const RenderLanguage = (props) => {
     const { language, selectedLanguages, setSelectedLanguages, prefix, languageObject, wizardSelectedCode } = props;
-    const isDisabled=language !== wizardSelectedCode;
+    const isDisabled=false;
+    // const isDisabled=language !== wizardSelectedCode;
     const isSelected=selectedLanguages.includes(language);
 
     return (
