@@ -46,8 +46,18 @@ $automl_wpml_wizard_language_set = is_array( $automl_wpml_wizard_lang ) && ! emp
 				<form id="automl-ai-settings-credentials-form" method="post" action="#">
 					<?php
 
-					// Current AI SDK credentials.
-					$automl_wpml_ai_credentials = get_option( 'wp_ai_client_provider_credentials', array() );
+					$automl_openai_key=get_option('connectors_ai_openai_api_key', '' );
+					$automl_google_key=get_option('connectors_ai_google_api_key', '');
+					$automl_wpml_ai_credentials = array();
+
+					if(isset($automl_openai_key) && !empty($automl_openai_key)){
+						$automl_wpml_ai_credentials['openai']=$automl_openai_key;
+					}
+
+					if(isset($automl_google_key) && !empty($automl_google_key)){
+						$automl_wpml_ai_credentials['google']=$automl_google_key;
+					}
+
 
 					// Current selected models (saved by the addon).
 					$automl_wpml_current_models       = get_option( 'automl_ai_translation_models', array() );
@@ -59,6 +69,11 @@ $automl_wpml_wizard_language_set = is_array( $automl_wpml_wizard_lang ) && ! emp
 					// Helper function to mask API keys for display
 					if ( ! function_exists( 'automl_mask_api_key' ) ) {
 						function automl_mask_api_key( $api_key ) {
+							// Check already masked (e.g. user saved without change, so value is masked), in which case return as-is to avoid double-masking.
+							if ( strpos( $api_key, '*' ) !== false || strpos($api_key,'•') !== false ) {
+								return $api_key;
+							}
+
 							if ( empty( $api_key ) || strlen( $api_key ) < 12 ) {
 								return $api_key;
 							}
@@ -247,6 +262,7 @@ $automl_wpml_wizard_language_set = is_array( $automl_wpml_wizard_lang ) && ! emp
 								<?php
 								$automl_wpml_has_existing_key = isset( $automl_wpml_ai_credentials[ $automl_wpml_api_key ] ) && ! empty( $automl_wpml_ai_credentials[ $automl_wpml_api_key ] );
 								$automl_wpml_masked_key = $automl_wpml_has_existing_key ? automl_mask_api_key( $automl_wpml_ai_credentials[ $automl_wpml_api_key ] ) : '';
+
 								?>
 								<div style="display: flex; align-items: center; gap: 8px; width: 100%;">
 									<input
