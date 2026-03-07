@@ -337,3 +337,10 @@ input#automl-ai-wizard-google-key:focus {
 	width: 100%;
 
   }
+
+  .automl-ai-wizard-api-key-container a{
+	color: #2271b1 !important;
+	text-decoration: none !important;
+	font-weight: 500 !important;
+	font-size: 0.8rem !important;
+} 

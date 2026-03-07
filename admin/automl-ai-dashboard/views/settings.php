@@ -26,6 +26,9 @@ $automl_wpml_wizard_language_set = is_array( $automl_wpml_wizard_lang ) && ! emp
 		</p>
 
 		<?php settings_errors( 'wp-ai-client-settings' ); ?>
+		<div id="automl-ai-settings-validation-notice" class="notice notice-error" style="margin: 1rem 0; display: none;" role="alert">
+			<p></p>
+		</div>
 
 		<?php if ( ! $automl_wpml_wizard_language_set ) : ?>
 			<div class="notice notice-warning" style="margin: 1rem 0;">
@@ -356,12 +359,22 @@ if ( $automl_wpml_wizard_language_set ) :
 	var form = document.getElementById('automl-ai-settings-credentials-form');
 	var msgOpenai = document.getElementById('automl-ai-settings-message-openai');
 	var msgGoogle = document.getElementById('automl-ai-settings-message-google');
-	if (!form || !msgOpenai || !msgGoogle) return;
+	var validationNotice = document.getElementById('automl-ai-settings-validation-notice');
+	if ( ! form || ! msgOpenai || ! msgGoogle ) {
+		return;
+	}
 	function clearMessages() {
 		msgOpenai.textContent = '';
 		msgOpenai.style.display = 'none';
 		msgGoogle.textContent = '';
 		msgGoogle.style.display = 'none';
+		if ( validationNotice ) {
+			validationNotice.style.display = 'none';
+			var noticeP = validationNotice.querySelector( 'p' );
+			if ( noticeP ) {
+				noticeP.textContent = '';
+			}
+		}
 	}
 	
 	// Handle input field clicks - make editable when clicked
@@ -410,6 +423,7 @@ if ( $automl_wpml_wizard_language_set ) :
 			// Prepare delete request - send empty string to remove the key
 			var deleteData = {};
 			deleteData[provider + '_key'] = '';
+			deleteData['is_reset'] = true;
 			
 			// Send delete request
 			fetch('<?php echo esc_js( rest_url( 'automl-bulk-translate/' ) ); ?>wizard-save-credentials', {
@@ -520,20 +534,37 @@ if ( $automl_wpml_wizard_language_set ) :
 				return;
 			}
 			var err = result.data || {};
-			var errors = (err.data && err.data.errors) ? err.data.errors : {};
-			if (errors.openai) {
+			var errors = ( err.data && err.data.errors ) ? err.data.errors : {};
+			// Show REST API error message (e.g. automl_no_api_key) in the top notice area.
+			if ( err.message !== 'One of the API keys is invalid.' && validationNotice ) {
+				var noticeP = validationNotice.querySelector( 'p' );
+				if ( noticeP ) {
+					noticeP.textContent = err.message;
+				}
+				validationNotice.style.display = 'block';
+			}
+
+			if ( errors.openai ) {
 				msgOpenai.textContent = errors.openai;
 				msgOpenai.style.display = 'block';
 			}
-			if (errors.google) {
+			if ( errors.google ) {
 				msgGoogle.textContent = errors.google;
 				msgGoogle.style.display = 'block';
 			}
 		})
 		.catch(function() {
 			var fallback = '<?php echo esc_js( __( 'Request failed. Please try again.', 'automl-ai-translation-for-wpml' ) ); ?>';
-			msgOpenai.textContent = fallback;
-			msgOpenai.style.display = 'block';
+			if ( validationNotice ) {
+				var noticeP = validationNotice.querySelector( 'p' );
+				if ( noticeP ) {
+					noticeP.textContent = fallback;
+				}
+				validationNotice.style.display = 'block';
+			} else {
+				msgOpenai.textContent = fallback;
+				msgOpenai.style.display = 'block';
+			}
 		})
 		.finally(function() {
 			if (submitBtn) submitBtn.disabled = false;

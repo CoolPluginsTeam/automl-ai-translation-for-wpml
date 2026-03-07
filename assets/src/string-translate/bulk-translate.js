@@ -284,7 +284,7 @@ const initBulkTranslateStrings = async (
           });
           let timeTakenSec = 0;
           if (batchToSave.length > 0) {
-            timeTakenSec = Math.round((Date.now() - batchStartTime) / 1000);
+            timeTakenSec = (Date.now() - batchStartTime) / 1000;
             await saveStringTranslations(lang, batchToSave, nonce);
             if (automl_wpml_bulk_translate_object?.update_translate_data_nonce) {
               const batchWords = batch.reduce(

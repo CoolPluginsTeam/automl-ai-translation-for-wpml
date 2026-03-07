@@ -419,6 +419,13 @@ if ( ! class_exists( 'Bulk_Translation_Route' ) ) :
 		// Flags: what the user is actually enabling in THIS request.
 		$has_openai = ( $openai_key !== null && trim( $openai_key ) !== '' );
 		$has_google = ( $google_key !== null && trim( $google_key ) !== '' );
+		if ( ! $has_openai && ! $has_google && ! $is_reset ) {
+			return new \WP_Error(
+				'automl_no_api_key',
+				__( 'Please enter at least one API key (OpenAI or Google).', 'automl-ai-translation-for-wpml' ),
+				array( 'status' => 400 )
+			);
+		}
 	
 		// Keep previous values so we can restore if validation fails.
 		$previous_credentials = get_option( 'wp_ai_client_provider_credentials', array() );
@@ -535,7 +542,7 @@ if ( ! class_exists( 'Bulk_Translation_Route' ) ) :
 	
 			return new \WP_Error(
 				'automl_invalid_api_key',
-				__( 'One or more API keys are invalid.', 'automl-ai-translation-for-wpml' ),
+				__( 'One of the API keys is invalid.', 'automl-ai-translation-for-wpml' ),
 				array(
 					'status' => 400,
 					'errors' => $errors, // ['openai' => '...', 'google' => '...']
