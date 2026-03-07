@@ -43,8 +43,6 @@ const SetupProgress = ({ currentStep, setCurrentStep, onGetStarted, onFinish }) 
 					);
 				} ) }
 			</div>
-
-			<div>
 				{ currentStep === 'video_intro' && (
 					<VideoIntro onGetStarted={ onGetStarted } />
 				) }
@@ -62,7 +60,6 @@ const SetupProgress = ({ currentStep, setCurrentStep, onGetStarted, onFinish }) 
 						onContinue={ onFinish }
 					/>
 				) }
-			</div>
 		</>
 	);
 };

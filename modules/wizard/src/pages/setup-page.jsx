@@ -38,7 +38,6 @@ const SetupPage = () => {
 
 	if ( showReady ) {
 		return (
-			<div className="automl-ai-wizard-wrap">
 				<div className="automl-ai-wizard-card" style={{ maxWidth: 600, margin: '0 auto', padding: 20 }}>
 					<h2 style={{ marginTop: 0 }}>{ __( "You're ready to translate with AI", 'automl-ai-translation-for-wpml' ) }</h2>
 					<p style={{ color: '#6b7280', marginBottom: 24 }}>
@@ -48,12 +47,11 @@ const SetupPage = () => {
 						{ __( 'Open AUTOML AI Translate', 'automl-ai-translation-for-wpml' ) }
 					</a>
 				</div>
-			</div>
 		);
 	}
 
 	return (
-		<div className="automl-ai-wizard-wrap">
+		<>
 			<h1 style={{ textAlign: 'center', paddingTop: 30, marginBottom: 16 }}>
 				{ __( 'AutoML – AI Translation for WPML', 'automl-ai-translation-for-wpml' ) }
 			</h1>
@@ -63,7 +61,7 @@ const SetupPage = () => {
 				onGetStarted={ handleGetStarted }
 				onFinish={ handleFinish }
 			/>
-		</div>
+		</>
 	);
 };
 

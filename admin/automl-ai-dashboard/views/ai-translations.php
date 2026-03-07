@@ -37,8 +37,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 				array(
 					'logo'       => 'geminiai-logo.png',
 					'alt'        => 'Google / Gemini',
-					'title'      => esc_html__( 'Google / Gemini Models', 'automl-ai-translation-for-wpml' ),
-					'description'=> esc_html__( 'Use Google / Gemini models registered in the AI SDK for fast and accurate translations.', 'automl-ai-translation-for-wpml' ),
+					'title'      => esc_html__( 'Google Gemini Models', 'automl-ai-translation-for-wpml' ),
+					'description'=> esc_html__( 'Use Google Gemini models registered in the AI SDK for fast and accurate translations.', 'automl-ai-translation-for-wpml' ),
 					'icon'       => 'gemini-translate.png',
 					'url'        => 'https://youtu.be/03Hcs6PnWU4',
 				),

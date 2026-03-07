@@ -419,7 +419,7 @@ if ( ! class_exists( 'Bulk_Translation_Route' ) ) :
 		// Flags: what the user is actually enabling in THIS request.
 		$has_openai = ( $openai_key !== null && trim( $openai_key ) !== '' );
 		$has_google = ( $google_key !== null && trim( $google_key ) !== '' );
-		if ( ! $has_openai && ! $has_google && ! $is_reset ) {
+		if ( ! $has_openai && ! $has_google && ! $is_reset && ! $is_wizard ) {
 			return new \WP_Error(
 				'automl_no_api_key',
 				__( 'Please enter at least one API key (OpenAI or Google).', 'automl-ai-translation-for-wpml' ),
