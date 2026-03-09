@@ -313,10 +313,10 @@ if ( ! class_exists( 'Bulk_Translation_Route' ) ) :
             if ( ! $target_language ) {
                 wp_send_json_error( 'Invalid target language.' );
             }
-			$wizard_lang = WPML_AT_Helper::get_wizard_allowed_language_code();
-            if ( $wizard_lang !== null && strtolower( $target_language ) !== strtolower( $wizard_lang ) ) {
-                wp_send_json_error( __( 'This target language is not allowed. Only the language selected in the setup wizard can be used.', 'automl-ai-translation-for-wpml' ) );
-            }
+			// $wizard_lang = WPML_AT_Helper::get_wizard_allowed_language_code();
+            // if ( $wizard_lang !== null && strtolower( $target_language ) !== strtolower( $wizard_lang ) ) {
+            //     wp_send_json_error( __( 'This target language is not allowed. Only the language selected in the setup wizard can be used.', 'automl-ai-translation-for-wpml' ) );
+            // }
         
             // Decode numeric-key => text map, e.g. {"0":"text","1":"text"}
             $strings = is_string( $strings_raw ) ? json_decode( $strings_raw, true ) : $strings_raw;
@@ -435,7 +435,14 @@ if ( ! class_exists( 'Bulk_Translation_Route' ) ) :
 		// Flags: what the user is actually enabling in THIS request.
 		$has_openai = ( $openai_key !== null && trim( $openai_key ) !== '' );
 		$has_google = ( $google_key !== null && trim( $google_key ) !== '' );
-
+		
+		if ( ! $has_openai && ! $has_google && ! $is_reset && ! $is_wizard ) {
+			return new \WP_Error(
+				'automl_no_api_key',
+				__( 'Please enter at least one API key (OpenAI or Google).', 'automl-ai-translation-for-wpml' ),
+				array( 'status' => 400 )
+			);
+		}
 
 		$automl_update_data=array();
 	
@@ -537,7 +544,7 @@ if ( ! class_exists( 'Bulk_Translation_Route' ) ) :
 			}
 			return new \WP_Error(
 				'automl_invalid_api_key',
-				__( 'One or more API keys are invalid.', 'automl-ai-translation-for-wpml' ),
+				__( 'One of the API keys is invalid.', 'automl-ai-translation-for-wpml' ),
 				array(
 					'status' => 400,
 					'errors' => $errors, // ['openai' => '...', 'google' => '...']
@@ -734,10 +741,10 @@ private function validate_provider_api_key( $provider_id, $api_key ) {
 			$active_languages_slugs = array_column( $active_languages, 'code' );
 			$valid_target_languages = array_intersect( $target_language, $active_languages_slugs );
             
-			$wizard_lang = WPML_AT_Helper::get_wizard_allowed_language_code();
-			if ( $wizard_lang !== null ) {
-				$valid_target_languages = array_intersect( $valid_target_languages, array( $wizard_lang ) );
-			}
+			// $wizard_lang = WPML_AT_Helper::get_wizard_allowed_language_code();
+			// if ( $wizard_lang !== null ) {
+			// 	$valid_target_languages = array_intersect( $valid_target_languages, array( $wizard_lang ) );
+			// }
 			
 			$pending_posts_ids = array();
 
@@ -801,10 +808,10 @@ private function validate_provider_api_key( $provider_id, $api_key ) {
 
 			$valid_target_languages = array_intersect( $target_language, $active_languages_slugs );
    
-			$wizard_lang = WPML_AT_Helper::get_wizard_allowed_language_code();
-			if ( $wizard_lang !== null ) {
-				$valid_target_languages = array_intersect( $valid_target_languages, array( $wizard_lang ) );
-			}
+			// $wizard_lang = WPML_AT_Helper::get_wizard_allowed_language_code();
+			// if ( $wizard_lang !== null ) {
+			// 	$valid_target_languages = array_intersect( $valid_target_languages, array( $wizard_lang ) );
+			// }
 			$automl_wpml_content_translation = array();
 
 			if ( ! defined( 'DOING_AUTOML_WPML_BULK_POST_TRANSLATION' ) ) {
@@ -902,10 +909,10 @@ private function validate_provider_api_key( $provider_id, $api_key ) {
 			}
 
 			$target_language = sanitize_text_field( $params['target_language'] );
-			$wizard_lang     = WPML_AT_Helper::get_wizard_allowed_language_code();
-			if ( $wizard_lang !== null && strtolower( $target_language ) !== strtolower( $wizard_lang ) ) {
-				wp_send_json_error( __( 'This target language is not allowed. Only the language selected in the setup wizard can be used.', 'automl-ai-translation-for-wpml' ) );
-			}
+			// $wizard_lang     = WPML_AT_Helper::get_wizard_allowed_language_code();
+			// if ( $wizard_lang !== null && strtolower( $target_language ) !== strtolower( $wizard_lang ) ) {
+			// 	wp_send_json_error( __( 'This target language is not allowed. Only the language selected in the setup wizard can be used.', 'automl-ai-translation-for-wpml' ) );
+			// }
 			$editor_type     = sanitize_text_field( $params['editor_type'] );
 			$source_language = sanitize_text_field( $params['source_language'] );
 			$post_title      = isset( $params['post_title'] ) ? sanitize_text_field( $params['post_title'] ) : '';

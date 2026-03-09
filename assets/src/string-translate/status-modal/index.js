@@ -462,10 +462,13 @@ const StatusModal = ({ postIds, selectedLanguages, prefix, onDestory }) => {
                   </span>
                   <br />
                   <span className={`${prefix}-count-stat-value`}>
-                    {countInfo.timeTaken ?? 0}{" "}
-                    <span className={`${prefix}-count-stat-unit`}>
-                      {__("seconds", "automl-ai-translation-for-wpml")}
-                    </span>
+                    {(() => {
+                      const time = countInfo.timeTaken ?? 0;
+                      if (time > 0 && time < 1) {
+                        return `${Math.round(time * 1000)} ${__("ms", "automl-ai-translation-for-wpml")}`;
+                      }
+                      return `${Math.round(time)} ${__("seconds", "automl-ai-translation-for-wpml")}`;
+                    })()}
                   </span>
                 </div>
               </div>

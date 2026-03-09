@@ -219,7 +219,7 @@ const AiTranslation = ({ onBack, onContinue }) => {
 						</p>
 					) }
 
-					<div style={{ marginBottom: 16 }}>
+					<div className="automl-ai-wizard-api-key-container" style={{ marginBottom: 16, color: '#6b7280' }}>
 						<label
 							htmlFor="automl-ai-wizard-openai-key"
 							style={{ display: 'block', marginBottom: 6, fontWeight: 500 }}
@@ -268,9 +268,11 @@ const AiTranslation = ({ onBack, onContinue }) => {
 								{ openaiMessage }
 							</p>
 						) }
+						<a href="https://docs.coolplugins.net/doc/generate-openai-api-key/" target="_blank">{ __( 'Click here', 'automl-ai-translation-for-wpml' ) }</a> { ' ' }
+						{ __( ' to see how to configure OpenAI in the AI SDK.', 'automl-ai-translation-for-wpml' ) }
 					</div>
 
-					<div style={{ marginBottom: 16 }}>
+					<div className="automl-ai-wizard-api-key-container" style={{ marginBottom: 16, color: '#6b7280' }}>
 						<label
 							htmlFor="automl-ai-wizard-google-key"
 							style={{ display: 'block', marginBottom: 6, fontWeight: 500 }}
@@ -319,6 +321,8 @@ const AiTranslation = ({ onBack, onContinue }) => {
 								{ googleMessage }
 							</p>
 						) }
+						<a href="https://docs.coolplugins.net/doc/generate-gemini-ai-api-key/" target="_blank">{ __( 'Click here', 'automl-ai-translation-for-wpml' ) }</a> { ' ' }
+						{ __( ' to see how to configure Google Gemini in the AI SDK.', 'automl-ai-translation-for-wpml' ) }
 					</div>
 
 					<div className="automl-ai-wizard-card-language-footer">
