@@ -107,7 +107,7 @@ class ChromeAiTranslator {
         }
 
         // Check if the target language is supported
-        if (!supportedLanguages.includes(targetLanguage.toLowerCase())) {
+        if (!supportedLanguages.includes(targetLanguage.toLowerCase()) && !supportedLanguages.includes(targetLanguage.split('-')[0])) {
             const message = jQuery(`<span style="display: inline-block;">
                 <strong>Language Support Information:</strong>
                 <ol>
@@ -120,7 +120,7 @@ class ChromeAiTranslator {
         }
 
         // Check if the source language is supported
-        if (!supportedLanguages.includes(sourceLanguage.toLowerCase())) {
+        if (!supportedLanguages.includes(sourceLanguage.toLowerCase()) && !supportedLanguages.includes(sourceLanguage.split('-')[0])) {
             const message = jQuery(`<span style="display: inline-block;">
                 <strong>Language Support Information:</strong>
                 <ol>
